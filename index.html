@@ -1,0 +1,85 @@
+<html>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
+<script src="http://cdn.jsdelivr.net/jgrowl/1.2.6/jquery.jgrowl_minimized.js"></script>
+<link rel="stylesheet" type="text/css" href="index.css" />
+<link rel="stylesheet" type="text/css" href="jquery.jgrowl.css" />
+<link rel="stylesheet" type="text/css" href="jquery-ui-1.8.21.custom.css" />
+<script>
+    //var socket = io.connect("http://192.168.1.8:8080");         
+    var socket = io.connect("http://localhost:8080");
+    // io.connect("http://172.17.9.55:8080");         
+    //var socket = io.connect("http://devubuntu");                  
+    // on connection to server, ask for username         
+    socket.on("connect", function() {                 
+        var email = null;                 
+        while (email == null) {                         
+            email = prompt("Enter email address:"); //Don't allow null email addys                 
+        } socket.emit("adduser", email);
+    });
+    // update the audit log when appropriate         
+    socket.on("updateaudit", function(username, data){                 
+        //$.jGrowl(data, { header: username });         });          
+        // update users list when needed         
+        socket.on("updateusers", function(data){                 
+            var userList = "<% _.each(gravatarUrls, function(gravatarUrl) { %> <li><img src='<%= gravatarUrl %>'/></li> <% }); %>";                 
+            $("#users > ul").html(_.template(userList, {gravatarUrls: data}));         
+        });          
+        socket.on("entitiesretrieved", function(queryResults) {                 
+            var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' class='itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><span class='itemName'> <%= item.Name %> </span> </li> <% }); %>";                 
+            var html = _.template(entitiesList, { items : queryResults });                 
+            $("#items > ul").html(html);                 
+            socket.emit("retrieveactiveitem");         
+        });          
+        socket.on("activeitemchanged", function(itemId) {                 
+            $("#items > ul > li.highlight").removeClass("highlight");                 
+            $("#items > ul > li[id='" + itemId + "']").addClass("highlight");                 
+            var el = document.getElementById(itemId);                 
+            if (el) el.scrollIntoView();         
+        });          
+        socket.on("shownchanged", function(data) {                 
+            var el = $("#items > ul > li[id='" + data.id + "']");                  
+            if (el && data.val === 1) {                         
+                el.addClass('itemShown1')                           
+                    .removeClass('highlight');                 
+            } else if 
+                (el) el.removeClass('itemShown1');         
+        });          
+        socket.on("nodemochanged", function(data) {                 
+            var el = $("#items > ul > li[id='" + data.id + "']");                  
+            if (el && data.val === 0) {                         
+                el.addClass('itemCanDemo0')                           
+                    .removeClass('highlight');                 
+            }                  
+            else if (el) el.removeClass('itemCanDemo0');         
+        });          
+        $(document).ready(function() {                 
+            //request the entities when the page is ready                 
+            socket.emit("retrieveentities");         
+        }); 
+</script>
+<header>
+    <h1>you-&#1103;-here</h1>
+</header>
+<body>
+    <section id="users">
+        <h3>Users</h3>
+        <ul></ul>
+        <a href="https://en.gravatar.com/">Add your pic</a>
+    </section>
+    <section id="items">
+        <h3>Items</h3>
+        <div class="clear"></div>
+        <ul></ul>
+    </section>
+    <footer>
+        <span>v0.0.0.4</span>
+        <div class="right">
+            <a href="http://nodejs.org" target="_blank"><img src="images/nodejs-dark.png" alt="Node.JS" /></a>                 
+            <a href="https://trello.com/board/friday-project-ideas/4f446503f7aabce3045086a4" target="_blank"><img src="images/CTLabsLogo_64x64.png" alt="Critical Labs" /></a>
+        </div>
+    </footer>
+</body>
+</html>

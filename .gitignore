@@ -1,0 +1,29 @@
+#linux: https://github.com/github/gitignore/blob/master/Global/Linux.gitignore
+.*
+!.gitignore
+*~
+
+#OSX: https://github.com/github/gitignore/blob/master/Global/OSX.gitignore
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+#Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+#DotNet Stuff
+Web.config
+run.ps1
+
+#Modules
+node_modules/
+
+#Config file can contain passwords
+targetprocess.conifg.js

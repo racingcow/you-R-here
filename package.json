@@ -1,0 +1,26 @@
+﻿{
+    "name": "you-R-here",
+    "version": "0.0.4",
+    "description": "you-R-here helps ease facilitation of agile iteration demos",
+    "author": {
+        "name": "David Miller",
+        "email": "racingcow@hotmail.com",
+        "url": "https://github.com/racingcow"
+    },
+    "contributors": [
+        {
+            "name": "Rick Yoesting",
+            "email": "ryoe@gmail.com",
+            "url": "https://github.com/ryoe"
+        }
+    ],
+    "dependencies": {
+        "express": ">= 3.0.0rc2",
+        "gravatar": ">= 1.0.6",
+        "mime": ">= 1.2.6",
+        "moment": ">= 1.6.2",
+        "restler": ">= 2.0.1",
+        "socket.io": ">= 0.9.9",
+        "underscore": ">= 1.3.3"
+    }
+}

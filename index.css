@@ -1,0 +1,169 @@
+html {
+    font-family: 'Segoe UI', Tahoma, Arial, Helvetica, Sans-Serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+}
+
+body {
+    margin: 30px;
+    padding: 0;
+}
+
+header, footer {
+    margin: 10px;
+    height: 5%;
+}
+
+section {
+    height: 80%;
+    color: #ffffff;
+    padding: 10px;
+    margin: 0px;
+    border: 10px solid transparent;
+    background-color: green;
+}
+
+h3 {
+    font-size: 48;
+    font-weight: normal;
+    margin: 10px 0px 10px 10px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: white;
+}
+
+.highlight {
+    background-color: #1F1F1F !important;
+    color: white; /*ghostwhite;*/
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5px;
+    border: 1px solid whitesmoke !important;
+}
+
+    .highlight:hover {
+        background-color: black !important;
+        border: 1px solid lightgray !important;
+    }
+
+.clear {
+    clear: left;
+}
+
+#users {
+    width: 200px;
+    float: right;
+    clear: right;
+    background-color: green;
+}
+
+    #users li {
+        display: inline;
+    }
+
+    #users img {
+        margin: 8px;
+    }
+
+#items {
+    background-color: green;
+    font-size: 20px;
+    padding-left: 0px;
+    overflow-y: auto;
+}
+
+    #items li {
+        padding-left: 10px;
+        padding-right: 10px;
+        color: white; /*ghostwhite; /*gainsboro;*/
+        font-size: 16px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        background-color: #228B22;
+        border-left: 1px solid lightgray;
+        border-right: 1px solid lightgray;
+        border-top: 1px solid lightgray;
+    }
+
+        #items li:first {
+            border-top: 1px solid lightgray;
+        }
+
+        #items li:hover {
+            background-color: transparent; /*#228B22;*/
+        }
+
+    #items h3, #items ul {
+        padding-left: 10px;
+    }
+
+    #items h3 {
+        float: left;
+    }
+
+    #items input {
+        float: right;
+        margin: 0px; /*20px;*/
+        padding-left: 5px;
+        font-size: 20px;
+        width: 125px;
+        height: 30px;
+    }
+
+.right {
+    float: right;
+}
+
+.float {
+    float: left;
+}
+
+th {
+    color: #459E00;
+}
+
+input[type=checkbox] /*.itemShownCheck, .itemNoDemoCheck*/ {
+    display: inline; /*float: none !important;*/ /*clear: right;*/
+    height: 30px !important;
+    width: 30px !important;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px !important;
+    margin: 0px !important;
+    font-size: 20px !important;
+}
+
+div.shown, div.noDemo {
+    display: inline-block;
+    background-color: lightSlateGray;
+    width: 100px;
+    border: 1px solid;
+    padding: 2px;
+}
+
+.small {
+    font-size: 12px;
+}
+
+.itemCanDemo0 {
+    color: #006400 !important; /*gainsboro !important;           /*color: #00CD00 !important;         border: 1px solid yellow !important;*/
+}
+
+.itemShown1 {
+    color: gainsboro !important; /*border: 1px solid red !important;*/
+}
+
+.itemName {
+    font-size: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
