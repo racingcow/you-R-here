@@ -26,4 +26,4 @@ run.ps1
 node_modules/
 
 #Config file can contain passwords
-targetprocess.conifg.js
+targetprocess.config.js
