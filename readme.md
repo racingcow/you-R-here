@@ -32,12 +32,14 @@ Getting Started
   *  npm install underscore
 *  Create a file named __targetprocess.config.js__ file in your you-R-here root folder with the following format...	
 
+<code>
 	info = {
 		username: "myusername",
 		password: "mysecretpassword",
 		url: "https://mycompany.tpondemand.com/api/v1/"
 	};
 	exports.info = info;
+</code>
 
 *  Run the app and enjoy
   *  node you-R-here
