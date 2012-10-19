@@ -33,12 +33,12 @@ Getting Started
 *  Create a file named __targetprocess.config.js__ file in your you-R-here root folder with the following format...	
 
 <code>
-	info = {
-		username: "myusername",
-		password: "mysecretpassword",
-		url: "https://mycompany.tpondemand.com/api/v1/"
-	};
-	exports.info = info;
+	info = {<br/>
+		username: "myusername",<br/>
+		password: "mysecretpassword",<br/>
+		url: "https://mycompany.tpondemand.com/api/v1/"<br/>
+	};<br/>
+	exports.info = info;<br/>
 </code>
 
 *  Run the app and enjoy
