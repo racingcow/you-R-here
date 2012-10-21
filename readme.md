@@ -23,13 +23,7 @@ Getting Started
 
 *  Download code
 *  Install packages...
-  *  npm install express
-  *  npm install gravatar
-  *  npm install mime
-  *  npm install moment
-  *  npm install restler
-  *  npm install socket.io
-  *  npm install underscore
+  *  npm install
 *  Create a file named __targetprocess.config.js__ file in your you-R-here root folder with the following format...	
 
 <code>

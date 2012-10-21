@@ -1,7 +1,9 @@
-﻿{
+{
     "name": "you-R-here",
     "version": "0.0.4",
     "description": "you-R-here helps ease facilitation of agile iteration demos",
+	"homepage": "https://github.com/racingcow/you-R-here/issues",
+	"bugs": "https://github.com/racingcow/you-R-here/issues",
     "author": {
         "name": "David Miller",
         "email": "racingcow@hotmail.com",
