@@ -49,9 +49,9 @@ a {
     padding: 5px;
 }
 
-    .highlight:hover {
-        background-color: black !important;
-    }
+.highlight:hover {
+    background-color: black !important;
+}
 
 .clear {
     clear: left;
@@ -64,13 +64,13 @@ a {
     background-color: green;
 }
 
-    #users li {
-        display: inline;
-    }
+#users li {
+    display: inline;
+}
 
-    #users img {
-        margin: 8px;
-    }
+#users img {
+    margin: 8px;
+}
 
 #items {
     background-color: green;
@@ -79,37 +79,37 @@ a {
     overflow-y: auto;
 }
 
-    #items li {
-        padding-left: 10px;
-        padding-right: 10px;
-        color: white;
-        font-size: 16px;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        background-color: #228B22;
-        margin-bottom: 5px;
-    }
+#items li {
+    padding-left: 10px;
+    padding-right: 10px;
+    color: white;
+    font-size: 16px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #228B22;
+    margin-bottom: 5px;
+}
 
-        #items li:hover {
-            background-color: transparent;
-        }
+#items li:hover {
+    background-color: transparent;
+}
 
-    #items h3, #items ul {
-        padding-left: 10px;
-    }
+#items h3, #items ul {
+    padding-left: 10px;
+}
 
-    #items h3 {
-        float: left;
-    }
+#items h3 {
+    float: left;
+}
 
-    #items input {
-        float: right;
-        margin: 0px;
-        padding-left: 5px;
-        font-size: 20px;
-        width: 125px;
-        height: 30px;
-    }
+#items input {
+    float: right;
+    margin: 0px;
+    padding-left: 5px;
+    font-size: 20px;
+    width: 125px;
+    height: 30px;
+}
 
 .right {
     float: right;
