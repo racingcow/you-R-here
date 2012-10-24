@@ -8,20 +8,20 @@
 <link rel="stylesheet" type="text/css" href="jquery.jgrowl.css" />
 <link rel="stylesheet" type="text/css" href="jquery-ui-1.8.21.custom.css" />
 <script>
-    //var socket = io.connect("http://192.168.1.8:8080");         
     var socket = io.connect("http://localhost:8080");
-    // io.connect("http://172.17.9.55:8080");         
-    //var socket = io.connect("http://devubuntu");                  
     // on connection to server, ask for username         
     socket.on("connect", function() {                 
-        var email = null;                 
+        var email = null;      
+        console.log("connect");          
         while (email == null) {                         
             email = prompt("Enter email address:"); //Don't allow null email addys                 
-        } socket.emit("adduser", email);
+        } 
+        socket.emit("adduser", email);
     });
     // update the audit log when appropriate         
     socket.on("updateaudit", function(username, data){                 
-        //$.jGrowl(data, { header: username });         });          
+        //$.jGrowl(data, { header: username });         
+    });          
         // update users list when needed         
         socket.on("updateusers", function(data){                 
             var userList = "<% _.each(gravatarUrls, function(gravatarUrl) { %> <li><img src='<%= gravatarUrl %>'/></li> <% }); %>";                 
