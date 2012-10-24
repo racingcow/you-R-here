@@ -11,8 +11,7 @@
     var socket = io.connect("http://localhost:8080");
     // on connection to server, ask for username         
     socket.on("connect", function() {                 
-        var email = null;      
-        console.log("connect");          
+        var email = null;
         while (email == null) {                         
             email = prompt("Enter email address:"); //Don't allow null email addys                 
         } 
@@ -28,7 +27,7 @@
             $("#users > ul").html(_.template(userList, {gravatarUrls: data}));         
         });          
         socket.on("entitiesretrieved", function(queryResults) {                 
-            var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' class='itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><span class='itemName'> <%= item.Name %> </span> </li> <% }); %>";                 
+            var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' class='<%= item.EntityType.Name %> itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><span class='itemName'> <%= item.Name %> </span> </li> <% }); %>";                 
             var html = _.template(entitiesList, { items : queryResults });                 
             $("#items > ul").html(html);                 
             socket.emit("retrieveactiveitem");         
@@ -44,8 +43,7 @@
             if (el && data.val === 1) {                         
                 el.addClass('itemShown1')                           
                     .removeClass('highlight');                 
-            } else if 
-                (el) el.removeClass('itemShown1');         
+            } else if (el) el.removeClass('itemShown1');         
         });          
         socket.on("nodemochanged", function(data) {                 
             var el = $("#items > ul > li[id='" + data.id + "']");                  

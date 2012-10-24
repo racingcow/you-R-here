@@ -43,16 +43,14 @@ a {
 
 .highlight {
     background-color: #1F1F1F !important;
-    color: white; /*ghostwhite;*/
+    color: white;
     font-size: 20px;
-    font-weight: bold;
+    /*font-weight: bold;*/
     padding: 5px;
-    border: 1px solid whitesmoke !important;
 }
 
     .highlight:hover {
         background-color: black !important;
-        border: 1px solid lightgray !important;
     }
 
 .clear {
@@ -84,22 +82,16 @@ a {
     #items li {
         padding-left: 10px;
         padding-right: 10px;
-        color: white; /*ghostwhite; /*gainsboro;*/
+        color: white;
         font-size: 16px;
         padding-top: 5px;
         padding-bottom: 5px;
         background-color: #228B22;
-        border-left: 1px solid lightgray;
-        border-right: 1px solid lightgray;
-        border-top: 1px solid lightgray;
+        margin-bottom: 5px;
     }
 
-        #items li:first {
-            border-top: 1px solid lightgray;
-        }
-
         #items li:hover {
-            background-color: transparent; /*#228B22;*/
+            background-color: transparent;
         }
 
     #items h3, #items ul {
@@ -112,7 +104,7 @@ a {
 
     #items input {
         float: right;
-        margin: 0px; /*20px;*/
+        margin: 0px;
         padding-left: 5px;
         font-size: 20px;
         width: 125px;
@@ -131,8 +123,8 @@ th {
     color: #459E00;
 }
 
-input[type=checkbox] /*.itemShownCheck, .itemNoDemoCheck*/ {
-    display: inline; /*float: none !important;*/ /*clear: right;*/
+input[type=checkbox] {
+    display: inline; 
     height: 30px !important;
     width: 30px !important;
     background-color: white;
@@ -146,7 +138,6 @@ div.shown, div.noDemo {
     display: inline-block;
     background-color: lightSlateGray;
     width: 100px;
-    border: 1px solid;
     padding: 2px;
 }
 
@@ -155,15 +146,21 @@ div.shown, div.noDemo {
 }
 
 .itemCanDemo0 {
-    color: #006400 !important; /*gainsboro !important;           /*color: #00CD00 !important;         border: 1px solid yellow !important;*/
+    color: #006400 !important;
 }
 
 .itemShown1 {
-    color: gainsboro !important; /*border: 1px solid red !important;*/
+    color: gainsboro !important;
 }
 
 .itemName {
     font-size: 20px;
     padding-top: 5px;
     padding-bottom: 5px;
+}
+.Bug {
+    border-left: 2px solid #CD5C5C;
+}
+.UserStory {
+    border-left: 2px solid #B0E0E6;
 }
