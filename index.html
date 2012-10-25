@@ -33,13 +33,17 @@
             socket.emit("retrieveactiveitem");         
         });          
         socket.on("activeitemchanged", function(item) {
+            var curr = $('#current');
+            if (!item) {
+                curr.html('Waiting for organizer to select item...');
+                return;
+            }
             var itemId = item.Id;
             $("#items > ul > li.highlight").removeClass("highlight");                 
             $("#items > ul > li[id='" + itemId + "']").addClass("highlight");                 
             //var el = document.getElementById(itemId);                 
             //if (el) el.scrollIntoView();
             
-            var curr = $('#current');
             curr.html($('#' + itemId).html())
                 .attr('class','')
                 .addClass('current highlight')
