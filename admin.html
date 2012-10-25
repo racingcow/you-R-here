@@ -17,7 +17,8 @@
         var email = null;
         while (email == null) {
             email = prompt("Enter email address:"); //Don't allow null email addys                 
-        } socket.emit("adduser", email);
+        } 
+        socket.emit("adduser", email);
         $("#datepicker").datepicker({ defaultDate: -1 }).on("change", dateChanged);
     });
     // update the audit log when appropriate         
