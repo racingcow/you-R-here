@@ -173,3 +173,6 @@ div.shown, div.noDemo {
 .current > span.itemName {
     padding-right: 10px !important;
 }
+.hide {
+    display: none;
+}
