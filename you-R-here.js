@@ -89,7 +89,8 @@ _io.sockets.on("connection", function(socket){
     });          
     socket.on("retrieveactiveitem", function(){
         //console.log("sending back active item id");
-        socket.emit("activeitemchanged", _activeItemId);         
+        var item = getItem(_activeItemId);
+        socket.emit("activeitemchanged", item);         
     });          
 
     //when the client emits "adduser", this listens and executes         
@@ -117,7 +118,8 @@ _io.sockets.on("connection", function(socket){
         _activeItemId = activeItemId;
         socket.emit("updateaudit", "SERVER", "you changed the active item to '" + activeItemName + "'");
         socket.broadcast.emit("updateaudit", "SERVER", socket.username + " changed the active item to '" + activeItemName + "'");
-        _io.sockets.emit("activeitemchanged", _activeItemId);         
+        var item = getItem(_activeItemId);
+        _io.sockets.emit("activeitemchanged", item);         
     });          
     
     //Admin changes item shown         
@@ -165,4 +167,16 @@ _io.sockets.on("connection", function(socket){
         //tell everyone that the user left
         socket.broadcast.emit("updateaudit", "SERVER", socket.username + " has disconnected.");
     });
+
+    function getItem(itemId) {
+        var id = parseInt(itemId),
+            item = null;
+        for (var idx=0; idx < _entities.length; idx++) {
+            if (parseInt(_entities[idx].Id) === id) {
+                item = _entities[idx];
+                break;
+            }
+        };
+        return item;
+    }
 });

@@ -32,11 +32,21 @@
             $("#items > ul").html(html);                 
             socket.emit("retrieveactiveitem");         
         });          
-        socket.on("activeitemchanged", function(itemId) {                 
+        socket.on("activeitemchanged", function(item) {
+            var itemId = item.Id;
             $("#items > ul > li.highlight").removeClass("highlight");                 
             $("#items > ul > li[id='" + itemId + "']").addClass("highlight");                 
-            var el = document.getElementById(itemId);                 
-            if (el) el.scrollIntoView();         
+            //var el = document.getElementById(itemId);                 
+            //if (el) el.scrollIntoView();
+            
+            var curr = $('#current');
+            curr.html($('#' + itemId).html())
+                .attr('class','')
+                .addClass('current highlight')
+                .addClass(item.EntityType.Name)
+                .addClass('itemShown' + item.shown)
+                .addClass('itemCanDemo' + item.canDemo);
+
         });          
         socket.on("shownchanged", function(data) {                 
             var el = $("#items > ul > li[id='" + data.id + "']");                  
@@ -67,10 +77,14 @@
         <ul></ul>
         <a href="https://en.gravatar.com/">Add your pic</a>
     </section>
-    <section id="items">
+    <section id="itemSection">
+        <h3>Now Showing</h3>
+        <div id="current" class="current highlight">current</div>
         <h3>Items</h3>
         <div class="clear"></div>
+        <div id="items">
         <ul></ul>
+        </div>
     </section>
     <footer>
         <span>v0.0.0.4</span>
