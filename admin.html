@@ -38,6 +38,10 @@
         $("#items > ul > li").on("click", itemClicked);
         $(".itemShownCheck").on("click", shownClicked);
         $(".itemNoDemoCheck").on("click", noDemoClicked);
+        $("#items > ul").sortable({
+            axis: "y",
+            containment: "parent"
+        }).disableSelection();
         //TODO: make the divs clickable... much better, bigger target than the checkboxes                 
         //$("div.shown").on("click", divShownClicked);                 
         //$("div.nodemo").on("click", divNoDemoClicked);          
