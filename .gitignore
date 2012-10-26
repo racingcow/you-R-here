@@ -1,5 +1,6 @@
 #linux: https://github.com/github/gitignore/blob/master/Global/Linux.gitignore
 .*
+!.gitattributes
 !.gitignore
 *~
 
