@@ -46,8 +46,12 @@
         //$("div.shown").on("click", divShownClicked);                 
         //$("div.nodemo").on("click", divNoDemoClicked);          
     });
-    socket.on("activeitemchanged", function (itemId) {
-        $("#items > ul > li.highlight").removeClass("highlight"); $("#items > ul > li[id='" + itemId + "']").addClass("highlight");
+    socket.on("activeitemchanged", function (item) {
+        if (!item) return;
+
+        var itemId = item.Id;
+        $("#items > ul > li.highlight").removeClass("highlight"); 
+        $("#items > ul > li[id='" + itemId + "']").addClass("highlight");
     });
 
     // page load         
