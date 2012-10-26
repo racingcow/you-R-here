@@ -188,3 +188,21 @@ p.itemName {
     padding-top: 10px;
     padding-bottom: 10px;
 }
+.tiny {
+    font-variant: small-caps;
+    font-size: 14px;
+    font-weight: normal;
+    width: 16px;
+    height: 16px;
+}
+.user-no-demo {
+    margin-right: 10px;
+    background-color: #006400;
+}
+.user-shown {
+    background-color: gainsboro;
+}
+#currentDesc > div {
+    word-wrap: break-word;
+    overflow-x: auto;
+}

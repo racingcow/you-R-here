@@ -27,7 +27,7 @@
             $("#users > ul").html(_.template(userList, {gravatarUrls: data}));         
         });          
         socket.on("entitiesretrieved", function(queryResults) {                 
-            var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' class='<%= item.EntityType.Name %> itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><p class='itemName'> <%= item.Name %> </p> </li> <% }); %>";                 
+            var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' class='<%= item.EntityType.Name %> itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><p class='itemName'> <%= item.Name %> </p><div class='tiny user-no-demo right'></div><div class='tiny user-shown left'></div> </li> <% }); %>";                 
             var html = _.template(entitiesList, { items : queryResults });                 
             $("#items > ul").html(html);                 
             socket.emit("retrieveactiveitem");         
@@ -53,9 +53,9 @@
                 .addClass('itemCanDemo' + item.canDemo);
 
                 currDesc.empty()
-                    .append(item.Description);
+                    .append((item.Description && item.Description.length > 0) ? item.Description : "No description provided.");
             //remove any inline style applied by TP, et al
-            $('#currentDesc > div > span').attr('style','');
+            $('#currentDesc > div').children().attr('style','');            
         });          
         socket.on("shownchanged", function(data) {                 
             var el = $("#items > ul > li[id='" + data.id + "']");                  
