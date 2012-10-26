@@ -29,10 +29,10 @@ Getting Started
 ```javascript
 info = {
 	username: "myusername",
-	password: "mysecretpassword",<br/>
-	url: "https://mycompany.tpondemand.com/api/v1/"<br/>
+	password: "mysecretpassword",
+	url: "https://mycompany.tpondemand.com/api/v1/"
 };
-exports.info = info;<br/>
+exports.info = info;
 ```
 
 *  Run the app and enjoy
