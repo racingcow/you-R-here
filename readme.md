@@ -23,7 +23,11 @@ Getting Started
 
 *  Download code
 *  Install packages...
-  *  npm install
+
+```Shell
+npm install
+```
+
 *  Create a file named __targetprocess.config.js__ file in your you-R-here root folder with the following format...	
 
 ```javascript
@@ -36,4 +40,7 @@ exports.info = info;
 ```
 
 *  Run the app and enjoy
-  *  node you-R-here
+
+```Shell
+node you-R-here
+```
