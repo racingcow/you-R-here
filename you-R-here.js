@@ -9,12 +9,32 @@ var _url = require("url");
 var _path = require("path");
 var _fs = require("fs");
 var _mime = require("mime");
-var _underscore = require("underscore"); //node reserves underscore (_) character for something else 
+var _underscore = require("underscore"); //node reserves underscore (_) character for something else
+var _address = "http://localhost"; //TODO: move this to a config file
+var _port = 8080; //TODO: move this to a config file
 
-_server.listen(8080);
+_server.listen(_port);
 var _gravatarUrls = {}; //users currently connected 
 var _entities = {}; //user stories and bugs 
 var _activeItemId = 0;
+var _staticContentItems = {
+    title: 'you-R-here',
+    scripts: [
+        '/socket.io/socket.io.js',
+        'https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js',
+        'https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js',
+        'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js',
+        'http://cdn.jsdelivr.net/jgrowl/1.2.6/jquery.jgrowl_minimized.js'
+    ],
+    styles: [
+        'css/index.css',
+        'css/jquery.jgrowl.css',
+        'css/jquery-ui-1.8.21.custom.css'
+    ],
+    version: JSON.parse(_fs.readFileSync('package.json', 'utf8')).version, //get the version from the package.json file and hand it off to the views
+    address: _address,
+    port: _port
+};
 
 //routing 
 /* _app.get("/userimage/:id", function(req, res) {          
@@ -25,9 +45,14 @@ _tp.api("getUserImage", function(data) {
 res.send(image, "binary");
 }, { id: req.params["id"] }); }); */ 
 _app.get("/", function(req, res) {         
-    res.sendfile(__dirname + "/index.html"); 
+    res.render('spectator.jade', _staticContentItems);
 });
-
+_app.get('/admin.html', function (req, res) {
+    res.render('organizer.jade', _staticContentItems);
+});
+_app.get('/presenter.html', function (req, res) {
+    res.render('presenter.jade', _staticContentItems);
+});
 _app.get('/*', function(req, res){         
     var uri = _url.parse(req.url).pathname;         
     var filename = _path.join(process.cwd(), uri);         

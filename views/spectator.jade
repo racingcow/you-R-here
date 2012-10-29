@@ -1,0 +1,15 @@
+extends layout
+append head
+  script(src='client_script/spectator.js', type='text/javascript')
+block header
+  h1 you-&#1103;-here
+block items
+    section#itemSection
+      h3 Now Showing
+      div#current.current.highlight Item currently being shown will be displayed here...
+      h4 Description
+      div#currentDesc.current.currentDesc.highlight Item description will be shown here...
+      h3.hide Items
+      div.clear
+      div#items.hide
+      ul

@@ -1,0 +1,25 @@
+html
+  head
+    block head
+      script(type='text/javascript')
+        var _address = '#{address}';
+        var _port = '#{port}';
+      - each script in scripts
+        script(src=script, type='text/javascript')
+      - each style in styles
+        link(href=style, rel='stylesheet', type='text/css')
+  body    
+    header
+      block header
+    section#users
+      h3
+      ul
+      a(href='https://en.gravatar.com/') Add your pic
+    block items
+    footer
+      span= version //version is now read from package.json file
+      div.right
+        a(href='http://nodejs.org', target='_blank')
+          img(src='images/nodejs-dark.png', alt='node.js')
+        a(href='https://trello.com/board/friday-project-ideas/4f446503f7aabce3045086a4', target='_blank')
+          img(src='images/CTLabsLogo_64x64.png', alt='Critical Labs')
