@@ -18,7 +18,6 @@ socket.on("updateusers", function (data) {
     $("#users > ul").html(_.template(userList, { gravatarUrls: data }));
 });
 socket.on("activeitemchanged", function (item) {
-    console.log('activeitemchanged');
     var curr = $('#current');
     if (!item) {
         curr.html('Waiting for organizer to select item...');
@@ -44,7 +43,6 @@ socket.on("activeitemchanged", function (item) {
     $('#currentDesc > div').children().attr('style', '');
 });
 socket.on("shownchanged", function (data) {
-    console.log('shownchanged');
     var currEl = $('#current'),
         userShownEl = $('#user-shown');
     if (currEl && data.val === 1) {
@@ -56,7 +54,6 @@ socket.on("shownchanged", function (data) {
     } 
 });
 socket.on("nodemochanged", function (data) {
-    console.log('nodemochanged');
     var currEl = $('#current'),
         userNoDemoEl = $('#user-no-demo');
     if (currEl && data.val === 0) {
