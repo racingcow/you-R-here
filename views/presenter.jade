@@ -5,11 +5,17 @@ block header
   h1 you-&#1103;-here - Presenter
 block items
     section#itemSection
-      h3 Now Showing
-      div#current.current.highlight Item currently being shown will be displayed here...
-      h4 Description
-      div#currentDesc.current.currentDesc.highlight Item description will be shown here...
-      h3.hide Items
-      div.clear
-      div#items.hide
+      div#tabs
         ul
+          li.menu.first.selected.currentItem Show Current Item
+          li.menu.last.myItems Show My Items
+        div#currentTab.ctTab
+          h3 Now Showing
+          div#current.current.highlight Item currently being shown will be displayed here...
+          h4 Description
+          div#currentDesc.current.currentDesc.highlight Item description will be shown here...
+        div#itemsTab.ctTab.hide
+          h3 Items
+          div.clear
+          div#items
+            ul

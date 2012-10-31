@@ -220,3 +220,24 @@ p.itemName {
     /*visibility: visible;*/
     display: inline-block;
 }
+.ctTab {
+    width: 75%;
+}
+li.menu {
+    list-style: none;
+    display: inline;
+    padding-left: 5px;
+    border-left: solid 3px gainsboro;
+    color: gainsboro;
+    padding-left: 5px;
+    background-color: #228B22;
+    margin-left: 10px;
+}
+li.selected {
+    border-left: solid 3px white;
+    color: white;
+}
+
+li.menu:hover {
+    background-color: transparent;
+}
