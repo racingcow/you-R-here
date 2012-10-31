@@ -212,11 +212,13 @@ p.itemName {
     word-wrap: break-word;
     overflow-x: auto;
 }
-#user-shown.itemShown1 {
+#user-shown.itemShown1, 
+li > div.itemShown1 {
     /*visibility: visible;*/
     display: inline-block;
 }
-#user-no-demo.itemCanDemo0 {
+#user-no-demo.itemCanDemo0, 
+li > div.itemCanDemo0 {
     /*visibility: visible;*/
     display: inline-block;
 }

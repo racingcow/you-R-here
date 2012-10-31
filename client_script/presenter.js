@@ -18,7 +18,7 @@ socket.on("updateusers", function (data) {
     $("#users > ul").html(_.template(userList, { gravatarUrls: data }));
 });
 socket.on("entitiesretrieved", function (queryResults) {
-    var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' class='<%= item.EntityType.Name %> itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><p class='itemName'> <%= item.Name %> </p><div id='user-shown' class='tiny user-shown left'>shown</div> <div id='user-no-demo' class='tiny user-no-demo left'>no demo</div></li> <% }); %>";
+    var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' class='<%= item.EntityType.Name %> itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><p class='itemName'> <%= item.Name %> </p><div class='tiny user-shown left itemShown<%= item.shown %>'>shown</div> <div class='tiny user-no-demo left itemCanDemo<%= item.canDemo %>'>no demo</div></li> <% }); %>";
     var html = _.template(entitiesList, { items: queryResults });
     $("#items > ul").html(html);
     socket.emit("retrieveactiveitem");
@@ -47,21 +47,43 @@ socket.on("activeitemchanged", function (item) {
 
     //remove any inline style applied by TP, et al
     $('#currentDesc > div').children().attr('style', '');
+    var el = $("#items > ul > li[id='" + item.Id + "']");
+    $('#items > ul > li').removeClass('highlight');
+    el.addClass('highlight');
 });
 socket.on("shownchanged", function (data) {
     var el = $("#items > ul > li[id='" + data.id + "']");
     if (el && data.val === 1) {
-        el.addClass('itemShown1')
-            .removeClass('highlight');
+        el.addClass('itemShown1');
     } else if (el) el.removeClass('itemShown1');
+
+    var userShownEl = $('#user-shown'),
+        elChild = el.children('.user-shown');
+    if (userShownEl && data.val === 1) {
+        userShownEl.addClass('itemShown1');
+        elChild.addClass('itemShown1');
+    } else if (userShownEl) {
+        userShownEl.removeClass('itemShown1');
+        elChild.removeClass('itemShown1');
+    } 
+
 });
 socket.on("nodemochanged", function (data) {
     var el = $("#items > ul > li[id='" + data.id + "']");
     if (el && data.val === 0) {
-        el.addClass('itemCanDemo0')
-            .removeClass('highlight');
-    }
-    else if (el) el.removeClass('itemCanDemo0');
+        el.addClass('itemCanDemo0');
+    } else if (el) el.removeClass('itemCanDemo0');
+
+    var userNoDemoEl = $('#user-no-demo'),
+        elChild = el.children('div.user-no-demo');
+    if (userNoDemoEl && data.val === 0) {
+        userNoDemoEl.addClass('itemCanDemo0');
+        elChild.addClass('itemCanDemo0');
+    } else if (userNoDemoEl) {
+        userNoDemoEl.removeClass('itemCanDemo0');
+        elChild.removeClass('itemCanDemo0');
+    } 
+
 });
 $(document).ready(function () {
     //$('#tabs').tabs();
