@@ -49,23 +49,29 @@ socket.on("activeitemchanged", function (item) {
 //});
 
 //highlight the currently selected item when clicked         
-function itemClicked(event) {
+function itemClicked(e) {
     socket.emit("changeactiveitem", this.id, this.innerHTML);
 }
-function dateChanged(event) {
+function dateChanged(e) {
     socket.emit("datechanged", $(this).val());
 }
-function shownClicked(event) {
+function shownClicked(e) {
     var data = { id: $(this).attr('data-id'), val: $(this).attr('checked') ? 1 : 0 };
+    e.stopPropagation();
+    //we'll need something different in IE...
+    //window.event.cancelBubble = true;
     //console.log('shownClicked: ' + data.id + '; ' + data.val);                 
     socket.emit("changeshown", data);
 }
-function noDemoClicked(event) {
+function noDemoClicked(e) {
     var data = { id: $(this).attr('data-id'), val: $(this).attr('checked') ? 0 : 1 };
+    e.stopPropagation();
+    //we'll need something different in IE...
+    //window.event.cancelBubble = true;
     //console.log('noDemoClicked: ' + data.id + '; ' + data.val);                 
     socket.emit("changenodemo", data);
 }
-function divShownClicked(event) {
+function divShownClicked(e) {
     //console.log('divShownClicked');                 
     var id = $(this).attr('data-id'),
         el = $('#chkShown' + id),
@@ -82,4 +88,4 @@ function divShownClicked(event) {
     //console.log('shownClicked: ' + data.id + '; ' + data.val);                 
     //socket.emit("changeshown", data);         
 }
-function divNoDemoClicked(event) { }
+function divNoDemoClicked(e) { }

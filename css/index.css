@@ -162,10 +162,10 @@ div.shown, div.noDemo {
     padding-bottom: 5px;
 }
 .Bug {
-    border-left: 2px solid #CD5C5C;
+    border-left: 3px solid #CD5C5C;
 }
 .UserStory {
-    border-left: 2px solid #B0E0E6;
+    border-left: 3px solid #B0E0E6;
 }
 .current {
     margin-left: 10px;
@@ -192,17 +192,31 @@ p.itemName {
     font-variant: small-caps;
     font-size: 14px;
     font-weight: normal;
-    width: 16px;
+    width: auto; /*16px*/
     height: 16px;
+    min-width: 16px;
+    display: inline-block;
+    padding: 0px 2px 0px;
+    display: none;
 }
 .user-no-demo {
     margin-right: 10px;
     background-color: #006400;
+    color: white !important;
 }
 .user-shown {
     background-color: gainsboro;
+    color: black !important;
 }
 #currentDesc > div {
     word-wrap: break-word;
     overflow-x: auto;
+}
+#user-shown.itemShown1 {
+    /*visibility: visible;*/
+    display: inline-block;
+}
+#user-no-demo.itemCanDemo0 {
+    /*visibility: visible;*/
+    display: inline-block;
 }
