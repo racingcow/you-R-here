@@ -1,8 +1,8 @@
 ﻿var socket = io.connect(_address + ":" + _port);
+var email = null;
 
 // on connection to server, ask for username         
 socket.on("connect", function () {
-    var email = null;
     while (email == null) {
         email = prompt("Enter email address:"); //Don't allow null email addys                 
     }
@@ -21,6 +21,20 @@ socket.on("entitiesretrieved", function (queryResults) {
     var entitiesList = "<% _.each(items, function(item) { %> <li id='<%= item.Id %>' data-user-login='<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.Login : 'unassigned' %>' data-user-email='<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.Email : 'unassigned' %>' class='<%= item.EntityType.Name %> itemShown<%= item.shown %> itemCanDemo<%= item.canDemo %>'><div class='<%= item.EntityType.Name %>-icon'></div><span class='projectName left'>[<%= item.Project.Name %>]</span> <span class='small'>(<%= item.Id %>)</span> <span class='assignedName right'>[<%= item.Assignments.Items.length > 0 ? item.Assignments.Items[0].GeneralUser.FirstName : 'unassigned' %>]</span> <br/><p class='itemName'> <%= item.Name %> </p><div class='tiny user-shown left itemShown<%= item.shown %>'>shown</div> <div class='tiny user-no-demo left itemCanDemo<%= item.canDemo %>'>no demo</div></li> <% }); %>";
     var html = _.template(entitiesList, { items: queryResults });
     $("#items > ul").html(html);
+
+    if (email) {
+        var myItems = [];
+        $.each(queryResults, function(idx, item) {
+            if (item.Assignments.Items.length > 0 && item.Assignments.Items[0].GeneralUser.Email === email) {
+                myItems.push(item);
+            }
+        });
+
+        var myItemHtml = _.template(entitiesList, { items: myItems });
+        $('#myItems > ul').html(myItemHtml);
+    } else {
+        $('#myItems > ul').empty();
+    }
     socket.emit("retrieveactiveitem");
 });
 socket.on("activeitemchanged", function (item) {
@@ -48,15 +62,13 @@ socket.on("activeitemchanged", function (item) {
     //remove any inline style applied by TP, et al
     $('#currentDesc > div').attr('style', '');
     $('#currentDesc > div').children().attr('style', '');
-    var el = $("#items > ul > li[id='" + item.Id + "']");
-    $('#items > ul > li').removeClass('highlight');
-    el.addClass('highlight');
+    $('.items > ul > li').removeClass('highlight');
+    $('.items > ul > li[id="' + item.Id + '"]').addClass('highlight');
 });
 socket.on("shownchanged", function (data) {
-    var el = $("#items > ul > li[id='" + data.id + "']");
-    if (el && data.val === 1) {
-        el.addClass('itemShown1');
-    } else if (el) el.removeClass('itemShown1');
+    if (data.val === 1) {
+        $(".items > ul > li[id='" + data.id + "']").addClass('itemShown1');
+    } else $(".items > ul > li[id='" + data.id + "']").removeClass('itemShown1');
 
     var userShownEl = $('#user-shown'),
         elChild = el.children('.user-shown');
@@ -70,10 +82,9 @@ socket.on("shownchanged", function (data) {
 
 });
 socket.on("nodemochanged", function (data) {
-    var el = $("#items > ul > li[id='" + data.id + "']");
-    if (el && data.val === 0) {
-        el.addClass('itemCanDemo0');
-    } else if (el) el.removeClass('itemCanDemo0');
+    if (data.val === 0) {
+        $(".items > ul > li[id='" + data.id + "']").addClass('itemCanDemo0');
+    } else $(".items > ul > li[id='" + data.id + "']").removeClass('itemCanDemo0');
 
     var userNoDemoEl = $('#user-no-demo'),
         elChild = el.children('div.user-no-demo');

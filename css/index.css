@@ -74,7 +74,7 @@ a {
     margin: 8px;
 }
 
-#items {
+#items, .items {
     background-color: green;
     font-size: 20px;
     padding-left: 0px;
@@ -82,7 +82,7 @@ a {
     height: 85%;
 }
 
-#items li {
+#items li, .items li {
     padding-left: 10px;
     padding-right: 10px;
     color: white;
@@ -93,7 +93,7 @@ a {
     margin-bottom: 5px;
 }
 
-#items li:hover {
+#items li:hover, .items li:hover {
     background-color: transparent;
 }
 
