@@ -35,9 +35,9 @@ socket.on("activeitemchanged", function (item) {
 
     var html = _.template(itemTempl, { item: item });
     curr.html(html)
+        .attr('class','')
+        .addClass('current highlight')
         .addClass(item.EntityType.Name);
-        //.addClass('itemShown' + item.shown)
-        //.addClass('itemCanDemo' + item.canDemo);
 
     currDesc.empty()
         .append((item.Description && item.Description.length > 0) ? item.Description : "No description provided.");
