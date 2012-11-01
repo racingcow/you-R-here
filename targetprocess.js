@@ -31,7 +31,7 @@ var methods = {
         url.push(getOptions.url);
         url.push("Assignables?format=");
         url.push(getOptions.format);             
-        url.push("&include=[Id,Description,Name,EntityType,Assignments[Id,Role,GeneralUser],Project[Name]]&where=");
+        url.push("&include=[Id,Description,Name,EntityType,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]&where=");
         url.push(encodeURIComponent("(EntityType.Name in ('UserStory','Bug'))"));
         url.push(encodeURIComponent(" and (Iteration.EndDate eq '"));     
         url.push(moment(getOptions.date).format("YYYY-MM-DD"));           
