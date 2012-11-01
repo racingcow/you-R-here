@@ -69,7 +69,7 @@ socket.on("shownchanged", function (data) {
     if (data.val === 1) {
         $(".items > ul > li[id='" + data.id + "']").addClass('itemShown1');
     } else $(".items > ul > li[id='" + data.id + "']").removeClass('itemShown1');
-
+/*
     var userShownEl = $('#user-shown'),
         elChild = el.children('.user-shown');
     if (userShownEl && data.val === 1) {
@@ -79,13 +79,24 @@ socket.on("shownchanged", function (data) {
         userShownEl.removeClass('itemShown1');
         elChild.removeClass('itemShown1');
     } 
+*/
+        var currEl = $('#current'),
+        userShownEl = $('#user-shown');
+    if (currEl && data.val === 1) {
+        //currEl.addClass('itemShown1');
+        userShownEl.addClass('itemShown1');
+    } else if (currEl) {
+        //currEl.removeClass('itemShown1');
+        userShownEl.removeClass('itemShown1');
+    } 
+
 
 });
 socket.on("nodemochanged", function (data) {
     if (data.val === 0) {
         $(".items > ul > li[id='" + data.id + "']").addClass('itemCanDemo0');
     } else $(".items > ul > li[id='" + data.id + "']").removeClass('itemCanDemo0');
-
+/*
     var userNoDemoEl = $('#user-no-demo'),
         elChild = el.children('div.user-no-demo');
     if (userNoDemoEl && data.val === 0) {
@@ -94,6 +105,16 @@ socket.on("nodemochanged", function (data) {
     } else if (userNoDemoEl) {
         userNoDemoEl.removeClass('itemCanDemo0');
         elChild.removeClass('itemCanDemo0');
+    } 
+*/
+    var currEl = $('#current'),
+        userNoDemoEl = $('#user-no-demo');
+    if (currEl && data.val === 0) {
+        //currEl.addClass('itemCanDemo0');
+        userNoDemoEl.addClass('itemCanDemo0');
+    } else if (currEl) {
+        //currEl.removeClass('itemCanDemo0');
+        userNoDemoEl.removeClass('itemCanDemo0');
     } 
 
 });
