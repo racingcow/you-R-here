@@ -46,6 +46,7 @@ socket.on("activeitemchanged", function (item) {
     $('#user-no-demo').addClass('itemCanDemo' + item.canDemo);
 
     //remove any inline style applied by TP, et al
+    $('#currentDesc > div').attr('style', '');
     $('#currentDesc > div').children().attr('style', '');
     var el = $("#items > ul > li[id='" + item.Id + "']");
     $('#items > ul > li').removeClass('highlight');
