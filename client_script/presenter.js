@@ -95,13 +95,15 @@ $(document).ready(function () {
     function menuClicked() {
         $('li.menu').removeClass('selected');
         $(this).addClass('selected');
-        $('.ctTab').removeClass('hide');
+        $('.ctTab').addClass('hide');
         if ($(this).hasClass('myItems')) {
-            $('#currentTab').addClass('hide');
+            $('#myItemsTab').removeClass('hide');
             //TODO: filter the user list...
             //possibly based upon the logged in user's email address?
+        } else if ($(this).hasClass('allItems')) {
+            $('#allItemsTab').removeClass('hide');
         } else {
-            $('#itemsTab').addClass('hide');
+            $('#currentTab').removeClass('hide');
         }
     }
 });
