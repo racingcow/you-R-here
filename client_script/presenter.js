@@ -35,6 +35,11 @@ socket.on("entitiesretrieved", function (queryResults) {
     } else {
         $('#myItems > ul').empty();
     }
+    $("#myItems > ul").sortable({
+        axis: "y",
+        containment: "parent"
+    }).disableSelection();
+    
     socket.emit("retrieveactiveitem");
 });
 socket.on("activeitemchanged", function (item) {
