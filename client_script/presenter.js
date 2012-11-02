@@ -38,6 +38,8 @@ socket.on("entitiesretrieved", function (queryResults) {
     socket.emit("retrieveactiveitem");
 });
 socket.on("activeitemchanged", function (item) {
+    console.log('activeitemchanged');
+
     var curr = $('#current');
     if (!item) {
         curr.html('Waiting for organizer to select item...');
@@ -62,64 +64,32 @@ socket.on("activeitemchanged", function (item) {
     //remove any inline style applied by TP, et al
     $('#currentDesc > div').attr('style', '');
     $('#currentDesc > div').children().attr('style', '');
-    $('.items > ul > li').removeClass('highlight');
-    $('.items > ul > li[id="' + item.Id + '"]').addClass('highlight');
+    $('.items > li').removeClass('highlight');
+    $('.items > li[id="' + item.Id + '"]').addClass('highlight');
 });
 socket.on("shownchanged", function (data) {
     if (data.val === 1) {
-        $(".items > ul > li[id='" + data.id + "']").addClass('itemShown1');
-    } else $(".items > ul > li[id='" + data.id + "']").removeClass('itemShown1');
-/*
-    var userShownEl = $('#user-shown'),
-        elChild = el.children('.user-shown');
-    if (userShownEl && data.val === 1) {
-        userShownEl.addClass('itemShown1');
-        elChild.addClass('itemShown1');
-    } else if (userShownEl) {
-        userShownEl.removeClass('itemShown1');
-        elChild.removeClass('itemShown1');
-    } 
-*/
-        var currEl = $('#current'),
-        userShownEl = $('#user-shown');
-    if (currEl && data.val === 1) {
-        //currEl.addClass('itemShown1');
-        userShownEl.addClass('itemShown1');
-    } else if (currEl) {
-        //currEl.removeClass('itemShown1');
-        userShownEl.removeClass('itemShown1');
-    } 
-
-
+        //$('.items > li[id="' + data.id + '"]').addClass('itemShown1');
+        $('.items > li[id="' + data.id + '"] > div.user-shown').addClass('itemShown1');
+        $('#user-shown').addClass('itemShown1');
+    } else {
+        //$('.items > li[id="' + data.id + '"]').removeClass('itemShown1');
+        $('.items > li[id="' + data.id + '"] > div.user-shown').removeClass('itemShown1');
+        $('#user-shown').removeClass('itemShown1');
+    }
 });
 socket.on("nodemochanged", function (data) {
     if (data.val === 0) {
-        $(".items > ul > li[id='" + data.id + "']").addClass('itemCanDemo0');
-    } else $(".items > ul > li[id='" + data.id + "']").removeClass('itemCanDemo0');
-/*
-    var userNoDemoEl = $('#user-no-demo'),
-        elChild = el.children('div.user-no-demo');
-    if (userNoDemoEl && data.val === 0) {
-        userNoDemoEl.addClass('itemCanDemo0');
-        elChild.addClass('itemCanDemo0');
-    } else if (userNoDemoEl) {
-        userNoDemoEl.removeClass('itemCanDemo0');
-        elChild.removeClass('itemCanDemo0');
-    } 
-*/
-    var currEl = $('#current'),
-        userNoDemoEl = $('#user-no-demo');
-    if (currEl && data.val === 0) {
-        //currEl.addClass('itemCanDemo0');
-        userNoDemoEl.addClass('itemCanDemo0');
-    } else if (currEl) {
-        //currEl.removeClass('itemCanDemo0');
-        userNoDemoEl.removeClass('itemCanDemo0');
-    } 
-
+        //$('.items > li[id="' + data.id + '"]').addClass('itemCanDemo0');
+        $('.items > li[id="' + data.id + '"] > div.user-no-demo').addClass('itemCanDemo0');
+        $('#user-no-demo').addClass('itemCanDemo0');
+    } else {
+        //$('.items > li[id="' + data.id + '"]').removeClass('itemCanDemo0');
+        $('.items > li[id="' + data.id + '"] > div.user-no-demo').removeClass('itemCanDemo0');
+        $('#user-no-demo').removeClass('itemCanDemo0');
+    }
 });
 $(document).ready(function () {
-    //$('#tabs').tabs();
     //request the entities when the page is ready
     socket.emit("retrieveentities");
     $('li.menu').on("click", menuClicked);
@@ -127,11 +97,11 @@ $(document).ready(function () {
     function menuClicked() {
         $('li.menu').removeClass('selected');
         $(this).addClass('selected');
+
         $('.ctTab').addClass('hide');
+
         if ($(this).hasClass('myItems')) {
             $('#myItemsTab').removeClass('hide');
-            //TODO: filter the user list...
-            //possibly based upon the logged in user's email address?
         } else if ($(this).hasClass('allItems')) {
             $('#allItemsTab').removeClass('hide');
         } else {
