@@ -82,7 +82,7 @@ a {
     height: 85%;
 }
 
-.items li {
+#DemoListView li {
     padding-left: 10px;
     padding-right: 10px;
     color: white;
@@ -93,16 +93,20 @@ a {
     margin-bottom: 5px;
 }
 
-.items li:hover {
+#DemoListView li:hover {
     background-color: transparent;
 }
 
-.items h3, .items ul {
+.items h3, #DemoListView ul {
     padding-left: 10px;
 }
 
 .items h3 {
     float: left;
+}
+#itemsView {
+    overflow: auto;
+    height: 80%;
 }
 
 #items input {

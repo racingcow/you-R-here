@@ -15,16 +15,21 @@ var _port = 8080; //TODO: move this to a config file
 
 _server.listen(_port);
 var _gravatarUrls = {}; //users currently connected 
-var _entities = {}; //user stories and bugs 
+var _entities = []; //user stories and bugs 
 var _activeItemId = 0;
 var _staticContentItems = {
     title: 'you-R-here',
     scripts: [
         '/socket.io/socket.io.js',
         'https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js',
-        'https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js',
-        'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js',
-        'http://cdn.jsdelivr.net/jgrowl/1.2.6/jquery.jgrowl_minimized.js'
+        'https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js',
+        'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js',
+        'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js',
+        'http://cdn.jsdelivr.net/jgrowl/1.2.6/jquery.jgrowl_minimized.js',
+        'client_libs/backbone.iobind.js',
+        'client_libs/backbone.iosync.js',
+        'client_libs/moment.min.js',
+        'client_script/model.js'
     ],
     styles: [
         'css/index.css',
@@ -64,8 +69,6 @@ _app.get('/*', function(req, res){
             return;
         } 
         _fs.readFile(filename, "binary", function(err, file){                
-            //console.log(filename);                
-            //console.log(file)        
             res.writeHead(200, {'Content-Type' : _mime.lookup(filename) });        
             res.write(file, "binary");        
             res.end();
@@ -73,45 +76,32 @@ _app.get('/*', function(req, res){
     }); 
 });
 
-_io.sockets.on("connection", function(socket){          
-    //when the client changes the date, get new entities         
-    socket.on("datechanged", function(date) {        
-        _tp.api("getEntitiesForActiveIteration", function(data) {                     
+//auto-load entities list for most recent iteration when app starts
+_tp.api("getMostRecentIterationBoundary", function (boundaryDate) {
+    refreshEntities(boundaryDate);
+});
 
-            //for now, remove all non-developer assignments        
-            for (var i = 0; i < data.Items.length; i++) {                
-                var filteredAssignments = _underscore.filter(data.Items[i].Assignments.Items, function (item) {                
-                    return item.Role.Name === "Developer";        
-                });
-                data.Items[i].Assignments.Items = filteredAssignments;        
-            }
+_io.sockets.on("connection", function (socket) {    
 
-            //sort entities by project name        
-            //_entities = _underscore.groupBy(data.Items, "Project.Name");        
-            _entities = data.Items;        
-            _entities.sort(function(a, b){                
-                return a.Project.Name.localeCompare(b.Project.Name);        
-            });
-
-            //set some default properties...        
-            for (var idx=0; idx < _entities.length; idx++) {                
-                //console.log('oh my: ' + idx);                
-                var val = _entities[idx];                
-                val.active = 0;                
-                val.shown = 0;                
-                val.canDemo = 1;                
-                _entities[idx] = val;        
-            };         
-
-            //blow them out to all the clients        
-            _io.sockets.emit("entitiesretrieved", _entities); 
-        }, { date: date || "10-21-2012" });         
+    // called when .fetch() is called on DemoItems collection on client side
+    socket.on("demoitems:read", function (data, callback) {
+        callback(null, _entities);
     });
 
-    //Send the new entities when the client requests them         
+    // called when .save() is called on DemoItem model
+    socket.on("demoitems:update", function (demoItem, callback) {
+        console.log("saving");
+        var json = demoItem._attributes;
+        var route = "demoitems/" + demoItem.id + ":update";
+        socket.emit(route, json);
+        socket.broadcast.emit(route, json);
+        callback(null, json);
+    });
+
+    //Send the new entities when the client requests them
     socket.on("retrieveentities", function(){
-        socket.emit("entitiesretrieved", _entities);         
-    });          
+        socket.emit("entitiesretrieved", _entities);
+    });
     socket.on("retrieveactiveitem", function(){
         //console.log("sending back active item id");
         var item = getItem(_activeItemId);
@@ -192,16 +182,53 @@ _io.sockets.on("connection", function(socket){
         //tell everyone that the user left
         socket.broadcast.emit("updateaudit", "SERVER", socket.username + " has disconnected.");
     });
-
-    function getItem(itemId) {
-        var id = parseInt(itemId),
-            item = null;
-        for (var idx=0; idx < _entities.length; idx++) {
-            if (parseInt(_entities[idx].Id) === id) {
-                item = _entities[idx];
-                break;
-            }
-        };
-        return item;
-    }
 });
+
+function refreshEntities(boundaryDate) {
+    _tp.api("getEntitiesForActiveIteration", function (data) {
+        _entities = tpToModelSchema(data, boundaryDate);
+    }, { date: boundaryDate });
+}
+
+function tpToModelSchema(data, boundaryDate) {
+
+    //TODO: Replace this transformation method with another object/middleware               
+
+    //Transform to standard model schema
+    var entities = [];
+    for (var i = 0; i < data.Items.length; i++) {
+        var item = data.Items[i];
+
+        var assignedUser = _underscore.filter(data.Items[i].Assignments.Items, function (item) {
+            return item.Role.Name === "Developer";
+        })[0].GeneralUser;
+
+        entities.push({
+            id: item.Id,
+            name: item.Name,
+            description: item.Description,
+            project: item.Project.Name,
+            type: item.EntityType.Name,
+            demonstratorName: assignedUser.FirstName + ' ' + assignedUser.LastName,
+            demonstratorEmail: assignedUser.Email,
+            demonstrable: true,
+            demonstrated: true,
+            boundaryDate: boundaryDate,
+            active: false
+        });
+    }
+
+    return entities.sort(function (a, b) { return a.project.localeCompare(b.project); });
+}
+
+function getItem(itemId) {
+    var id = parseInt(itemId),
+        item = null;
+    for (var idx = 0; idx < _entities.length; idx++) {
+        if (parseInt(_entities[idx].Id) === id) {
+            item = _entities[idx];
+            break;
+        }
+    };
+    return item;
+}

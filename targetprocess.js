@@ -2,9 +2,10 @@ var sys = require("util");
 var rest = require("restler"); //https://github.com/danwrong/restler 
 var moment = require("moment");//http://momentjs.com
 var config = require("./targetprocess.config");
+var underscore = require("underscore");
 
 var self = this;
-var methods = {
+var methods = {    
     globalOptions : {},
     init : function(options) {
         self.globalOptions = options;
@@ -13,7 +14,7 @@ var methods = {
         self.globalOptions.username = config.info.username;
         self.globalOptions.password = config.info.password;
         self.globalOptions.url = config.info.url;
-    },          
+    },
     getEntitiesForActiveIteration : function(callback, options) {
 
         //todo: extend globalOptions with options to create localOptions variable
@@ -24,7 +25,8 @@ var methods = {
             url: options.url || config.info.url,
             format: options.format || "json",
             date: options.date || self.globalOptions.date,
-            parser: rest.parsers.json
+            parser: rest.parsers.json,
+            iterationDurationInWeeks: config.info.iterationDurationInWeeks
         };
 
         var url = [];
@@ -38,14 +40,45 @@ var methods = {
         url.push(encodeURIComponent("')"));
         url.push(encodeURIComponent(" and (EntityState.Name in ('To Verify','Done','Fixed','Closed'))"));
         url = url.join("");
-        //console.log("url is: " + url);
+
+        //console.log("TP API: " + url);
+
         rest.get(url, getOptions).on("complete", function(result) {
             if (result instanceof Error) {        
                 sys.puts("ERROR: " + result.message);
             } else {
                 callback(result);
             }
-        });         
+        });
+    },
+    getMostRecentIterationBoundary: function (callback, options) {
+
+        var url = [];
+        url.push(config.info.url);
+        url.push("Iterations?format=");
+        url.push(config.info.format);
+        url.push("&include=[EndDate]&where=");
+        url.push(encodeURIComponent("(EndDate lte '"));
+        url.push(moment().format("YYYY-MM-DD"));
+        url.push(encodeURIComponent("') and (EndDate gte '"));
+        url.push(moment().subtract("weeks", config.info.iterationDurationInWeeks).format("YYYY-MM-DD"));
+        url.push("')");
+        url = url.join("");
+
+        //console.log("TP API: " + url);
+
+        rest.get(url, config.info).on("complete", function (result) {
+            if (result instanceof Error) {
+                sys.puts("ERROR: " + result.message);
+            } else {
+                var dates = underscore.map(result.Items, function (item) {
+                    //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
+                    return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
+                });
+                var boundary = underscore.max(dates, function (date) { return date.getTime() });
+                callback(boundary);
+            }
+        });
     }
 };
 api = function(methodName, callback, options) {
