@@ -24,7 +24,8 @@ var _staticContentItems = {
         'https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js',
         'https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js',
         'http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js',
-        'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js',
+        //'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone.js',
+        'client_libs/backbone.js', //development version
         'http://cdn.jsdelivr.net/jgrowl/1.2.6/jquery.jgrowl_minimized.js',
         'client_libs/backbone.iobind.js',
         'client_libs/backbone.iosync.js',
@@ -85,13 +86,16 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
+        console.log("reading");
         callback(null, _entities);
     });
 
     // called when .save() is called on DemoItem model
     socket.on("demoitems:update", function (demoItem, callback) {
         console.log("saving");
+        console.log(demoItem);        
         var json = demoItem._attributes;
+        console.log(json);
         var route = "demoitems/" + demoItem.id + ":update";
         socket.emit(route, json);
         socket.broadcast.emit(route, json);

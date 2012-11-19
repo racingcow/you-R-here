@@ -7,7 +7,7 @@ YouRHere.DemoItemTypes = {
 };
 
 YouRHere.DemoItem = Backbone.Model.extend({
-    urlRoot: "demoitem",
+    //urlRoot: "demoitem",
     noIoBind: false,
     socket: window.socket,
     defaults: {
@@ -25,7 +25,7 @@ YouRHere.DemoItem = Backbone.Model.extend({
     initialize: function () {
         _.bindAll(this, "serverChange", "modelCleanup");
         if (!this.noIoBind) {
-            this.ioBind("update", this.serverChange, this);
+            this.ioBind("update", window.socket, this.serverChange, this);
         }
     },
     serverChange: function (data) {

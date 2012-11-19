@@ -66,7 +66,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
         return this;
     },
     setActive: function () {
-        console.log("saving");
+        
         var curActive = this.model.get("active");
         this.model.save({ active: !curActive },
             {
