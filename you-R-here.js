@@ -93,13 +93,17 @@ _io.sockets.on("connection", function (socket) {
     // called when .save() is called on DemoItem model
     socket.on("demoitems:update", function (demoItem, callback) {
         console.log("saving");
-        console.log(demoItem);        
-        var json = demoItem._attributes;
-        console.log(json);
+
+        var entity = _underscore.find(_entities, function (e) { return e.id === demoItem.id; });
+        _underscore.each(_entities, function (e) { e.active = false; }); //there can be only one
+        _entities[_entities.indexOf(entity)] = demoItem;
+
+        //todo: custom action for updating active attribute?
+
         var route = "demoitems/" + demoItem.id + ":update";
-        socket.emit(route, json);
-        socket.broadcast.emit(route, json);
-        callback(null, json);
+        socket.emit(route, demoItem);
+        socket.broadcast.emit(route, demoItem);
+        callback(null, demoItem);
     });
 
     //Send the new entities when the client requests them
