@@ -18,11 +18,19 @@ YouRHere.App = Backbone.Router.extend({
 YouRHere.DemoListView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "ul",
+    events: {
+        "click li" : "clickDemoItem"
+    },
     initialize: function (demoItems) {
-        _.bindAll(this, "render", "addDemoItem", "removeDemoItem");
+        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem");
         this.demoItems = demoItems;        
         this.demoItems.bind("reset", this.render); //Called during fetch
         this.render();
+    },
+    clickDemoItem: function (e) {
+        this.demoItems.each(function (demoItem) {
+            demoItem.save("active", demoItem.id == e.srcElement.id);
+        });
     },
     render: function () {
         var self = this;
@@ -46,12 +54,12 @@ YouRHere.DemoListView = Backbone.View.extend({
 YouRHere.DemoItemView = Backbone.View.extend({
     tagName: "li",    
     events: {
-        "click": "setActive",
+        //"click": "setActive",
         "click .demonstrable": "setDemonstrable",
         "click .demonstrated": "setDemonstrated"
     },
     initialize: function (demoItem) {
-        _.bindAll(this, "setActive", "activeChanged", "setDemonstrable", "setDemonstrated");
+        _.bindAll(this, "activeChanged", "setDemonstrable", "setDemonstrated");
         this.model = demoItem;
         this.model.bind("change:active", this.activeChanged);
         this.render();
@@ -65,16 +73,16 @@ YouRHere.DemoItemView = Backbone.View.extend({
             .addClass("admin"); //TODO: pass this into the view, somehow
         return this;
     },
-    setActive: function () {
-        
-        var curActive = this.model.get("active");
-        this.model.save({ active: !curActive },
-            {
-                success: function () { console.log("success"); },
-                error: function () { console.log("error"); },
-            });
-    },
+    //setActive: function () {
+    //    var curActive = this.model.get("active");
+    //    this.model.save({ active: !curActive },
+    //        {
+    //            success: function () { console.log("success"); },
+    //            error: function () { console.log("error"); },
+    //        });
+    //},
     activeChanged: function () {
+        console.log("ActiveChanged: Refreshing view for DemoItem " + this.model.id);
         var curActive = this.model.get("active");
         if (curActive) {
             this.$el.addClass("highlight");

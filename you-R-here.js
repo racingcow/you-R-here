@@ -15,7 +15,7 @@ var _port = 8080; //TODO: move this to a config file
 
 _server.listen(_port);
 var _gravatarUrls = {}; //users currently connected 
-var _entities = []; //user stories and bugs 
+var _demoItems = []; //user stories and bugs 
 var _activeItemId = 0;
 var _staticContentItems = {
     title: 'you-R-here',
@@ -87,28 +87,29 @@ _io.sockets.on("connection", function (socket) {
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
         console.log("reading");
-        callback(null, _entities);
+        callback(null, _demoItems);
     });
 
     // called when .save() is called on DemoItem model
-    socket.on("demoitems:update", function (demoItem, callback) {
-        console.log("saving");
+    socket.on("demoitems:update", function (newDemoItem, callback) {
 
-        var entity = _underscore.find(_entities, function (e) { return e.id === demoItem.id; });
-        _underscore.each(_entities, function (e) { e.active = false; }); //there can be only one
-        _entities[_entities.indexOf(entity)] = demoItem;
+        //update in-memory demo items list
+        var oldDemoItem = _underscore.find(_demoItems, function (e) { return e.id === newDemoItem.id; });        
+        _underscore.each(_demoItems, function (e) { e.active = false; }); //there can be only one
+        _demoItems[_demoItems.indexOf(oldDemoItem)] = newDemoItem;
 
-        //todo: custom action for updating active attribute?
+        //tell everyone else what happened
+        var action = "update";
+        var activeChanged = !oldDemoItem.active && newDemoItem.active;
+        if (activeChanged) action = "activeChanged";
+        socket.broadcast.emit("demoitems/" + newDemoItem.id + ":" + action, newDemoItem);
 
-        var route = "demoitems/" + demoItem.id + ":update";
-        socket.emit(route, demoItem);
-        socket.broadcast.emit(route, demoItem);
-        callback(null, demoItem);
+        callback(null, newDemoItem); //do we need both this and socket.emit?
     });
 
     //Send the new entities when the client requests them
     socket.on("retrieveentities", function(){
-        socket.emit("entitiesretrieved", _entities);
+        socket.emit("entitiesretrieved", _demoItems);
     });
     socket.on("retrieveactiveitem", function(){
         //console.log("sending back active item id");
@@ -148,11 +149,11 @@ _io.sockets.on("connection", function (socket) {
     //Admin changes item shown         
     socket.on("changeshown", function(data) {
         var id = parseInt(data.id);
-        for (var idx=0; idx < _entities.length; idx++) {
+        for (var idx=0; idx < _demoItems.length; idx++) {
             //console.log('changeshown ==> oh my: ' + idx);
-            //console.log('_entities[idx].Id: ' + _entities[idx].Id + '; data.id: ' + data.id);
-            if (parseInt(_entities[idx].Id) === id) {
-                _entities[idx].shown = data.val;
+            //console.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
+            if (parseInt(_demoItems[idx].Id) === id) {
+                _demoItems[idx].shown = data.val;
                 break;
             }
         };
@@ -164,11 +165,11 @@ _io.sockets.on("connection", function (socket) {
     //Admin changes item is demonstrable         
     socket.on("changenodemo", function(data) {
         var id = parseInt(data.id);
-        for (var idx=0; idx < _entities.length; idx++) {
+        for (var idx=0; idx < _demoItems.length; idx++) {
             //console.log('changenodemo ==> oh my: ' + idx);
-            //console.log('_entities[idx].Id: ' + _entities[idx].Id + '; data.id: ' + data.id);
-            if (parseInt(_entities[idx].Id) === id) {
-                _entities[idx].canDemo = data.val;
+            //console.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
+            if (parseInt(_demoItems[idx].Id) === id) {
+                _demoItems[idx].canDemo = data.val;
                 break;
             }
         };
@@ -194,7 +195,7 @@ _io.sockets.on("connection", function (socket) {
 
 function refreshEntities(boundaryDate) {
     _tp.api("getEntitiesForActiveIteration", function (data) {
-        _entities = tpToModelSchema(data, boundaryDate);
+        _demoItems = tpToModelSchema(data, boundaryDate);
     }, { date: boundaryDate });
 }
 
@@ -232,9 +233,9 @@ function tpToModelSchema(data, boundaryDate) {
 function getItem(itemId) {
     var id = parseInt(itemId),
         item = null;
-    for (var idx = 0; idx < _entities.length; idx++) {
-        if (parseInt(_entities[idx].Id) === id) {
-            item = _entities[idx];
+    for (var idx = 0; idx < _demoItems.length; idx++) {
+        if (parseInt(_demoItems[idx].Id) === id) {
+            item = _demoItems[idx];
             break;
         }
     };

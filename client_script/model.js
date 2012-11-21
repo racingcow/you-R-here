@@ -7,8 +7,6 @@ YouRHere.DemoItemTypes = {
 };
 
 YouRHere.DemoItem = Backbone.Model.extend({
-    //urlRoot: "demoitem",
-    noIoBind: false,
     socket: window.socket,
     defaults: {
         name: "",                               //As an <actor>, I want <feature>, so that <business reason>.
@@ -23,12 +21,17 @@ YouRHere.DemoItem = Backbone.Model.extend({
         active: false                           //True if the demo item is the one currently being demonstrated; false otherwise
     },
     initialize: function () {
-        _.bindAll(this, "serverChange", "modelCleanup");
-        if (!this.noIoBind) {
-            this.ioBind("update", window.socket, this.serverChange, this);
-        }
+        _.bindAll(this, "serverChange", "setActive", "modelCleanup");
+        this.ioBind("update", this.serverChange, this);
+        this.ioBind("activeChanged", this.setActive, this);
     },
     serverChange: function (data) {
+        console.log(data);
+        data.fromServer = true;
+        this.set(data);
+    },
+    setActive: function (data) {
+        console.log(data);
         data.fromServer = true;
         this.set(data);
     },
@@ -40,11 +43,11 @@ YouRHere.DemoItem = Backbone.Model.extend({
 
 YouRHere.DemoItems = Backbone.Collection.extend({
     model: YouRHere.DemoItem,
-    url: 'demoitems',
+    url: "demoitems",
     socket: window.socket,
     initialize: function () {
         _.bindAll(this, "collectionCleanup");
-    },
+    },    
     collectionCleanup: function (callback) {
         this.ioUnbindAll();
         this.each(function (model) {
