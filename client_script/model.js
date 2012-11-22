@@ -26,12 +26,12 @@ YouRHere.DemoItem = Backbone.Model.extend({
         this.ioBind("activeChanged", this.setActive, this);
     },
     serverChange: function (data) {
-        console.log(data);
+        console.log("DemoItem" + data.id + ".serverChange");
         data.fromServer = true;
         this.set(data);
     },
     setActive: function (data) {
-        console.log(data);
+        console.log("DemoItem" + data.id + ".setActive");
         data.fromServer = true;
         this.set(data);
     },

@@ -93,6 +93,10 @@ _io.sockets.on("connection", function (socket) {
     // called when .save() is called on DemoItem model
     socket.on("demoitems:update", function (newDemoItem, callback) {
 
+        console.log("UPDATE, UPDATE, UPDATE");
+        console.log("id = " + newDemoItem.id);
+        console.log("demonstrable = " + newDemoItem.demonstrable);
+
         //update in-memory demo items list
         var oldDemoItem = _underscore.find(_demoItems, function (e) { return e.id === newDemoItem.id; });        
         _underscore.each(_demoItems, function (e) { e.active = false; }); //there can be only one
@@ -102,6 +106,7 @@ _io.sockets.on("connection", function (socket) {
         var action = "update";
         var activeChanged = !oldDemoItem.active && newDemoItem.active;
         if (activeChanged) action = "activeChanged";
+        console.log("action = " + action);
         socket.broadcast.emit("demoitems/" + newDemoItem.id + ":" + action, newDemoItem);
 
         callback(null, newDemoItem); //do we need both this and socket.emit?
@@ -221,7 +226,7 @@ function tpToModelSchema(data, boundaryDate) {
             demonstratorName: assignedUser.FirstName + ' ' + assignedUser.LastName,
             demonstratorEmail: assignedUser.Email,
             demonstrable: true,
-            demonstrated: true,
+            demonstrated: false,
             boundaryDate: boundaryDate,
             active: false
         });
