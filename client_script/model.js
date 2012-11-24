@@ -26,12 +26,12 @@ YouRHere.DemoItem = Backbone.Model.extend({
         this.ioBind("activeChanged", this.setActive, this);
     },
     serverChange: function (data) {
-        console.log("DemoItem" + data.id + ".serverChange");
+        console.log("DemoItem: " + data.id + ".serverChange");
         data.fromServer = true;
         this.set(data);
     },
     setActive: function (data) {
-        console.log("DemoItem" + data.id + ".setActive");
+        console.log("DemoItem: " + data.id + ".setActive");
         data.fromServer = true;
         this.set(data);
     },
@@ -48,6 +48,64 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     initialize: function () {
         _.bindAll(this, "collectionCleanup");
     },    
+    collectionCleanup: function (callback) {
+        this.ioUnbindAll();
+        this.each(function (model) {
+            model.modelCleanup();
+        });
+        return this;
+    }
+});
+
+YouRHere.User = Backbone.Model.extend({
+    urlRoot: "user",
+    socket: window.socket,
+    defaults: {
+        email: "anonymouscoward@criticaltech.com",
+        gravatarUrl: ""
+    },
+    initialize: function () {
+        _.bindAll(this, "serverChange", "serverDelete", "modelCleanup");
+        this.ioBind("update", this.serverChange, this);
+        this.ioBind("delete", this.serverDelete, this);
+    },
+    serverChange: function (data) {
+        console.log("User: " + data.id + "(" + data.email + ").serverCreate");
+        this.set(data);
+    },
+    serverDelete: function (data) {
+        console.log("User: " + this.id + ".serverDelete");
+        if (this.collection) {
+            console.log("removing from collection");
+            this.collection.remove(this);
+        } else {
+            console.log("triggering remove");
+            this.trigger("remove", this);
+        }
+        this.modelCleanup();
+    },
+    modelCleanup: function () {
+        this.ioUnbindAll();
+        return this;
+    }
+});
+
+YouRHere.Users = Backbone.Collection.extend({
+    model: YouRHere.User,
+    url: "users",
+    socket: window.socket,
+    initialize: function () {
+        _.bindAll(this, "userAdded", "collectionCleanup");
+        this.ioBind("create", this.userAdded, this);
+    },
+    userAdded: function (data) {
+        console.log("Users: " + data.id + "(" + data.email + ") added");
+        if (this.get(data.id)) {
+            exists.set(data);
+        } else {
+            this.add(data);
+        }
+    },
     collectionCleanup: function (callback) {
         this.ioUnbindAll();
         this.each(function (model) {

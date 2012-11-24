@@ -8,6 +8,12 @@ YouRHere.App = Backbone.Router.extend({
         '/': 'index'
     },
     index: function () {
+
+        var users = new YouRHere.Users();
+        var userListView = new YouRHere.UserListView(users);
+        $("#users").append(userListView.el);
+        users.fetch();
+
         var demoItems = new YouRHere.DemoItems();
         var demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems);
         $("#itemsView").append(demoListView.el);
@@ -32,10 +38,10 @@ YouRHere.DemoListView = Backbone.View.extend({
         if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
         this.demoItems.each(function (demoItem) {            
             if (!demoItem.active && demoItem.id == e.srcElement.id) {
-                console.log("Setting DemoItem " + demoItem.id + " to active");
+                console.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
                 demoItem.save("active", true); //The item that was clicked (the newly active item)
             } else if ($("#" + demoItem.id).hasClass("highlight")) {
-                console.log("Setting DemoItem " + demoItem.id + " to inactive");
+                console.log("DemoListView: Setting DemoItem " + demoItem.id + " to inactive");
                 demoItem.save("active", false); //The currently (soon to be previously) active item
             }
         });
@@ -78,7 +84,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
     },
     activeChanged: function () {
         var curActive = this.model.get("active");
-        console.log("ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
+        console.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
         if (curActive) {
             this.$el.addClass("highlight");
         } else {
@@ -119,14 +125,77 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
         if (e.srcElement) {
             var checked = e.srcElement.checked;
             if (invertedLogic) checked = !checked;
-            console.log("set" + attribName + " from client: Saving DemoItem " + this.model.id + ", " + attribName + " = " + checked);
+            console.log("EditableDemoItemView: Set" + attribName + " from client: Saving DemoItem " + this.model.id + ", " + attribName + " = " + checked);
             this.model.save(attribName, checked);
         } else {
             var attribVal = this.model.get(attribName);            
-            console.log("set" + attribName + " from server: Refreshing view for DemoItem " + this.model.id + ", " + attribName + " = " + attribVal);
+            console.log("EditableDemoItemView: Set" + attribName + " from server: Refreshing view for DemoItem " + this.model.id + ", " + attribName + " = " + attribVal);
             if (invertedLogic) attribVal = !attribVal;
             this.$("." + checkBoxContainerClass + " input").prop("checked", attribVal);
         }
+    }
+});
+
+YouRHere.UserListView = Backbone.View.extend({
+    id: "UserListView",
+    tagName: "ul",    
+    initialize: function (users) {
+        _.bindAll(this, "render", "addUser", "removeUser", "getEmail");
+        this.users = users;
+        this.users.bind("add", this.addUser);
+        this.users.bind("reset", this.render); //Called during fetch
+        this.users.bind("remove", this.removeUser);
+        this.getEmail();
+        this.render();
+    },
+    render: function () {
+        var self = this;
+        this.users.each(function (user) {
+            self.addUser(user);
+        });
+        return this;
+    },
+    addUser: function (user) {
+        console.log("UserListView: Client adding user '" + user.id + "'");
+        var userView = new YouRHere.UserView(user);
+        $(this.el).append(userView.el);
+    },
+    removeUser: function (user) {
+        console.log("UserListView: Removing user " + user.id);
+        this.$("#" + user.id).remove();
+    },
+    getEmail: function () {        
+        var view = this;
+        $("#login").dialog({
+            buttons: [{
+                text: "OK",
+                click: function () {
+                    
+                    $(this).dialog("close");
+
+                    var email = $.trim($("#email").val());
+                    if (email === "") email = "anonymouscoward";
+
+                    var user = new YouRHere.User();
+                    user.set("email", email);
+                    user.save();
+
+                }
+            }]
+        });
+    }
+});
+
+YouRHere.UserView = Backbone.View.extend({
+    tagName: "li",
+    initialize: function (user) {
+        this.model = user;
+        this.render();
+    },
+    render: function () {
+        var userTemplate = "<li id='<%= item.id %>'><img src='<%= item.gravatarUrl %>' title='<%= item.email %>'/></li>";
+        this.$el.html(_.template(userTemplate, { item: this.model.toJSON() }));
+        return this;
     }
 });
 

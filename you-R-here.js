@@ -10,11 +10,12 @@ var _path = require("path");
 var _fs = require("fs");
 var _mime = require("mime");
 var _underscore = require("underscore"); //node reserves underscore (_) character for something else
+var _uuid = require("node-uuid"); //Creates "guids" for use as unique object ids
 var _address = "http://localhost"; //TODO: move this to a config file
 var _port = 8080; //TODO: move this to a config file
 
 _server.listen(_port);
-var _gravatarUrls = {}; //users currently connected 
+var _users = []; //users currently connected 
 var _demoItems = []; //user stories and bugs 
 var _activeItemId = 0;
 var _staticContentItems = {
@@ -86,14 +87,14 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
-        console.log("reading");
+        console.log("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
     });
 
     // called when .save() is called on DemoItem model
     socket.on("demoitems:update", function (newDemoItem, callback) {
 
-        console.log("UPDATE, UPDATE, UPDATE");
+        console.log("DEMOITEMS:UPDATE --------------------------");
         console.log("id = " + newDemoItem.id);
         console.log("demonstrable = " + newDemoItem.demonstrable);
 
@@ -112,90 +113,133 @@ _io.sockets.on("connection", function (socket) {
         callback(null, newDemoItem); //do we need both this and socket.emit?
     });
 
-    //Send the new entities when the client requests them
-    socket.on("retrieveentities", function(){
-        socket.emit("entitiesretrieved", _demoItems);
+    // called when .fetch() is called on Users collection on client side
+    socket.on("users:read", function (data, callback) {
+        console.log("USERS:READ --------------------------");
+        callback(null, _users);
     });
-    socket.on("retrieveactiveitem", function(){
-        //console.log("sending back active item id");
-        var item = getItem(_activeItemId);
-        socket.emit("activeitemchanged", item);         
-    });          
 
-    //when the client emits "adduser", this listens and executes         
-    socket.on("adduser", function(username) { 
-        
-        //get the gravatar for this user
-        var gravatarUrl = _gravatar.url(username, { size: '80', default:'identicon'}); 
-        
-        //store username in the socket session for this client, and in global list
-        socket.username = username;
-        _gravatarUrls[username] = gravatarUrl; 
-        
-        //tell the client that he or she has been connected
-        socket.emit("updateaudit", "SERVER", "you have connected"); 
-        
-        //tell everyone else that he or she has been connected
-        socket.broadcast.emit("updateaudit", "SERVER", username + " has connected"); 
-        
-        //update the list of users on the client side
-        _io.sockets.emit("updateusers", _gravatarUrls);          
-    });          
-    
-    //Admin changes active item         
-    socket.on("changeactiveitem", function(activeItemId, activeItemName) {
-        _activeItemId = activeItemId;
-        socket.emit("updateaudit", "SERVER", "you changed the active item to '" + activeItemName + "'");
-        socket.broadcast.emit("updateaudit", "SERVER", socket.username + " changed the active item to '" + activeItemName + "'");
-        var item = getItem(_activeItemId);
-        _io.sockets.emit("activeitemchanged", item);         
-    });          
-    
-    //Admin changes item shown         
-    socket.on("changeshown", function(data) {
-        var id = parseInt(data.id);
-        for (var idx=0; idx < _demoItems.length; idx++) {
-            //console.log('changeshown ==> oh my: ' + idx);
-            //console.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
-            if (parseInt(_demoItems[idx].Id) === id) {
-                _demoItems[idx].shown = data.val;
-                break;
-            }
-        };
-        //console.log('changeshown: ' + data.id);
-        //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
-        _io.sockets.emit("shownchanged", data);         
+    socket.on("user:create", function (newUser, callback) {
+
+        console.log("USER:CREATE --------------------------");
+
+        newUser.id = _uuid.v4(); //backbone.iobind loses its mind if ids are not unique
+        newUser.gravatarUrl = _gravatar.url(newUser.email, { size: '80', default: 'identicon' });
+        _users.push(newUser);
+
+        socket.userid = newUser.id;
+
+        socket.emit("users:create", newUser);
+        socket.broadcast.emit("users:create", newUser);
+
+        callback(null, newUser);
+
     });
-    
-    //Admin changes item is demonstrable         
-    socket.on("changenodemo", function(data) {
-        var id = parseInt(data.id);
-        for (var idx=0; idx < _demoItems.length; idx++) {
-            //console.log('changenodemo ==> oh my: ' + idx);
-            //console.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
-            if (parseInt(_demoItems[idx].Id) === id) {
-                _demoItems[idx].canDemo = data.val;
-                break;
-            }
-        };
 
-        //console.log('changenodemo: ' + data.id);
-        //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
-        _io.sockets.emit("nodemochanged", data);         
-    });          
-    
-    //handle client disconnects         
+    //handle client disconnects
     socket.on("disconnect", function () {
 
-        //remove the username from the global list
-        delete _gravatarUrls[socket.username];
+        console.log("DISCONNECT --------------------------");
+        console.log(socket.userid + " has disconnected");
 
-        //update the list of users on the client side
-        _io.sockets.emit("updateusers", _gravatarUrls);
+        //tell everyone else that the user disconnected
+        var user = _underscore.where(_users, { id: socket.userid });
+        socket.broadcast.emit("user/" + socket.userid + ":delete", user);
 
-        //tell everyone that the user left
-        socket.broadcast.emit("updateaudit", "SERVER", socket.username + " has disconnected.");
+        //remove the user from the array
+        for (var i = 0; i < _users.length; i++) {
+            if (_users[i].id === socket.userid) {
+                console.log("deleting item " + i);
+                delete _users[i];
+                break;
+            }
+        }
     });
+
+    ////Send the new entities when the client requests them
+    //socket.on("retrieveentities", function(){
+    //    socket.emit("entitiesretrieved", _demoItems);
+    //});
+    //socket.on("retrieveactiveitem", function(){
+    //    //console.log("sending back active item id");
+    //    var item = getItem(_activeItemId);
+    //    socket.emit("activeitemchanged", item);         
+    //});          
+
+    ////when the client emits "adduser", this listens and executes         
+    //socket.on("adduser", function(username) { 
+        
+    //    //get the gravatar for this user
+    //    var gravatarUrl = _gravatar.url(username, { size: '80', default:'identicon'}); 
+        
+    //    //store username in the socket session for this client, and in global list
+    //    socket.username = username;
+    //    _gravatarUrls[username] = gravatarUrl; 
+        
+    //    //tell the client that he or she has been connected
+    //    socket.emit("updateaudit", "SERVER", "you have connected"); 
+        
+    //    //tell everyone else that he or she has been connected
+    //    socket.broadcast.emit("updateaudit", "SERVER", username + " has connected"); 
+        
+    //    //update the list of users on the client side
+    //    _io.sockets.emit("updateusers", _gravatarUrls);          
+    //});          
+    
+    ////Admin changes active item         
+    //socket.on("changeactiveitem", function(activeItemId, activeItemName) {
+    //    _activeItemId = activeItemId;
+    //    socket.emit("updateaudit", "SERVER", "you changed the active item to '" + activeItemName + "'");
+    //    socket.broadcast.emit("updateaudit", "SERVER", socket.username + " changed the active item to '" + activeItemName + "'");
+    //    var item = getItem(_activeItemId);
+    //    _io.sockets.emit("activeitemchanged", item);         
+    //});          
+    
+    ////Admin changes item shown         
+    //socket.on("changeshown", function(data) {
+    //    var id = parseInt(data.id);
+    //    for (var idx=0; idx < _demoItems.length; idx++) {
+    //        //console.log('changeshown ==> oh my: ' + idx);
+    //        //console.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
+    //        if (parseInt(_demoItems[idx].Id) === id) {
+    //            _demoItems[idx].shown = data.val;
+    //            break;
+    //        }
+    //    };
+    //    //console.log('changeshown: ' + data.id);
+    //    //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
+    //    _io.sockets.emit("shownchanged", data);         
+    //});
+    
+    ////Admin changes item is demonstrable         
+    //socket.on("changenodemo", function(data) {
+    //    var id = parseInt(data.id);
+    //    for (var idx=0; idx < _demoItems.length; idx++) {
+    //        //console.log('changenodemo ==> oh my: ' + idx);
+    //        //console.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
+    //        if (parseInt(_demoItems[idx].Id) === id) {
+    //            _demoItems[idx].canDemo = data.val;
+    //            break;
+    //        }
+    //    };
+
+    //    //console.log('changenodemo: ' + data.id);
+    //    //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
+    //    _io.sockets.emit("nodemochanged", data);         
+    //});          
+    
+    ////handle client disconnects         
+    //socket.on("disconnect", function () {
+
+    //    //remove the username from the global list
+    //    delete _gravatarUrls[socket.username];
+
+    //    //update the list of users on the client side
+    //    _io.sockets.emit("updateusers", _gravatarUrls);
+
+    //    //tell everyone that the user left
+    //    socket.broadcast.emit("updateaudit", "SERVER", socket.username + " has disconnected.");
+    //});
 });
 
 function refreshEntities(boundaryDate) {
