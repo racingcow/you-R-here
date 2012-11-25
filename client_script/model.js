@@ -61,7 +61,7 @@ YouRHere.User = Backbone.Model.extend({
     urlRoot: "user",
     socket: window.socket,
     defaults: {
-        email: "anonymouscoward@criticaltech.com",
+        email: "",
         gravatarUrl: ""
     },
     initialize: function () {

@@ -174,7 +174,8 @@ YouRHere.UserListView = Backbone.View.extend({
                     $(this).dialog("close");
 
                     var email = $.trim($("#email").val());
-                    if (email === "") email = "anonymouscoward";
+
+                    console.log("email is: " + email);
 
                     var user = new YouRHere.User();
                     user.set("email", email);

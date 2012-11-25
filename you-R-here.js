@@ -9,8 +9,13 @@ var _url = require("url");
 var _path = require("path");
 var _fs = require("fs");
 var _mime = require("mime");
-var _underscore = require("underscore"); //node reserves underscore (_) character for something else
 var _uuid = require("node-uuid"); //Creates "guids" for use as unique object ids
+
+var _ = require("underscore");
+_.str = require("underscore.string"); //there are name conflicts with underscore.string
+_.mixin(_.str.exports()); //put the non-conflicting methods in _ var
+_.str.include("Unserscore.string", "string"); //put all conflicting methods in _.str
+
 var _address = "http://localhost"; //TODO: move this to a config file
 var _port = 8080; //TODO: move this to a config file
 
@@ -99,8 +104,8 @@ _io.sockets.on("connection", function (socket) {
         console.log("demonstrable = " + newDemoItem.demonstrable);
 
         //update in-memory demo items list
-        var oldDemoItem = _underscore.find(_demoItems, function (e) { return e.id === newDemoItem.id; });        
-        _underscore.each(_demoItems, function (e) { e.active = false; }); //there can be only one
+        var oldDemoItem = _.find(_demoItems, function (e) { return e.id === newDemoItem.id; });        
+        _.each(_demoItems, function (e) { e.active = false; }); //there can be only one
         _demoItems[_demoItems.indexOf(oldDemoItem)] = newDemoItem;
 
         //tell everyone else what happened
@@ -111,7 +116,7 @@ _io.sockets.on("connection", function (socket) {
         socket.broadcast.emit("demoitems/" + newDemoItem.id + ":" + action, newDemoItem);
 
         callback(null, newDemoItem); //do we need both this and socket.emit?
-    });
+    }); 
 
     // called when .fetch() is called on Users collection on client side
     socket.on("users:read", function (data, callback) {
@@ -123,6 +128,8 @@ _io.sockets.on("connection", function (socket) {
 
         console.log("USER:CREATE --------------------------");
 
+        if (!newUser.email || _.trim(newUser.email) === "") return;
+
         newUser.id = _uuid.v4(); //backbone.iobind loses its mind if ids are not unique
         newUser.gravatarUrl = _gravatar.url(newUser.email, { size: '80', default: 'identicon' });
         _users.push(newUser);
@@ -131,6 +138,9 @@ _io.sockets.on("connection", function (socket) {
 
         socket.emit("users:create", newUser);
         socket.broadcast.emit("users:create", newUser);
+
+        console.log("Users...");
+        console.log(_users);
 
         callback(null, newUser);
 
@@ -143,17 +153,25 @@ _io.sockets.on("connection", function (socket) {
         console.log(socket.userid + " has disconnected");
 
         //tell everyone else that the user disconnected
-        var user = _underscore.where(_users, { id: socket.userid });
+        var user = _.where(_users, { id: socket.userid });
         socket.broadcast.emit("user/" + socket.userid + ":delete", user);
+
+        console.log("Users...");
+        console.log(_users);
 
         //remove the user from the array
         for (var i = 0; i < _users.length; i++) {
             if (_users[i].id === socket.userid) {
                 console.log("deleting item " + i);
-                delete _users[i];
+                _users.splice(i, 1);
                 break;
             }
         }
+
+        console.log("Users...");
+        console.log(_users);
+
+        console.log("USERS LIST (after removal): " + _users);
     });
 
     ////Send the new entities when the client requests them
@@ -257,7 +275,7 @@ function tpToModelSchema(data, boundaryDate) {
     for (var i = 0; i < data.Items.length; i++) {
         var item = data.Items[i];
 
-        var assignedUser = _underscore.filter(data.Items[i].Assignments.Items, function (item) {
+        var assignedUser = _.filter(data.Items[i].Assignments.Items, function (item) {
             return item.Role.Name === "Developer";
         })[0].GeneralUser;
 
