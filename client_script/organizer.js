@@ -1,4 +1,5 @@
-﻿var YouRHere = YouRHere || {};
+﻿var socket = io.connect(_address + ":" + _port);
+var YouRHere = YouRHere || {};
 
 YouRHere.App = Backbone.Router.extend({
     routes: {

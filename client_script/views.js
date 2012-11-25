@@ -1,6 +1,4 @@
-﻿var socket = io.connect(_address + ":" + _port);
-
-var YouRHere = YouRHere || {};
+﻿var YouRHere = YouRHere || {};
 
 YouRHere.DemoListView = Backbone.View.extend({
     id: "DemoListView",
@@ -9,9 +7,10 @@ YouRHere.DemoListView = Backbone.View.extend({
         "click li": "clickDemoItem"
     },
     initialize: function (itemView, demoItems) {
+        console.log("DemoListView.initialize");
         _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem");
         this.itemView = itemView;
-        this.demoItems = demoItems;
+        this.demoItems = demoItems;        
         this.demoItems.bind("reset", this.render); //Called during fetch
         this.render();
     },
@@ -47,15 +46,74 @@ YouRHere.DemoListView = Backbone.View.extend({
     }
 });
 
+YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({
+    //events: {
+    //    "click li.currentItem": "filterCurrentItem",
+    //    "click li.myItems": "filterMyItems",
+    //    "click li.allItems": "filterAllItems"
+    //},
+    initialize: function (itemView, demoItems) {
+
+        console.log("FilterableDemoListView.initialize");
+
+        this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
+        this.backupDemoItems = this.demoItems;
+
+        _.bindAll(this, "render", "filterCurrentItem", "filterMyItems", "filterAllItems");
+
+        //delegate events (http://backbonejs.org/#View-delegateEvents) weren't working for some reason. 
+        //perhaps something about inheritance that I don't yet understand (like maybe you have to call "delegateEvents" manually.
+        $("li.currentItem").on("click", this.filterCurrentItem);
+        $("li.myItems").on("click", this.filterMyItems);
+        $("li.allItems").on("click", this.filterAllItems);
+
+        this.render();
+        return this;
+    },
+    render: function (data) {
+        console.log("FilterableDemoListView.render");
+        console.log(data);
+        console.log(this.demoItems);
+        var itemsToRender = data || this.demoItems;
+        console.log(itemsToRender);
+        var self = this;
+        itemsToRender.each(function (demoItem) {
+            self.addDemoItem(demoItem);
+        });
+        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
+        return this;
+    },    
+    filterCurrentItem: function () {
+        //maybe "this" isn't being set to the view?
+        //http://stackoverflow.com/questions/6865174/backbone-js-correct-way-of-filter-collection-data-and-display-in-view
+        console.log("FilterableDemoListView.filterCurrentItem");
+        var filtered = this.demoItems.filter(function (demoItem) {
+            return demoItem.get("active");
+        });
+        this.demoItems.reset(new YouRHere.DemoItems(filtered).toJSON());
+        return this;
+    },
+    filterMyItems: function () {
+        console.log("FilterableDemoListView.filterMyItems");
+        return this;
+    },
+    filterAllItems: function () {
+        console.log("FilterableDemoListView.filterAllItems");
+        return this;
+    }
+});
+
 YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
     initialize: function (itemView, demoItems) {
+        console.log("SortableDemoListView.initialize");
         this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
         this.render();
         return this;
     },
     render: function () {
+        console.log("SortableDemoListView.render");
         this.constructor.__super__.render.apply(this, []);
-        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();        
+        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
         return this;
     }
 });
