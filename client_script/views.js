@@ -46,59 +46,92 @@ YouRHere.DemoListView = Backbone.View.extend({
     }
 });
 
-YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({
-    //events: {
-    //    "click li.currentItem": "filterCurrentItem",
-    //    "click li.myItems": "filterMyItems",
-    //    "click li.allItems": "filterAllItems"
-    //},
+//todo: I had problems when trying to extend SortableDemoListView here. Need to come back and try again.
+YouRHere.FilterableDemoListView = Backbone.View.extend({
+    id: "DemoListView",
+    tagName: "div",
+    events: {
+        "click li.currentItem": "filterCurrentItem",
+        "click li.myItems": "filterMyItems",
+        "click li.allItems": "filterAllItems"
+    },
     initialize: function (itemView, demoItems) {
 
         console.log("FilterableDemoListView.initialize");
 
-        this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
-        this.backupDemoItems = this.demoItems;
+        _.bindAll(this);
 
-        _.bindAll(this, "render", "filterCurrentItem", "filterMyItems", "filterAllItems");
+        this.itemView = itemView;
+        this.demoItems = demoItems;
+        this.email = "";
 
-        //delegate events (http://backbonejs.org/#View-delegateEvents) weren't working for some reason. 
-        //perhaps something about inheritance that I don't yet understand (like maybe you have to call "delegateEvents" manually.
-        $("li.currentItem").on("click", this.filterCurrentItem);
-        $("li.myItems").on("click", this.filterMyItems);
-        $("li.allItems").on("click", this.filterAllItems);
+        this.demoItems.bind("reset", this.render, this); //Called during fetch
 
-        this.render();
         return this;
     },
-    render: function (data) {
+    render: function () {
         console.log("FilterableDemoListView.render");
-        console.log(data);
-        console.log(this.demoItems);
-        var itemsToRender = data || this.demoItems;
-        console.log(itemsToRender);
+
+        //render the filter controls
+        //todo: think about making this a separate view
+        this.$el.append("<ul class='tabs'><li class='menu first selected currentItem'>Current Item</li><li class='menu last myItems'>My Items</li><li class='menu last allItems'>All Items</li></ul>");
+
+        //render a sub-container for the items
+        this.$el.append("<ul class='items'></ul>");
+
+        //make list sortable
+        $(".items").sortable({ axis: "y", containment: "parent" }).disableSelection();
+
+        return this;
+    },
+    renderList: function (filteredItems) {        
+        console.log("FilterableDemoListView.renderList");
+
+        this.clearDemoItems();
+
         var self = this;
-        itemsToRender.each(function (demoItem) {
+        filteredItems.each(function (demoItem) {
             self.addDemoItem(demoItem);
         });
-        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
+
         return this;
-    },    
-    filterCurrentItem: function () {
-        //maybe "this" isn't being set to the view?
-        //http://stackoverflow.com/questions/6865174/backbone-js-correct-way-of-filter-collection-data-and-display-in-view
-        console.log("FilterableDemoListView.filterCurrentItem");
-        var filtered = this.demoItems.filter(function (demoItem) {
-            return demoItem.get("active");
+    },
+    clickDemoItem: function (e) {
+        if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
+        this.demoItems.each(function (demoItem) {
+            if (!demoItem.active && demoItem.id == e.srcElement.id) {
+                console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to active");
+                demoItem.save("active", true); //The item that was clicked (the newly active item)
+            } else if ($("#" + demoItem.id).hasClass("highlight")) {
+                console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to inactive");
+                demoItem.save("active", false); //The currently (soon to be previously) active item
+            }
         });
-        this.demoItems.reset(new YouRHere.DemoItems(filtered).toJSON());
+    },
+    addDemoItem: function (demoItem) {
+        var demoItemView = new this.itemView(demoItem);
+        $(".items").append(demoItemView.el);
+    },
+    removeDemoItem: function (demoItem) {
+        this.$("#" + demoItem.id).remove();
+    },
+    clearDemoItems: function () {
+        $(".items").empty();
+    },
+    filterCurrentItem: function () {
+        console.log("FilterableDemoListView.filterCurrentItem");
+        this.renderList(this.demoItems.filterByActive(true));
         return this;
     },
     filterMyItems: function () {
-        console.log("FilterableDemoListView.filterMyItems");
+        console.log("FilterableDemoListView.filterMyItems - email is " + this.email);
+        var filteredList = this.demoItems.filterByEmail(this.email);
+        this.renderList(filteredList);
         return this;
     },
     filterAllItems: function () {
         console.log("FilterableDemoListView.filterAllItems");
+        this.renderList(this.demoItems);
         return this;
     }
 });
@@ -229,12 +262,13 @@ YouRHere.UserListView = Backbone.View.extend({
 
                     var email = $.trim($("#email").val());
 
-                    console.log("email is: " + email);
-
                     var user = new YouRHere.User();
                     user.set("email", email);
                     user.save();
 
+                    //send email address out to other views
+                    console.log("UserListView: raising 'user:login' event - email is " + email);
+                    view.trigger("user:login", email);
                 }
             }]
         });

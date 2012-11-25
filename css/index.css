@@ -82,7 +82,7 @@ a {
     height: 85%;
 }
 
-#DemoListView li {
+.DemoListView li {
     padding-left: 10px;
     padding-right: 10px;
     color: white;
@@ -167,9 +167,13 @@ div.shown, div.noDemo {
 }
 .Bug {
     border-left: 3px solid #CD5C5C;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 .UserStory {
     border-left: 3px solid #B0E0E6;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 .current {
     margin-left: 10px;
@@ -246,4 +250,10 @@ li.selected {
 
 li.menu:hover {
     background-color: transparent;
+}
+
+.tabs {
+    margin-top: 15px;
+    margin-bottom: 30px;
+    padding-left: 0px !important;
 }

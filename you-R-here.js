@@ -136,6 +136,7 @@ _io.sockets.on("connection", function (socket) {
         _users.push(newUser);
 
         socket.userid = newUser.id;
+        socket.email = newUser.email;
 
         socket.emit("users:create", newUser);
         socket.broadcast.emit("users:create", newUser);

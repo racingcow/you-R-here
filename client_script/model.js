@@ -47,7 +47,17 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     socket: window.socket,
     initialize: function () {
         _.bindAll(this, "collectionCleanup");
-    },    
+    },
+    filterByActive: function (active) {
+        return _(this.filter(function (demoItem) { //wrapping with underscore function returns collection
+            return demoItem.get("active") == active;
+        }));
+    },
+    filterByEmail: function (email) {
+        return _(this.filter(function (demoItem) { //wrapping with underscore function returns collection
+            return demoItem.get("demonstratorEmail") == email;
+        }));
+    },
     collectionCleanup: function (callback) {
         this.ioUnbindAll();
         this.each(function (model) {
