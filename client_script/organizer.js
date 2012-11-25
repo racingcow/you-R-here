@@ -13,7 +13,7 @@ YouRHere.App = Backbone.Router.extend({
         users.fetch();
 
         var demoItems = new YouRHere.DemoItems();
-        var demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems);
+        var demoListView = new YouRHere.SortableDemoListView(YouRHere.EditableDemoItemView, demoItems);
         $("#itemsView").append(demoListView.el);
         demoItems.fetch();
     }

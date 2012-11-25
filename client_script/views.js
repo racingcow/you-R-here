@@ -28,6 +28,7 @@ YouRHere.DemoListView = Backbone.View.extend({
         });
     },
     render: function () {
+        console.log("DemoListView.render");
         var self = this;
         if (this.demoItems.length > 0) {
             $("#datepicker").val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")); //Date comes back from server now
@@ -46,6 +47,19 @@ YouRHere.DemoListView = Backbone.View.extend({
     }
 });
 
+YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
+    initialize: function (itemView, demoItems) {
+        this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
+        this.render();
+        return this;
+    },
+    render: function () {
+        this.constructor.__super__.render.apply(this, []);
+        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();        
+        return this;
+    }
+});
+
 YouRHere.DemoItemView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
@@ -53,6 +67,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
         this.model = demoItem;
         this.model.bind("change:active", this.activeChanged);
         this.render();
+        return this;
     },
     render: function () {
         var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
