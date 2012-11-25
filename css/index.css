@@ -144,7 +144,6 @@ input[type=checkbox] {
 div.shown, div.noDemo {
     display: inline-block;
     background-color: lightSlateGray;
-    width: 100px;
     padding: 2px;
 }
 

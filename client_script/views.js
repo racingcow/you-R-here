@@ -167,6 +167,9 @@ YouRHere.DemoItemView = Backbone.View.extend({
             .attr("data-user-login", this.model.demonstrator)
             .addClass(this.model.get("type"))
             .addClass("admin"); //TODO: pass this into the view, somehow
+        if (this.model.get("active")) {
+            this.$el.attr("id", this.model.id).addClass("highlight");
+        }
         return this;
     },
     activeChanged: function () {
