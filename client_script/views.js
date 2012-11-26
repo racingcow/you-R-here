@@ -84,7 +84,7 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
 
         return this;
     },
-    renderList: function (filteredItems) {        
+    renderList: function (filteredItems) {
         console.log("FilterableDemoListView.renderList");
 
         this.clearDemoItems();
@@ -180,6 +180,43 @@ YouRHere.DemoItemView = Backbone.View.extend({
         } else {
             this.$el.removeClass("highlight");
         }
+    }
+});
+
+YouRHere.DetailsDemoItemView = Backbone.View.extend({
+    id: "DemoListView",
+    tagName: "div",    
+    initialize: function (demoItems) {
+        console.log("DemoListView.initialize");
+        _.bindAll(this, "render");
+        this.demoItems = demoItems;
+        this.demoItems.bind("reset", this.render); //Called during fetch
+        this.demoItems.bind("change", this.render); //Called when active item changes
+        this.render();
+    },
+    render: function () {
+
+        console.log("DetailsDemoItemView.render");
+
+        console.log(this.demoItems);
+        console.log(this.demoItems.length);
+
+        var activeItems = this.demoItems.filterByActive(true);
+        if (!activeItems || !activeItems.length || activeItems.length === 0) {
+            console.log("No active items. Exiting early.");
+            return this;
+        }
+        console.log(activeItems.models);
+        var activeItem = activeItems.at(0);
+
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
+        var currentTemplate = "<h3>Now Showing</h3><div id='current' class='current highlight'>" + demoItemTemplate + "</div";
+        this.$el.append(_.template(currentTemplate, { item: activeItem.toJSON() }));
+
+        var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
+        this.$el.append(_.template(currentTemplate, { item: activeItem.toJSON() }));
+
+        return this;
     }
 });
 

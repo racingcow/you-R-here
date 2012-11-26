@@ -50,6 +50,7 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     },
     filterByActive: function (active) {
         return _(this.filter(function (demoItem) { //wrapping with underscore function returns collection
+            debugger;
             return demoItem.get("active") == active;
         }));
     },
