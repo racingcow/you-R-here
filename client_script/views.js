@@ -183,6 +183,37 @@ YouRHere.DemoItemView = Backbone.View.extend({
     }
 });
 
+YouRHere.DemoItemDetailView = Backbone.View.extend({
+    tagName: "li",
+    initialize: function (demoItem) {
+        _.bindAll(this, "activeChanged");
+        this.model = demoItem;
+        this.model.bind("change:active", this.activeChanged);
+        this.render();
+        return this;
+    },
+    render: function () {
+
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
+        var currentTemplate = "<h3>Now Showing</h3><div id='current' class='current highlight'>" + demoItemTemplate + "</div";
+        this.$el.append(_.template(currentTemplate, { item: this.model.toJSON() }));
+
+        var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
+        this.$el.append(_.template(descItemplate, { item: this.model.toJSON() }));
+
+        return this;
+    },
+    activeChanged: function () {
+        var curActive = this.model.get("active");
+        console.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
+        if (curActive) {
+            this.$el.addClass("highlight");
+        } else {
+            this.$el.removeClass("highlight");
+        }
+    }
+});
+
 YouRHere.DetailsDemoItemView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "div",    
@@ -194,29 +225,26 @@ YouRHere.DetailsDemoItemView = Backbone.View.extend({
         this.demoItems.bind("change", this.render); //Called when active item changes
         this.render();
     },
+    clearDemoItems: function () {
+        $("#DemoListView").empty();
+    },
+    addDemoItem: function (demoItem) {
+        var demoItemView = new YouRHere.DemoItemDetailView(demoItem);
+        $("#DemoListView").append(demoItemView.el);
+    },
     render: function () {
 
         console.log("DetailsDemoItemView.render");
 
-        console.log(this.demoItems);
-        console.log(this.demoItems.length);
-
-        //filterByActive is returning something funky for some reason
-
-        var activeItems = this.demoItems.filterByActive(true);
-        if (!activeItems || !activeItems.length || activeItems.length === 0) {
-            console.log("No active items. Exiting early.");
-            return this;
-        }
-        console.log(activeItems.models);
-        var activeItem = activeItems.at(0);
-
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
-        var currentTemplate = "<h3>Now Showing</h3><div id='current' class='current highlight'>" + demoItemTemplate + "</div";
-        this.$el.append(_.template(currentTemplate, { item: activeItem.toJSON() }));
-
-        var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
-        this.$el.append(_.template(currentTemplate, { item: activeItem.toJSON() }));
+        var activeItems = this.demoItems.filterByActive(true);        
+        
+        //renderList
+        this.clearDemoItems();
+        
+        var self = this;
+        activeItems.each(function(demoItem) {
+            self.addDemoItem(demoItem);
+        });        
 
         return this;
     }

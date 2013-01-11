@@ -34,7 +34,9 @@ npm install
 info = {
 	username: "myusername",
 	password: "mysecretpassword",
-	url: "https://mycompany.tpondemand.com/api/v1/"
+	url: "https://mycompany.tpondemand.com/api/v1/",
+	iterationDurationInWeeks: 2,
+	format: "json"
 };
 exports.info = info;
 ```

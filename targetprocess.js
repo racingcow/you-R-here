@@ -30,9 +30,9 @@ var methods = {
         };
 
         var url = [];
-        url.push(getOptions.url);
+        url.push(config.info.url);
         url.push("Assignables?format=");
-        url.push(getOptions.format);             
+        url.push(config.info.format);             
         url.push("&include=[Id,Description,Name,EntityType,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]&where=");
         url.push(encodeURIComponent("(EntityType.Name in ('UserStory','Bug'))"));
         url.push(encodeURIComponent(" and (Iteration.EndDate eq '"));     
@@ -41,7 +41,7 @@ var methods = {
         url.push(encodeURIComponent(" and (EntityState.Name in ('To Verify','Done','Fixed','Closed'))"));
         url = url.join("");
 
-        //console.log("TP API: " + url);
+        console.log("TP API: " + url);
 
         rest.get(url, getOptions).on("complete", function(result) {
             if (result instanceof Error) {        
@@ -65,17 +65,18 @@ var methods = {
         url.push("')");
         url = url.join("");
 
-        //console.log("TP API: " + url);
+        console.log("TP API: " + url);
 
         rest.get(url, config.info).on("complete", function (result) {
             if (result instanceof Error) {
                 sys.puts("ERROR: " + result.message);
-            } else {
+            } else {                
                 var dates = underscore.map(result.Items, function (item) {
                     //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
-                });
-                var boundary = underscore.max(dates, function (date) { return date.getTime() });
+                });                                
+                var boundary = underscore.max(dates, function (date) { return date.getTime(); });
+                console.log("Boundary Date: " + boundary);
                 callback(boundary);
             }
         });

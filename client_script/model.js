@@ -44,15 +44,20 @@ YouRHere.DemoItem = Backbone.Model.extend({
 YouRHere.DemoItems = Backbone.Collection.extend({
     model: YouRHere.DemoItem,
     url: "demoitems",
-    socket: window.socket,
+    socket: window.socket,    
     initialize: function () {
         _.bindAll(this, "collectionCleanup");
     },
+    change : function() {
+        console.log("I have changed.");
+    },
     filterByActive: function (active) {
-        return _(this.filter(function (demoItem) { //wrapping with underscore function returns collection
-            debugger;
-            return demoItem.get("active") == active;
+		console.log("this.length = " + this.length);
+        var filtered = _(this.filter(function (demoItem) { //wrapping with underscore function returns collection            
+            return demoItem.get("active").toString() == active.toString();
         }));
+        console.log("filtered.length = " + filtered.length);
+        return filtered;
     },
     filterByEmail: function (email) {
         return _(this.filter(function (demoItem) { //wrapping with underscore function returns collection
@@ -65,7 +70,7 @@ YouRHere.DemoItems = Backbone.Collection.extend({
             model.modelCleanup();
         });
         return this;
-    }
+    }    
 });
 
 YouRHere.User = Backbone.Model.extend({

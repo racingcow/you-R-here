@@ -277,9 +277,10 @@ function tpToModelSchema(data, boundaryDate) {
     for (var i = 0; i < data.Items.length; i++) {
         var item = data.Items[i];
 
-        var assignedUser = _.filter(data.Items[i].Assignments.Items, function (item) {
+        var assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
             return item.Role.Name === "Developer";
-        })[0].GeneralUser;
+        });        		
+		var assignedUser = assignedDevelopers.length > 0 ? assignedDevelopers[0].GeneralUser : {FirstName: "not", LastName: "assigned", Email: ""};
 
         entities.push({
             id: item.Id,
