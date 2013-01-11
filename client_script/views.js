@@ -201,6 +201,8 @@ YouRHere.DetailsDemoItemView = Backbone.View.extend({
         console.log(this.demoItems);
         console.log(this.demoItems.length);
 
+        //filterByActive is returning something funky for some reason
+
         var activeItems = this.demoItems.filterByActive(true);
         if (!activeItems || !activeItems.length || activeItems.length === 0) {
             console.log("No active items. Exiting early.");
