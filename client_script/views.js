@@ -15,9 +15,21 @@ YouRHere.DemoListView = Backbone.View.extend({
         this.render();
     },
     clickDemoItem: function (e) {
-        if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
+        //console.log('DemoListView => clickDemoItem: ' + e.srcElement.tagName);
+        //if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
+        //I think we should highlight the LI no matter where we click. 
+        //The only spots I can make an argument for not highlighting would be "Shown" and "No Demo" DIVs, 
+        //but even then am not convinced it hurts anything. 
+
+        var elemId = e.srcElement.id;
+        if (e.srcElement.tagName != "LI") {
+            elemId = $(e.srcElement).closest('li').attr('id');
+            //console.log('found id: ' + elemId);
+        };
+        //console.log('using id: ' + elemId);
+
         this.demoItems.each(function (demoItem) {
-            if (!demoItem.active && demoItem.id == e.srcElement.id) {
+            if (!demoItem.active && demoItem.id == elemId) {
                 console.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
                 demoItem.save("active", true); //The item that was clicked (the newly active item)
             } else if ($("#" + demoItem.id).hasClass("highlight")) {
@@ -27,7 +39,8 @@ YouRHere.DemoListView = Backbone.View.extend({
         });
     },
     render: function () {
-        console.log("DemoListView.render");
+        //console.log("DemoListView.render");
+	   //console.log('this.demoItems.length: ' + this.demoItems.length);
         var self = this;
         if (this.demoItems.length > 0) {
             $("#datepicker").val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")); //Date comes back from server now

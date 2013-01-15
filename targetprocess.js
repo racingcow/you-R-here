@@ -41,7 +41,7 @@ var methods = {
         url.push(encodeURIComponent(" and (EntityState.Name in ('To Verify','Done','Fixed','Closed'))"));
         url = url.join("");
 
-        console.log("TP API: " + url);
+        console.log("getEntitiesForActiveIteration TP API: " + url);
 
         rest.get(url, getOptions).on("complete", function(result) {
             if (result instanceof Error) {        
@@ -65,7 +65,7 @@ var methods = {
         url.push("')");
         url = url.join("");
 
-        console.log("TP API: " + url);
+        console.log("getMostRecentIterationBoundary TP API: " + url);
 
         rest.get(url, config.info).on("complete", function (result) {
             if (result instanceof Error) {
