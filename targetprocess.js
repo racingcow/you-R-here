@@ -41,7 +41,7 @@ var methods = {
         url.push(encodeURIComponent(" and (EntityState.Name in ('To Verify','Done','Fixed','Closed'))"));
         url = url.join("");
 
-        console.log("getEntitiesForActiveIteration TP API: " + url);
+        //console.log("getEntitiesForActiveIteration TP API: " + url);
 
         rest.get(url, getOptions).on("complete", function(result) {
             if (result instanceof Error) {        
@@ -65,7 +65,7 @@ var methods = {
         url.push("')");
         url = url.join("");
 
-        console.log("getMostRecentIterationBoundary TP API: " + url);
+        //console.log("getMostRecentIterationBoundary TP API: " + url);
 
         rest.get(url, config.info).on("complete", function (result) {
             if (result instanceof Error) {
@@ -76,7 +76,7 @@ var methods = {
                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
                 });                                
                 var boundary = underscore.max(dates, function (date) { return date.getTime(); });
-                console.log("Boundary Date: " + boundary);
+                //console.log("Boundary Date: " + boundary);
                 callback(boundary);
             }
         });

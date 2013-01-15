@@ -93,16 +93,16 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
-        console.log("DEMOITEMS:READ --------------------------");
+        //console.log("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
     });
 
     // called when .save() is called on DemoItem model
     socket.on("demoitems:update", function (newDemoItem, callback) {
 
-        console.log("DEMOITEMS:UPDATE --------------------------");
-        console.log("id = " + newDemoItem.id);
-        console.log("demonstrable = " + newDemoItem.demonstrable);
+        //console.log("DEMOITEMS:UPDATE --------------------------");
+        //console.log("id = " + newDemoItem.id);
+        //console.log("demonstrable = " + newDemoItem.demonstrable);
 
         //update in-memory demo items list
         var oldDemoItem = _.find(_demoItems, function (e) { return e.id === newDemoItem.id; });        
@@ -113,7 +113,7 @@ _io.sockets.on("connection", function (socket) {
         var action = "update";
         var activeChanged = !oldDemoItem.active && newDemoItem.active;
         if (activeChanged) action = "activeChanged";
-        console.log("action = " + action);
+        //console.log("action = " + action);
         socket.broadcast.emit("demoitems/" + newDemoItem.id + ":" + action, newDemoItem);
 
         callback(null, newDemoItem); //do we need both this and socket.emit?
@@ -121,7 +121,7 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on Users collection on client side
     socket.on("users:read", function (data, callback) {
-        console.log("USERS:READ --------------------------");
+        //console.log("USERS:READ --------------------------");
         callback(null, _users);
     });
 

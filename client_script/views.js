@@ -311,13 +311,13 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
 YouRHere.UserListView = Backbone.View.extend({
     id: "UserListView",
     tagName: "ul",
-    initialize: function (users) {
+    initialize: function (users, role) {
         _.bindAll(this, "render", "addUser", "removeUser", "getEmail");
         this.users = users;
         this.users.bind("add", this.addUser);
         this.users.bind("reset", this.render); //Called during fetch
         this.users.bind("remove", this.removeUser);
-        this.getEmail();
+        this.getEmail(role);
         this.render();
     },
     render: function () {
@@ -336,7 +336,7 @@ YouRHere.UserListView = Backbone.View.extend({
         console.log("UserListView: Removing user " + user.id);
         this.$("#" + user.id).remove();
     },
-    getEmail: function () {
+    getEmail: function (role) {
         var view = this;
         $("#login").dialog({
             buttons: [{
@@ -349,6 +349,7 @@ YouRHere.UserListView = Backbone.View.extend({
 
                     var user = new YouRHere.User();
                     user.set("email", email);
+                    user.set('role', role)
                     user.save();
 
                     //send email address out to other views
@@ -367,7 +368,7 @@ YouRHere.UserView = Backbone.View.extend({
         this.render();
     },
     render: function () {
-        var userTemplate = "<li id='<%= item.id %>'><img src='<%= item.gravatarUrl %>' title='<%= item.email %>'/></li>";
+        var userTemplate = "<li id='<%= item.id %>' class='<%= item.role %>'><img src='<%= item.gravatarUrl %>' title='<%= item.email %> (<%= item.role %>)'/></li>";
         this.$el.html(_.template(userTemplate, { item: this.model.toJSON() }));
         return this;
     }

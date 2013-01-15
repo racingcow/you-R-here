@@ -9,7 +9,7 @@ YouRHere.App = Backbone.Router.extend({
     index: function () {
 
         var users = new YouRHere.Users();
-        var userListView = new YouRHere.UserListView(users);
+        var userListView = new YouRHere.UserListView(users, 'organizer');
         $("#users").append(userListView.el);
         users.fetch();
 
