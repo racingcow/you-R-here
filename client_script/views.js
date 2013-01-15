@@ -244,6 +244,8 @@ YouRHere.DetailsDemoItemView = Backbone.View.extend({
     addDemoItem: function (demoItem) {
         var demoItemView = new YouRHere.DemoItemDetailView(demoItem);
         $("#DemoListView").append(demoItemView.el);
+        //remove all the style attributes from TP
+        $('[style]').removeAttr('style');
     },
     render: function () {
 
