@@ -66,7 +66,8 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
     events: {
         "click li.currentItem": "filterCurrentItem",
         "click li.myItems": "filterMyItems",
-        "click li.allItems": "filterAllItems"
+        "click li.allItems": "filterAllItems",
+        "click li.menu": "clickMenuItem"
     },
     initialize: function (itemView, demoItems) {
 
@@ -87,14 +88,13 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
 
         //render the filter controls
         //todo: think about making this a separate view
-        this.$el.append("<ul class='tabs'><li class='menu first selected currentItem'>Current Item</li><li class='menu last myItems'>My Items</li><li class='menu last allItems'>All Items</li></ul>");
+        this.$el.append("<ul class='tabs'><li id='currentItem' class='menu first selected currentItem'>Current Item</li><li id='myItems' class='menu last myItems'>My Items</li><li id='allItems' class='menu last allItems'>All Items</li></ul>");
 
         //render a sub-container for the items
         this.$el.append("<ul class='items'></ul>");
 
         //make list sortable
         $(".items").sortable({ axis: "y", containment: "parent" }).disableSelection();
-
         return this;
     },
     renderList: function (filteredItems) {
@@ -113,10 +113,10 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
         this.demoItems.each(function (demoItem) {
             if (!demoItem.active && demoItem.id == e.srcElement.id) {
-                console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to active");
+                //console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to active");
                 demoItem.save("active", true); //The item that was clicked (the newly active item)
             } else if ($("#" + demoItem.id).hasClass("highlight")) {
-                console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to inactive");
+                //console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to inactive");
                 demoItem.save("active", false); //The currently (soon to be previously) active item
             }
         });
@@ -132,20 +132,33 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         $(".items").empty();
     },
     filterCurrentItem: function () {
-        console.log("FilterableDemoListView.filterCurrentItem");
+        //console.log("FilterableDemoListView.filterCurrentItem");
         this.renderList(this.demoItems.filterByActive(true));
+        this.selectMenuItem('currentItem');
         return this;
     },
     filterMyItems: function () {
-        console.log("FilterableDemoListView.filterMyItems - email is " + this.email);
+        //console.log("FilterableDemoListView.filterMyItems - email is " + this.email);
         var filteredList = this.demoItems.filterByEmail(this.email);
         this.renderList(filteredList);
+        this.selectMenuItem('myItems');
         return this;
     },
     filterAllItems: function () {
-        console.log("FilterableDemoListView.filterAllItems");
+        //console.log("FilterableDemoListView.filterAllItems");
         this.renderList(this.demoItems);
+        this.selectMenuItem('allItems');
         return this;
+    },
+    clickMenuItem: function(e) {
+        //Don't update if they clicked on other child elements
+        if (!e.srcElement) return;
+        if (e.srcElement.tagName !== "LI") return; 
+        this.selectMenuItem(e.srcElement.id);
+    },
+    selectMenuItem: function(elemId) {
+        $('li.menu').removeClass('selected');
+        $('#' + elemId).addClass('selected');
     }
 });
 

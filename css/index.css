@@ -239,14 +239,16 @@ li.menu {
     display: inline;
     padding-left: 5px;
     border-left: solid 3px gainsboro;
+    /*border-bottom: solid 1px transparent;*/
     color: gainsboro;
     padding-left: 5px;
     background-color: #228B22;
     margin-left: 10px;
 }
 li.selected {
-    border-left: solid 3px white;
+    border-color: white;
     color: white;
+    font-weight: bold;
 }
 
 li.menu:hover {

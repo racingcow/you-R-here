@@ -22,6 +22,9 @@ YouRHere.App = Backbone.Router.extend({
         userListView.on("user:login", function (email) {
             console.log("Router received 'user:login' event - email is " + email);
             demoListView.email = email;
+            //select one of the menu items... "myItems" seems good
+            //console.log('click myItems');
+            $('li.myItems').click();
         });
     }
 });
