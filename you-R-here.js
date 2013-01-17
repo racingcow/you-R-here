@@ -297,7 +297,16 @@ function tpToModelSchema(data, boundaryDate) {
         });
     }
 
-    return entities.sort(function (a, b) { return a.project.localeCompare(b.project); });
+    return entities.sort(function (a, b) { 
+        //we want User Story to be before Bug
+        var typeSort = b.type.localeCompare(a.type); 
+        if (typeSort != 0) return typeSort;
+        
+        var projectSort = a.project.localeCompare(b.project);
+        if (projectSort != 0) return projectSort;
+
+        return a.demonstratorName.localeCompare(b.demonstratorName);
+    });
 }
 
 function getItem(itemId) {
