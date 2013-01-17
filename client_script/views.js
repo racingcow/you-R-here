@@ -15,28 +15,29 @@ YouRHere.DemoListView = Backbone.View.extend({
         this.render();
     },
     clickDemoItem: function (e) {
-        //console.log('DemoListView => clickDemoItem: ' + e.srcElement.tagName);
-        //if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
-        //I think we should highlight the LI no matter where we click. 
-        //The only spots I can make an argument for not highlighting would be "Shown" and "No Demo" DIVs, 
-        //but even then am not convinced it hurts anything. 
 
-        var elemId = e.srcElement.id;
-        if (e.srcElement.tagName != "LI") {
-            elemId = $(e.srcElement).closest('li').attr('id');
-            //console.log('found id: ' + elemId);
-        };
-        //console.log('using id: ' + elemId);
+        var target = e.srcElement;
 
-        this.demoItems.each(function (demoItem) {
-            if (!demoItem.active && demoItem.id == elemId) {
-                console.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
-                demoItem.save("active", true); //The item that was clicked (the newly active item)
-            } else if ($("#" + demoItem.id).hasClass("highlight")) {
-                console.log("DemoListView: Setting DemoItem " + demoItem.id + " to inactive");
-                demoItem.save("active", false); //The currently (soon to be previously) active item
-            }
-        });
+        if (typeof target === 'undefined') {
+            target = e.target;
+        }
+        if (target) {            
+            var elemId = target.id;
+            if (target.tagName != "LI") {
+                elemId = $(target).closest('li').attr('id');
+            };
+            console.log('using id: ' + elemId);
+
+            this.demoItems.each(function (demoItem) {
+                if (!demoItem.active && demoItem.id == elemId) {
+                    console.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
+                    demoItem.save("active", true); //The item that was clicked (the newly active item)
+                } else if ($("#" + demoItem.id).hasClass("highlight")) {
+                    console.log("DemoListView: Setting DemoItem " + demoItem.id + " to inactive");
+                    demoItem.save("active", false); //The currently (soon to be previously) active item
+                }
+            });
+        }
     },
     render: function () {
         //console.log("DemoListView.render");
@@ -151,6 +152,7 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         return this;
     },
     clickMenuItem: function(e) {
+        console.log(e);
         //Don't update if they clicked on other child elements
         if (!e.srcElement) return;
         if (e.srcElement.tagName !== "LI") return; 
@@ -167,13 +169,17 @@ YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
         console.log("SortableDemoListView.initialize");
         this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
         this.render();
+        this.demoItems.bind("reset", this.afterRender); 
         return this;
     },
     render: function () {
-        console.log("SortableDemoListView.render");
+        console.log("SortableDemoListView.render!!");
         this.constructor.__super__.render.apply(this, []);
         $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
         return this;
+    }, 
+    afterRender: function() {
+        $('#DemoListView li:first-child').click();
     }
 });
 
