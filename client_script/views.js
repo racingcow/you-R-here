@@ -357,8 +357,16 @@ YouRHere.UserListView = Backbone.View.extend({
     },
     getEmail: function (role) {
         var view = this;
+        
+        $('#email').keypress(function(e) {
+            if (e.keyCode == 13) {
+                $('#emailBtn').click();
+            }
+        });
+
         $("#login").dialog({
             buttons: [{
+                id: "emailBtn",
                 text: "OK",
                 click: function () {
 
