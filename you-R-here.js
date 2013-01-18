@@ -10,7 +10,6 @@ var _path = require("path");
 var _fs = require("fs");
 var _mime = require("mime");
 var _uuid = require("node-uuid"); //Creates "guids" for use as unique object ids
-
 var _ = require("underscore");
 _.str = require("underscore.string"); //there are name conflicts with underscore.string
 _.mixin(_.str.exports()); //put the non-conflicting methods in _ var
@@ -51,8 +50,8 @@ var _staticContentItems = {
 
 //routing 
 /* _app.get("/userimage/:id", function(req, res) {          
-//YouRHere.Utils.log("userimage");         
-//YouRHere.Utils.log(req.params["id"]);          
+//logIt("userimage");         
+//logIt(req.params["id"]);          
 //Return a picture of the user         
 _tp.api("getUserImage", function(data) {        
 res.send(image, "binary");
@@ -93,16 +92,16 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
-        //YouRHere.Utils.log("DEMOITEMS:READ --------------------------");
+        //logIt("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
     });
 
     // called when .save() is called on DemoItem model
     socket.on("demoitems:update", function (newDemoItem, callback) {
 
-        //YouRHere.Utils.log("DEMOITEMS:UPDATE --------------------------");
-        //YouRHere.Utils.log("id = " + newDemoItem.id);
-        //YouRHere.Utils.log("demonstrable = " + newDemoItem.demonstrable);
+        //logIt("DEMOITEMS:UPDATE --------------------------");
+        //logIt("id = " + newDemoItem.id);
+        //logIt("demonstrable = " + newDemoItem.demonstrable);
 
         //update in-memory demo items list
         var oldDemoItem = _.find(_demoItems, function (e) { return e.id === newDemoItem.id; });        
@@ -113,7 +112,7 @@ _io.sockets.on("connection", function (socket) {
         var action = "update";
         var activeChanged = !oldDemoItem.active && newDemoItem.active;
         if (activeChanged) action = "activeChanged";
-        //YouRHere.Utils.log("action = " + action);
+        //logIt("action = " + action);
         socket.broadcast.emit("demoitems/" + newDemoItem.id + ":" + action, newDemoItem);
 
         callback(null, newDemoItem); //do we need both this and socket.emit?
@@ -121,13 +120,13 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on Users collection on client side
     socket.on("users:read", function (data, callback) {
-        //YouRHere.Utils.log("USERS:READ --------------------------");
+        //logIt("USERS:READ --------------------------");
         callback(null, _users);
     });
 
     socket.on("user:create", function (newUser, callback) {
 
-        YouRHere.Utils.log("USER:CREATE --------------------------");
+        logIt("USER:CREATE --------------------------");
 
         if (!newUser.email || _.trim(newUser.email) === "") return;
 
@@ -141,8 +140,8 @@ _io.sockets.on("connection", function (socket) {
         socket.emit("users:create", newUser);
         socket.broadcast.emit("users:create", newUser);
 
-        YouRHere.Utils.log("Users...");
-        YouRHere.Utils.log(_users);
+        logIt("Users...");
+        logIt(_users);
 
         callback(null, newUser);
 
@@ -151,29 +150,29 @@ _io.sockets.on("connection", function (socket) {
     //handle client disconnects
     socket.on("disconnect", function () {
 
-        YouRHere.Utils.log("DISCONNECT --------------------------");
-        YouRHere.Utils.log(socket.userid + " has disconnected");
+        logIt("DISCONNECT --------------------------");
+        logIt(socket.userid + " has disconnected");
 
         //tell everyone else that the user disconnected
         var user = _.where(_users, { id: socket.userid });
         socket.broadcast.emit("user/" + socket.userid + ":delete", user);
 
-        YouRHere.Utils.log("Users...");
-        YouRHere.Utils.log(_users);
+        logIt("Users...");
+        logIt(_users);
 
         //remove the user from the array
         for (var i = 0; i < _users.length; i++) {
             if (_users[i].id === socket.userid) {
-                YouRHere.Utils.log("deleting item " + i);
+                logIt("deleting item " + i);
                 _users.splice(i, 1);
                 break;
             }
         }
 
-        YouRHere.Utils.log("Users...");
-        YouRHere.Utils.log(_users);
+        logIt("Users...");
+        logIt(_users);
 
-        YouRHere.Utils.log("USERS LIST (after removal): " + _users);
+        logIt("USERS LIST (after removal): " + _users);
     });
 
     ////Send the new entities when the client requests them
@@ -181,7 +180,7 @@ _io.sockets.on("connection", function (socket) {
     //    socket.emit("entitiesretrieved", _demoItems);
     //});
     //socket.on("retrieveactiveitem", function(){
-    //    //YouRHere.Utils.log("sending back active item id");
+    //    //logIt("sending back active item id");
     //    var item = getItem(_activeItemId);
     //    socket.emit("activeitemchanged", item);         
     //});          
@@ -219,14 +218,14 @@ _io.sockets.on("connection", function (socket) {
     //socket.on("changeshown", function(data) {
     //    var id = parseInt(data.id);
     //    for (var idx=0; idx < _demoItems.length; idx++) {
-    //        //YouRHere.Utils.log('changeshown ==> oh my: ' + idx);
-    //        //YouRHere.Utils.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
+    //        //logIt('changeshown ==> oh my: ' + idx);
+    //        //logIt('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
     //        if (parseInt(_demoItems[idx].Id) === id) {
     //            _demoItems[idx].shown = data.val;
     //            break;
     //        }
     //    };
-    //    //YouRHere.Utils.log('changeshown: ' + data.id);
+    //    //logIt('changeshown: ' + data.id);
     //    //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
     //    _io.sockets.emit("shownchanged", data);         
     //});
@@ -235,15 +234,15 @@ _io.sockets.on("connection", function (socket) {
     //socket.on("changenodemo", function(data) {
     //    var id = parseInt(data.id);
     //    for (var idx=0; idx < _demoItems.length; idx++) {
-    //        //YouRHere.Utils.log('changenodemo ==> oh my: ' + idx);
-    //        //YouRHere.Utils.log('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
+    //        //logIt('changenodemo ==> oh my: ' + idx);
+    //        //logIt('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
     //        if (parseInt(_demoItems[idx].Id) === id) {
     //            _demoItems[idx].canDemo = data.val;
     //            break;
     //        }
     //    };
 
-    //    //YouRHere.Utils.log('changenodemo: ' + data.id);
+    //    //logIt('changenodemo: ' + data.id);
     //    //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
     //    _io.sockets.emit("nodemochanged", data);         
     //});          
@@ -319,4 +318,12 @@ function getItem(itemId) {
         }
     };
     return item;
+}
+
+function logIt(msg) {
+    if (window.console && window.console.log) {
+        console.log(msg);
+    } else {
+        //growl it!
+    }
 }
