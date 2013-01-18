@@ -133,7 +133,7 @@ YouRHere.Users = Backbone.Collection.extend({
 
 YouRHere.Utils =  {
     log: function(msg) {
-        if (window.console && window.console.log) {
+        if (console && console.log) {
             console.log(msg);
         } else {
             //growl it!
