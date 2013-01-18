@@ -7,7 +7,7 @@ YouRHere.DemoListView = Backbone.View.extend({
         "click li": "clickDemoItem"
     },
     initialize: function (itemView, demoItems) {
-        console.log("DemoListView.initialize");
+        YouRHere.Utils.log("DemoListView.initialize");
         _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem");
         this.itemView = itemView;
         this.demoItems = demoItems;        
@@ -26,22 +26,22 @@ YouRHere.DemoListView = Backbone.View.extend({
             if (target.tagName != "LI") {
                 elemId = $(target).closest('li').attr('id');
             };
-            console.log('using id: ' + elemId);
+            YouRHere.Utils.log('using id: ' + elemId);
 
             this.demoItems.each(function (demoItem) {
                 if (!demoItem.active && demoItem.id == elemId) {
-                    console.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
+                    YouRHere.Utils.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
                     demoItem.save("active", true); //The item that was clicked (the newly active item)
                 } else if ($("#" + demoItem.id).hasClass("highlight")) {
-                    console.log("DemoListView: Setting DemoItem " + demoItem.id + " to inactive");
+                    YouRHere.Utils.log("DemoListView: Setting DemoItem " + demoItem.id + " to inactive");
                     demoItem.save("active", false); //The currently (soon to be previously) active item
                 }
             });
         }
     },
     render: function () {
-        //console.log("DemoListView.render");
-	   //console.log('this.demoItems.length: ' + this.demoItems.length);
+        //YouRHere.Utils.log("DemoListView.render");
+	   //YouRHere.Utils.log('this.demoItems.length: ' + this.demoItems.length);
         var self = this;
         if (this.demoItems.length > 0) {
             $("#datepicker").val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")); //Date comes back from server now
@@ -72,7 +72,7 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
     },
     initialize: function (itemView, demoItems) {
 
-        console.log("FilterableDemoListView.initialize");
+        YouRHere.Utils.log("FilterableDemoListView.initialize");
 
         _.bindAll(this);
 
@@ -85,7 +85,7 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         return this;
     },
     render: function () {
-        console.log("FilterableDemoListView.render");
+        YouRHere.Utils.log("FilterableDemoListView.render");
 
         //render the filter controls
         //todo: think about making this a separate view
@@ -99,7 +99,7 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         return this;
     },
     renderList: function (filteredItems) {
-        console.log("FilterableDemoListView.renderList");
+        YouRHere.Utils.log("FilterableDemoListView.renderList");
 
         this.clearDemoItems();
 
@@ -114,10 +114,10 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
         this.demoItems.each(function (demoItem) {
             if (!demoItem.active && demoItem.id == e.srcElement.id) {
-                //console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to active");
+                //YouRHere.Utils.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to active");
                 demoItem.save("active", true); //The item that was clicked (the newly active item)
             } else if ($("#" + demoItem.id).hasClass("highlight")) {
-                //console.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to inactive");
+                //YouRHere.Utils.log("FilterableDemoListView: Setting DemoItem " + demoItem.id + " to inactive");
                 demoItem.save("active", false); //The currently (soon to be previously) active item
             }
         });
@@ -133,26 +133,26 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         $(".items").empty();
     },
     filterCurrentItem: function () {
-        //console.log("FilterableDemoListView.filterCurrentItem");
+        //YouRHere.Utils.log("FilterableDemoListView.filterCurrentItem");
         this.renderList(this.demoItems.filterByActive(true));
         this.selectMenuItem('currentItem');
         return this;
     },
     filterMyItems: function () {
-        //console.log("FilterableDemoListView.filterMyItems - email is " + this.email);
+        //YouRHere.Utils.log("FilterableDemoListView.filterMyItems - email is " + this.email);
         var filteredList = this.demoItems.filterByEmail(this.email);
         this.renderList(filteredList);
         this.selectMenuItem('myItems');
         return this;
     },
     filterAllItems: function () {
-        //console.log("FilterableDemoListView.filterAllItems");
+        //YouRHere.Utils.log("FilterableDemoListView.filterAllItems");
         this.renderList(this.demoItems);
         this.selectMenuItem('allItems');
         return this;
     },
     clickMenuItem: function(e) {
-        console.log(e);
+        YouRHere.Utils.log(e);
         //Don't update if they clicked on other child elements
         if (!e.srcElement) return;
         if (e.srcElement.tagName !== "LI") return; 
@@ -166,14 +166,14 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
 
 YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
     initialize: function (itemView, demoItems) {
-        console.log("SortableDemoListView.initialize");
+        YouRHere.Utils.log("SortableDemoListView.initialize");
         this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
         this.render();
         this.demoItems.bind("reset", this.afterRender); 
         return this;
     },
     render: function () {
-        console.log("SortableDemoListView.render!!");
+        YouRHere.Utils.log("SortableDemoListView.render!!");
         this.constructor.__super__.render.apply(this, []);
         $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
         return this;
@@ -206,7 +206,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
     },
     activeChanged: function () {
         var curActive = this.model.get("active");
-        console.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
+        YouRHere.Utils.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
         if (curActive) {
             this.$el.addClass("highlight");
         } else {
@@ -237,7 +237,7 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
     },
     activeChanged: function () {
         var curActive = this.model.get("active");
-        console.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
+        YouRHere.Utils.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
         if (curActive) {
             this.$el.addClass("highlight");
         } else {
@@ -250,7 +250,7 @@ YouRHere.DetailsDemoItemView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "div",    
     initialize: function (demoItems) {
-        console.log("DemoListView.initialize");
+        YouRHere.Utils.log("DemoListView.initialize");
         _.bindAll(this, "render");
         this.demoItems = demoItems;
         this.demoItems.bind("reset", this.render); //Called during fetch
@@ -268,7 +268,7 @@ YouRHere.DetailsDemoItemView = Backbone.View.extend({
     },
     render: function () {
 
-        console.log("DetailsDemoItemView.render");
+        YouRHere.Utils.log("DetailsDemoItemView.render");
 
         var activeItems = this.demoItems.filterByActive(true);        
         
@@ -316,11 +316,11 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
         if (e.srcElement) {
             var checked = e.srcElement.checked;
             if (invertedLogic) checked = !checked;
-            console.log("EditableDemoItemView: Set" + attribName + " from client: Saving DemoItem " + this.model.id + ", " + attribName + " = " + checked);
+            YouRHere.Utils.log("EditableDemoItemView: Set" + attribName + " from client: Saving DemoItem " + this.model.id + ", " + attribName + " = " + checked);
             this.model.save(attribName, checked);
         } else {
             var attribVal = this.model.get(attribName);
-            console.log("EditableDemoItemView: Set" + attribName + " from server: Refreshing view for DemoItem " + this.model.id + ", " + attribName + " = " + attribVal);
+            YouRHere.Utils.log("EditableDemoItemView: Set" + attribName + " from server: Refreshing view for DemoItem " + this.model.id + ", " + attribName + " = " + attribVal);
             if (invertedLogic) attribVal = !attribVal;
             this.$("." + checkBoxContainerClass + " input").prop("checked", attribVal);
         }
@@ -347,17 +347,17 @@ YouRHere.UserListView = Backbone.View.extend({
         return this;
     },
     addUser: function (user) {
-        console.log("UserListView: Client adding user '" + user.id + "'");
+        YouRHere.Utils.log("UserListView: Client adding user '" + user.id + "'");
         var userView = new YouRHere.UserView(user);
         $(this.el).append(userView.el);
     },
     removeUser: function (user) {
-        console.log("UserListView: Removing user " + user.id);
+        YouRHere.Utils.log("UserListView: Removing user " + user.id);
         this.$("#" + user.id).remove();
     },
     getEmail: function (role) {
         var view = this;
-        
+
         $('#email').keypress(function(e) {
             if (e.keyCode == 13) {
                 $('#emailBtn').click();
@@ -380,7 +380,7 @@ YouRHere.UserListView = Backbone.View.extend({
                     user.save();
 
                     //send email address out to other views
-                    console.log("UserListView: raising 'user:login' event - email is " + email);
+                    YouRHere.Utils.log("UserListView: raising 'user:login' event - email is " + email);
                     view.trigger("user:login", email);
                 }
             }]

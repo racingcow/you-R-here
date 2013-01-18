@@ -17,9 +17,9 @@ YouRHere.App = Backbone.Router.extend({
         var demoListView = new YouRHere.DetailsDemoItemView(demoItems);
         $("#itemsView").append(demoListView.el);
         demoItems.on("change", function() {
-            console.log("DemoItems has changed for spectator!");
+            YouRHere.Utils.log("DemoItems has changed for spectator!");
         });
-        console.log("DemoItems being fetched for spectator.");
+        YouRHere.Utils.log("DemoItems being fetched for spectator.");
         demoItems.fetch();
     }
 });

@@ -26,12 +26,12 @@ YouRHere.DemoItem = Backbone.Model.extend({
         this.ioBind("activeChanged", this.setActive, this);
     },
     serverChange: function (data) {
-        console.log("DemoItem: " + data.id + ".serverChange");
+        YouRHere.Utils.log("DemoItem: " + data.id + ".serverChange");
         data.fromServer = true;
         this.set(data);
     },
     setActive: function (data) {
-        console.log("DemoItem: " + data.id + ".setActive");
+        YouRHere.Utils.log("DemoItem: " + data.id + ".setActive");
         data.fromServer = true;
         this.set(data);
     },
@@ -49,14 +49,14 @@ YouRHere.DemoItems = Backbone.Collection.extend({
         _.bindAll(this, "collectionCleanup");
     },
     change : function() {
-        console.log("I have changed.");
+        YouRHere.Utils.log("I have changed.");
     },
     filterByActive: function (active) {
-		console.log("this.length = " + this.length);
+		YouRHere.Utils.log("this.length = " + this.length);
         var filtered = _(this.filter(function (demoItem) { //wrapping with underscore function returns collection            
             return demoItem.get("active").toString() == active.toString();
         }));
-        console.log("filtered.length = " + filtered.length);
+        YouRHere.Utils.log("filtered.length = " + filtered.length);
         return filtered;
     },
     filterByEmail: function (email) {
@@ -86,16 +86,16 @@ YouRHere.User = Backbone.Model.extend({
         this.ioBind("delete", this.serverDelete, this);
     },
     serverChange: function (data) {
-        console.log("User: " + data.id + "(" + data.email + ").serverCreate");
+        YouRHere.Utils.log("User: " + data.id + "(" + data.email + ").serverCreate");
         this.set(data);
     },
     serverDelete: function (data) {
-        console.log("User: " + this.id + ".serverDelete");
+        YouRHere.Utils.log("User: " + this.id + ".serverDelete");
         if (this.collection) {
-            console.log("removing from collection");
+            YouRHere.Utils.log("removing from collection");
             this.collection.remove(this);
         } else {
-            console.log("triggering remove");
+            YouRHere.Utils.log("triggering remove");
             this.trigger("remove", this);
         }
         this.modelCleanup();
@@ -115,7 +115,7 @@ YouRHere.Users = Backbone.Collection.extend({
         this.ioBind("create", this.userAdded, this);
     },
     userAdded: function (data) {
-        console.log("Users: " + data.id + "(" + data.email + ") added");
+        YouRHere.Utils.log("Users: " + data.id + "(" + data.email + ") added");
         if (this.get(data.id)) {
             exists.set(data);
         } else {
@@ -130,3 +130,13 @@ YouRHere.Users = Backbone.Collection.extend({
         return this;
     }
 });
+
+YouRHere.Utils =  {
+    log: function(msg) {
+        if (window.console && window.console.log) {
+            console.log(msg);
+        } else {
+            //growl it!
+        }
+    }
+};
