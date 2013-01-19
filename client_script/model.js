@@ -18,15 +18,18 @@ YouRHere.DemoItem = Backbone.Model.extend({
         demonstrable: true,                     //True if item can be shown to non-technical folks, false for tech debt or other madness
         demonstrated: true,                     //True if item has been demonstrated during this session; false otherwise.
         boundaryDate: "",                       //Date of last day in iteration to which the demo item belongs
-        active: false                           //True if the demo item is the one currently being demonstrated; false otherwise
+        active: false,                          //True if the demo item is the one currently being demonstrated; false otherwise
+        nextId: -1                              //The id of the next element that follows in the list. Used to indicate where in the list an item is moving when sort is changed by the organizer 
     },
     initialize: function () {
-        _.bindAll(this, "serverChange", "setActive", "modelCleanup");
+        _.bindAll(this, "serverChange", "setActive", "modelCleanup", "itemMoved");
         this.ioBind("update", this.serverChange, this);
         this.ioBind("activeChanged", this.setActive, this);
+        this.ioBind("positionChanged", this.itemMoved, this);
     },
     serverChange: function (data) {
         YouRHere.Utils.log("DemoItem: " + data.id + ".serverChange");
+        YouRHere.Utils.log("DemoItem: nextId " + data.nextId + ".serverChange");
         data.fromServer = true;
         this.set(data);
     },
@@ -38,6 +41,12 @@ YouRHere.DemoItem = Backbone.Model.extend({
     modelCleanup: function () {
         this.ioUnbindAll();
         return this;
+    },
+    itemMoved: function(data) {
+        YouRHere.Utils.log("DemoItem: " + data.id + ".itemMoved");
+        YouRHere.Utils.log("DemoItem: nextId " + data.nextId + ".itemMoved");
+        data.fromServer = true;
+        this.set(data);  
     }
 });
 

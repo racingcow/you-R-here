@@ -8,7 +8,7 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     initialize: function (itemView, demoItems) {
         YouRHere.Utils.log("DemoListView.initialize");
-        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem");
+        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem");
         this.itemView = itemView;
         this.demoItems = demoItems;        
         this.demoItems.bind("reset", this.render); //Called during fetch
@@ -40,8 +40,6 @@ YouRHere.DemoListView = Backbone.View.extend({
         }
     },
     render: function () {
-        //YouRHere.Utils.log("DemoListView.render");
-	   //YouRHere.Utils.log('this.demoItems.length: ' + this.demoItems.length);
         var self = this;
         if (this.demoItems.length > 0) {
             $("#datepicker").val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")); //Date comes back from server now
@@ -57,6 +55,18 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     removeDemoItem: function (demoItem) {
         this.$("#" + demoItem.id).remove();
+    },
+    moveDemoItem: function(data) {
+        //YouRHere.Utils.log('moveDemoItem: ' + data);
+        if (data === null || typeof data === 'undefined') return;
+
+        this.demoItems.each(function (demoItem) {
+            if (demoItem.id == data.id) {
+                YouRHere.Utils.log("DemoListView: DemoItem: " + demoItem.id + " setting NextId: " + data.nextId);
+                demoItem.save("nextId", data.nextId);
+                return;
+            }
+        });
     }
 });
 
@@ -166,16 +176,37 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
 
 YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
     initialize: function (itemView, demoItems) {
-        YouRHere.Utils.log("SortableDemoListView.initialize");
+        //YouRHere.Utils.log("SortableDemoListView.initialize");
         this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
         this.render();
         this.demoItems.bind("reset", this.afterRender); 
         return this;
     },
     render: function () {
-        YouRHere.Utils.log("SortableDemoListView.render!!");
+        //YouRHere.Utils.log("SortableDemoListView.render!!");
         this.constructor.__super__.render.apply(this, []);
-        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
+        var self = this;
+        $("#DemoListView").sortable({ 
+            axis: "y",
+            containment: "parent",
+            stop: function(event, ui) {
+                var el = $(ui.item),
+                    id = el.attr('id');
+
+                var nextEl = el.next('li'),
+                    nextId = nextEl.attr('id'); 
+
+                if (!nextId) nextId = -2;
+                //would like to send a message to everyone that looks something like this
+                //id: id of the mover 
+                //nextId: id of the the item that follows the mover
+                var data = {id: id, nextId: nextId};
+                self.moveDemoItem(data);
+            },
+            update: function(event, ui) {
+                /* update doesn't fire reliably. stop is much, much better */
+            }
+        }).disableSelection();
         return this;
     }, 
     afterRender: function() {
@@ -186,9 +217,10 @@ YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
 YouRHere.DemoItemView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
-        _.bindAll(this, "activeChanged");
+        _.bindAll(this, "activeChanged", "itemMoved");
         this.model = demoItem;
         this.model.bind("change:active", this.activeChanged);
+        this.model.bind("change:nextId", this.itemMoved);
         this.render();
         return this;
     },
@@ -212,15 +244,32 @@ YouRHere.DemoItemView = Backbone.View.extend({
         } else {
             this.$el.removeClass("highlight");
         }
+    },
+    itemMoved: function() {
+        var id = this.model.get('id'),
+            nextId = this.model.get('nextId')
+            moverEl = $('#' + id),
+            moverParent = moverEl.parent();
+            YouRHere.Utils.log('DemoItemView => id: ' + id + '; nextId: ' + nextId);
+
+        if (nextId < 0) {
+            YouRHere.Utils.log('DemoItemView => move to end of the line');
+            moverParent.append($(moverEl));
+        } else {
+            YouRHere.Utils.log('DemoItemView => "normal" move');
+            var nextEl = $('#' + nextId);
+            nextEl.before(moverEl);
+        }
     }
 });
 
 YouRHere.DemoItemDetailView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
-        _.bindAll(this, "activeChanged");
+        _.bindAll(this, "activeChanged", "itemMoved");
         this.model = demoItem;
         this.model.bind("change:active", this.activeChanged);
+        this.model.bind("change:nextId", this.itemMoved);
         this.render();
         return this;
     },
@@ -237,13 +286,19 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
     },
     activeChanged: function () {
         var curActive = this.model.get("active");
-        YouRHere.Utils.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
+        YouRHere.Utils.log("DemoItemDetailView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
         if (curActive) {
             this.$el.addClass("highlight");
         } else {
             this.$el.removeClass("highlight");
         }
+    },
+    itemMoved: function() {
+        var id = this.model.get('id'),
+            nextId = this.model.get('nextId');
+        YouRHere.Utils.log('DemoItemDeailView.itemMoved => id: ' + id + '; nextId: ' + nextId);
     }
+
 });
 
 YouRHere.DetailsDemoItemView = Backbone.View.extend({
