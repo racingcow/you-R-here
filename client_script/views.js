@@ -190,27 +190,39 @@ YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
             axis: "y",
             containment: "parent",
             stop: function(event, ui) {
-                var el = $(ui.item),
-                    id = el.attr('id');
-
-                var nextEl = el.next('li'),
-                    nextId = nextEl.attr('id'); 
-
-                if (!nextId) nextId = -2;
-                //would like to send a message to everyone that looks something like this
-                //id: id of the mover 
-                //nextId: id of the the item that follows the mover
-                var data = {id: id, nextId: nextId};
-                self.moveDemoItem(data);
+                YouRHere.Utils.log('sortable:stop');
+                self.sortChanged(event, ui);
             },
             update: function(event, ui) {
-                /* update doesn't fire reliably. stop is much, much better */
+                //YouRHere.Utils.log('sortable:update');
+            },
+            change: function(event, ui) {
+                YouRHere.Utils.log('sortable:change');
+                self.sortChanged(event, ui);
+            },
+            deactivate: function(event, ui) {
+                //YouRHere.Utils.log('sortable:deactivate');
             }
         }).disableSelection();
         return this;
     }, 
     afterRender: function() {
         $('#DemoListView li:first-child').click();
+    },
+    sortChanged: function(event, ui) {
+        YouRHere.Utils.log('sortChanged: ' + data);
+        var el = $(ui.item),
+            id = el.attr('id');
+
+        var nextEl = el.next('li'),
+            nextId = nextEl.attr('id'); 
+
+        if (!nextId) nextId = -2;
+        //would like to send a message to everyone that looks something like this
+        //id: id of the mover 
+        //nextId: id of the the item that follows the mover
+        var data = {id: id, nextId: nextId};
+        this.moveDemoItem(data);
     }
 });
 
