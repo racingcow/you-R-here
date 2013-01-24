@@ -15,8 +15,10 @@ _.str = require("underscore.string"); //there are name conflicts with underscore
 _.mixin(_.str.exports()); //put the non-conflicting methods in _ var
 _.str.include("Unserscore.string", "string"); //put all conflicting methods in _.str
 
-var _address = "http://localhost"; //TODO: move this to a config file
-var _port = 8080; //TODO: move this to a config file
+var config = require("./targetprocess.config");
+
+var _address = config.info.serverAddress;// "http://localhost"; //TODO: move this to a config file
+var _port = config.info.serverPort; //8080; //TODO: move this to a config file
 
 _server.listen(_port);
 var _users = []; //users currently connected 

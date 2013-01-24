@@ -36,7 +36,9 @@ info = {
 	password: "mysecretpassword",
 	url: "https://mycompany.tpondemand.com/api/v1/",
 	iterationDurationInWeeks: 2,
-	format: "json"
+	format: "json",
+	serverAddress: "http://localhost",
+	serverPort: 8080
 };
 exports.info = info;
 ```
