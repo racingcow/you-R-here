@@ -315,7 +315,7 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
 
 YouRHere.DetailsDemoItemView = Backbone.View.extend({
     id: "DemoListView",
-    tagName: "div",    
+    tagName: "ul",    
     initialize: function (demoItems) {
         YouRHere.Utils.log("DemoListView.initialize");
         _.bindAll(this, "render");
