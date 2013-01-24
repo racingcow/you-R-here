@@ -22,4 +22,5 @@ YouRHere.App = Backbone.Router.extend({
 $(document).ready(function () {
     var app = new YouRHere.App();
     Backbone.history.start();
+    $('#datepicker').datepicker();
 });
