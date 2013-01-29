@@ -6,20 +6,17 @@ YouRHere.DemoListView = Backbone.View.extend({
     events: {
         "click li": "clickDemoItem"
     },
-    initialize: function (itemView, demoItems) {
+    initialize: function (ItemView, demoItems, options) {
         console.log("DemoListView.initialize");
         _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem");
-        this.itemView = itemView;
+        this.options = options;
+        this.ItemView = ItemView;
         this.demoItems = demoItems;        
-        this.demoItems.bind("reset", this.render); //Called during fetch
-        this.render();
+        this.demoItems.bind("reset", this.render); //Called during fetch        
+        this.render();        
+        return this;
     },
-    clickDemoItem: function (e) {
-        //console.log('DemoListView => clickDemoItem: ' + e.srcElement.tagName);
-        //if (e.srcElement.tagName !== "LI") return; //Don't update if they clicked on other child elements
-        //I think we should highlight the LI no matter where we click. 
-        //The only spots I can make an argument for not highlighting would be "Shown" and "No Demo" DIVs, 
-        //but even then am not convinced it hurts anything. 
+    clickDemoItem: function (e) {        
 
         var elemId = e.srcElement.id;
         if (e.srcElement.tagName != "LI") {
@@ -37,6 +34,8 @@ YouRHere.DemoListView = Backbone.View.extend({
                 demoItem.save("active", false); //The currently (soon to be previously) active item
             }
         });
+
+        return this;
     },
     render: function () {
         //console.log("DemoListView.render");
@@ -48,14 +47,19 @@ YouRHere.DemoListView = Backbone.View.extend({
         this.demoItems.each(function (demoItem) {
             self.addDemoItem(demoItem);
         });
+        if (this.options.sortable) {
+            console.log("sortable is true. setting up sorting in view.")
+            $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
+        }
         return this;
     },
     addDemoItem: function (demoItem) {
-        var demoItemView = new this.itemView(demoItem);
-        $(this.el).append(demoItemView.el);
+        $(this.el).append(new this.ItemView(demoItem).el);
+        return this;
     },
     removeDemoItem: function (demoItem) {
         this.$("#" + demoItem.id).remove();
+        return this;
     }
 });
 
@@ -162,20 +166,20 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
     }
 });
 
-YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
-    initialize: function (itemView, demoItems) {
-        console.log("SortableDemoListView.initialize");
-        this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
-        this.render();
-        return this;
-    },
-    render: function () {
-        console.log("SortableDemoListView.render");
-        this.constructor.__super__.render.apply(this, []);
-        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
-        return this;
-    }
-});
+//YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
+//    initialize: function (ItemView, demoItems) {
+//        console.log("SortableDemoListView.initialize");
+//        this.constructor.__super__.initialize.apply(this, [ItemView, demoItems]);
+//        this.render();
+//        return this;
+//    },
+//    render: function () {
+//        console.log("SortableDemoListView.render");
+//        this.constructor.__super__.render.apply(this, []);
+//        $("#DemoListView").sortable({ axis: "y", containment: "parent" }).disableSelection();
+//        return this;
+//    }
+//});
 
 YouRHere.DemoItemView = Backbone.View.extend({
     tagName: "li",
