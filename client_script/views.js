@@ -6,13 +6,15 @@ YouRHere.DemoListView = Backbone.View.extend({
     events: {
         "click li": "clickDemoItem"
     },
-    initialize: function (itemView, demoItems) {
+    initialize: function (ItemView, demoItems, options) {
         YouRHere.Utils.log("DemoListView.initialize");
         _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem");
-        this.itemView = itemView;
+        this.options = options;
+        this.ItemView = ItemView;
         this.demoItems = demoItems;        
-        this.demoItems.bind("reset", this.render); //Called during fetch
-        this.render();
+        this.demoItems.bind("reset", this.render); //Called during fetch        
+        this.render();        
+        return this;
     },
     clickDemoItem: function (e) {
 
@@ -37,7 +39,9 @@ YouRHere.DemoListView = Backbone.View.extend({
                     demoItem.save("active", false); //The currently (soon to be previously) active item
                 }
             });
+            //return this;
         }
+        return this;
     },
     render: function () {
         var self = this;
@@ -47,18 +51,55 @@ YouRHere.DemoListView = Backbone.View.extend({
         this.demoItems.each(function (demoItem) {
             self.addDemoItem(demoItem);
         });
+        if (this.options.sortable) {
+            console.log("sortable is true. setting up sorting in view.");
+            $("#DemoListView").sortable({ 
+                axis: "y",
+                containment: "parent",
+                stop: function(event, ui) {
+                    YouRHere.Utils.log('sortable:stop');
+                    self.sortChanged(event, ui);
+                },
+                update: function(event, ui) {
+                    //YouRHere.Utils.log('sortable:update');
+                },
+                change: function(event, ui) {
+                    YouRHere.Utils.log('sortable:change');
+                    self.sortChanged(event, ui);
+                },
+                deactivate: function(event, ui) {
+                    //YouRHere.Utils.log('sortable:deactivate');
+                }
+            }).disableSelection();
+            $('#DemoListView li:first-child').click();
+        }
         return this;
     },
+    sortChanged: function(event, ui) {
+        YouRHere.Utils.log('sortChanged: ' + data);
+        var el = $(ui.item),
+            id = el.attr('id');
+
+        var nextEl = el.next('li'),
+            nextId = nextEl.attr('id'); 
+
+        if (!nextId) nextId = -2;
+        //would like to send a message to everyone that looks something like this
+        //id: id of the mover 
+        //nextId: id of the the item that follows the mover
+        var data = {id: id, nextId: nextId};
+        this.moveDemoItem(data);
+    },
     addDemoItem: function (demoItem) {
-        var demoItemView = new this.itemView(demoItem);
-        $(this.el).append(demoItemView.el);
+        $(this.el).append(new this.ItemView(demoItem).el);
+        return this;
     },
     removeDemoItem: function (demoItem) {
         this.$("#" + demoItem.id).remove();
     },
     moveDemoItem: function(data) {
         //YouRHere.Utils.log('moveDemoItem: ' + data);
-        if (data === null || typeof data === 'undefined') return;
+        if (data === null || typeof data === 'undefined') return this;
 
         this.demoItems.each(function (demoItem) {
             if (demoItem.id == data.id) {
@@ -67,6 +108,7 @@ YouRHere.DemoListView = Backbone.View.extend({
                 return;
             }
         });
+        return this;
     }
 });
 
@@ -174,58 +216,6 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
     }
 });
 
-YouRHere.SortableDemoListView = YouRHere.DemoListView.extend({
-    initialize: function (itemView, demoItems) {
-        //YouRHere.Utils.log("SortableDemoListView.initialize");
-        this.constructor.__super__.initialize.apply(this, [itemView, demoItems]);
-        this.render();
-        this.demoItems.bind("reset", this.afterRender); 
-        return this;
-    },
-    render: function () {
-        //YouRHere.Utils.log("SortableDemoListView.render!!");
-        this.constructor.__super__.render.apply(this, []);
-        var self = this;
-        $("#DemoListView").sortable({ 
-            axis: "y",
-            containment: "parent",
-            stop: function(event, ui) {
-                YouRHere.Utils.log('sortable:stop');
-                self.sortChanged(event, ui);
-            },
-            update: function(event, ui) {
-                //YouRHere.Utils.log('sortable:update');
-            },
-            change: function(event, ui) {
-                YouRHere.Utils.log('sortable:change');
-                self.sortChanged(event, ui);
-            },
-            deactivate: function(event, ui) {
-                //YouRHere.Utils.log('sortable:deactivate');
-            }
-        }).disableSelection();
-        return this;
-    }, 
-    afterRender: function() {
-        $('#DemoListView li:first-child').click();
-    },
-    sortChanged: function(event, ui) {
-        YouRHere.Utils.log('sortChanged: ' + data);
-        var el = $(ui.item),
-            id = el.attr('id');
-
-        var nextEl = el.next('li'),
-            nextId = nextEl.attr('id'); 
-
-        if (!nextId) nextId = -2;
-        //would like to send a message to everyone that looks something like this
-        //id: id of the mover 
-        //nextId: id of the the item that follows the mover
-        var data = {id: id, nextId: nextId};
-        this.moveDemoItem(data);
-    }
-});
-
 YouRHere.DemoItemView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
@@ -259,7 +249,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
     },
     itemMoved: function() {
         var id = this.model.get('id'),
-            nextId = this.model.get('nextId')
+            nextId = this.model.get('nextId'),
             moverEl = $('#' + id),
             moverParent = moverEl.parent();
             YouRHere.Utils.log('DemoItemView => id: ' + id + '; nextId: ' + nextId);
@@ -443,7 +433,7 @@ YouRHere.UserListView = Backbone.View.extend({
 
                     var user = new YouRHere.User();
                     user.set("email", email);
-                    user.set('role', role)
+                    user.set('role', role);
                     user.save();
 
                     //send email address out to other views
