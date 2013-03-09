@@ -1,3 +1,5 @@
+console = console || { log: function() {} };
+
 var _express = require("express");
 var _app = _express();
 var _http = require("http");
@@ -14,9 +16,9 @@ var _ = require("underscore");
 _.str = require("underscore.string"); //there are name conflicts with underscore.string
 _.mixin(_.str.exports()); //put the non-conflicting methods in _ var
 _.str.include("Unserscore.string", "string"); //put all conflicting methods in _.str
+_io.set('log level', 1); //reduce logging
 
 var config = require("./targetprocess.config");
-
 var _address = config.info.serverAddress;// "http://localhost"; //TODO: move this to a config file
 var _port = config.info.serverPort; //8080; //TODO: move this to a config file
 
@@ -99,25 +101,74 @@ _io.sockets.on("connection", function (socket) {
     });
 
     // called when .save() is called on DemoItem model
-    socket.on("demoitems:update", function (newDemoItem, callback) {
-
-        //logIt("DEMOITEMS:UPDATE --------------------------");
-        //logIt("id = " + newDemoItem.id);
-        //logIt("demonstrable = " + newDemoItem.demonstrable);
+    socket.on("demoitems:update", function (updatedDemoItem, callback) {
 
         //update in-memory demo items list
-        var oldDemoItem = _.find(_demoItems, function (e) { return e.id === newDemoItem.id; });        
-        _.each(_demoItems, function (e) { e.active = false; }); //there can be only one
-        _demoItems[_demoItems.indexOf(oldDemoItem)] = newDemoItem;
+        var oldDemoItem = _.find(_demoItems, function (e) { return e.id === updatedDemoItem.id; }),
+            idx = _demoItems.indexOf(oldDemoItem);
 
+        if (idx < 0) {
+            logIt('WARN: idx less than zero! oldDemoItem NOT FOUND! for id: ' + updatedDemoItem.id);
+            showItems(_demoItems,"WARN: idx < zero ==> ");
+            return;  
+        } 
+
+        //there can be only one active item!
+        if (updatedDemoItem.active) _.each(_demoItems, function (e) { e.active = false; });
+
+        _demoItems[idx] = updatedDemoItem;
+        //showItems(_demoItems,"BEFORE ==> ");
+
+        var nextIdx = idx + 1,
+            len = _demoItems.length;
+
+        if (updatedDemoItem.nextId == -2) {
+            _demoItems.splice(idx, 1);
+            _demoItems.push(updatedDemoItem);
+        }
+
+        //update the order of demoItems if nextId != -1
+        if (updatedDemoItem.nextId != -2 && updatedDemoItem.nextId != -1) {
+
+            if (nextIdx < len && _demoItems[idx+1] && updatedDemoItem.nextId != _demoItems[idx+1].id) {
+                var nextDemoItem = _.find(_demoItems, function (e) { 
+                    var found = e.id == updatedDemoItem.nextId;
+                    if (!found) {
+                        found = e.id === updatedDemoItem.nextId;                        
+                    } 
+                    return found;
+                }),
+                nextIdx = _demoItems.indexOf(nextDemoItem);
+
+                if (idx < nextIdx) nextIdx--; //account for the position we're vacating
+
+                if (nextIdx >= 0) {
+                    //reorder!
+                    _demoItems.splice(idx, 1);
+                    _demoItems.splice(nextIdx, 0, updatedDemoItem);
+                } else {
+                    console.log('WARN: "nextDemoItem not found! nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
+                    showItems(_demoItems,"WARN: nextDemoItem not found! ==> ");
+                } 
+            } else {
+                if (updatedDemoItem.nextId == _demoItems[idx+1].id) {
+                    logIt('No move required!')
+                } else {
+                    console.log('WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
+                    showItems(_demoItems,'WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len + ' ==> ');
+                }
+            }
+        }
+
+        //showItems(_demoItems,"AFTER  ==> ");
+ 
         //tell everyone else what happened
-        var action = "update";
-        var activeChanged = !oldDemoItem.active && newDemoItem.active;
-        if (activeChanged) action = "activeChanged";
-        //logIt("action = " + action);
-        socket.broadcast.emit("demoitems/" + newDemoItem.id + ":" + action, newDemoItem);
+        var activeChanged = !oldDemoItem.active && updatedDemoItem.active,
+            action = (activeChanged) ? "activeChanged" : "update";
+        
+        socket.broadcast.emit("demoitems/" + updatedDemoItem.id + ":" + action, updatedDemoItem);
 
-        callback(null, newDemoItem); //do we need both this and socket.emit?
+        callback(null, updatedDemoItem); //do we need both this and socket.emit?
     }); 
 
     // called when .fetch() is called on Users collection on client side
@@ -176,91 +227,6 @@ _io.sockets.on("connection", function (socket) {
 
         logIt("USERS LIST (after removal): " + _users);
     });
-
-    ////Send the new entities when the client requests them
-    //socket.on("retrieveentities", function(){
-    //    socket.emit("entitiesretrieved", _demoItems);
-    //});
-    //socket.on("retrieveactiveitem", function(){
-    //    //logIt("sending back active item id");
-    //    var item = getItem(_activeItemId);
-    //    socket.emit("activeitemchanged", item);         
-    //});          
-
-    ////when the client emits "adduser", this listens and executes         
-    //socket.on("adduser", function(username) { 
-        
-    //    //get the gravatar for this user
-    //    var gravatarUrl = _gravatar.url(username, { size: "80", default:"identicon"}); 
-        
-    //    //store username in the socket session for this client, and in global list
-    //    socket.username = username;
-    //    _gravatarUrls[username] = gravatarUrl; 
-        
-    //    //tell the client that he or she has been connected
-    //    socket.emit("updateaudit", "SERVER", "you have connected"); 
-        
-    //    //tell everyone else that he or she has been connected
-    //    socket.broadcast.emit("updateaudit", "SERVER", username + " has connected"); 
-        
-    //    //update the list of users on the client side
-    //    _io.sockets.emit("updateusers", _gravatarUrls);          
-    //});          
-    
-    ////Admin changes active item         
-    //socket.on("changeactiveitem", function(activeItemId, activeItemName) {
-    //    _activeItemId = activeItemId;
-    //    socket.emit("updateaudit", "SERVER", "you changed the active item to '" + activeItemName + "'");
-    //    socket.broadcast.emit("updateaudit", "SERVER", socket.username + " changed the active item to '" + activeItemName + "'");
-    //    var item = getItem(_activeItemId);
-    //    _io.sockets.emit("activeitemchanged", item);         
-    //});          
-    
-    ////Admin changes item shown         
-    //socket.on("changeshown", function(data) {
-    //    var id = parseInt(data.id);
-    //    for (var idx=0; idx < _demoItems.length; idx++) {
-    //        //logIt('changeshown ==> oh my: ' + idx);
-    //        //logIt('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
-    //        if (parseInt(_demoItems[idx].Id) === id) {
-    //            _demoItems[idx].shown = data.val;
-    //            break;
-    //        }
-    //    };
-    //    //logIt('changeshown: ' + data.id);
-    //    //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
-    //    _io.sockets.emit("shownchanged", data);         
-    //});
-    
-    ////Admin changes item is demonstrable         
-    //socket.on("changenodemo", function(data) {
-    //    var id = parseInt(data.id);
-    //    for (var idx=0; idx < _demoItems.length; idx++) {
-    //        //logIt('changenodemo ==> oh my: ' + idx);
-    //        //logIt('_demoItems[idx].Id: ' + _demoItems[idx].Id + '; data.id: ' + data.id);
-    //        if (parseInt(_demoItems[idx].Id) === id) {
-    //            _demoItems[idx].canDemo = data.val;
-    //            break;
-    //        }
-    //    };
-
-    //    //logIt('changenodemo: ' + data.id);
-    //    //socket.emit("updateaudit", "SERVER", "change id: '" + data.id + "' to " + data.val);
-    //    _io.sockets.emit("nodemochanged", data);         
-    //});          
-    
-    ////handle client disconnects         
-    //socket.on("disconnect", function () {
-
-    //    //remove the username from the global list
-    //    delete _gravatarUrls[socket.username];
-
-    //    //update the list of users on the client side
-    //    _io.sockets.emit("updateusers", _gravatarUrls);
-
-    //    //tell everyone that the user left
-    //    socket.broadcast.emit("updateaudit", "SERVER", socket.username + " has disconnected.");
-    //});
 });
 
 function refreshEntities(boundaryDate) {
@@ -294,7 +260,8 @@ function tpToModelSchema(data, boundaryDate) {
             demonstrable: true,
             demonstrated: false,
             boundaryDate: boundaryDate,
-            active: false
+            active: false,
+            nextId: -1
         });
     }
 
@@ -314,7 +281,7 @@ function getItem(itemId) {
     var id = parseInt(itemId),
         item = null;
     for (var idx = 0; idx < _demoItems.length; idx++) {
-        if (parseInt(_demoItems[idx].Id) === id) {
+        if (parseInt(_demoItems[idx].id) === id) {
             item = _demoItems[idx];
             break;
         }
@@ -328,4 +295,12 @@ function logIt(msg) {
     } else {
         //growl it!
     }
+}
+
+function showItems(demoItems, prefix) {
+    var msg = prefix + " length: " + demoItems.length + ". ";
+    _.each(demoItems, function(val) {
+        msg += val.id + ";";
+    });
+    logIt(msg);
 }

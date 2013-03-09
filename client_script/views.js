@@ -1,4 +1,5 @@
-﻿var YouRHere = YouRHere || {};
+﻿console = console || { log: function() {} };
+var YouRHere = YouRHere || {};
 
 YouRHere.DemoListView = Backbone.View.extend({
     id: "DemoListView",
@@ -71,24 +72,34 @@ YouRHere.DemoListView = Backbone.View.extend({
                     //YouRHere.Utils.log('sortable:deactivate');
                 }
             }).disableSelection();
+
             $('#DemoListView li:first-child').click();
         }
         return this;
     },
     sortChanged: function(event, ui) {
-        YouRHere.Utils.log('sortChanged: ' + data);
+        //YouRHere.Utils.log('sortChanged: ');
         var el = $(ui.item),
             id = el.attr('id');
 
         var nextEl = el.next('li'),
             nextId = nextEl.attr('id'); 
 
+        YouRHere.Utils.log('sortChanged ==> nextId: ' + nextId);
+
+        if (!nextId && nextEl.hasClass('ui-sortable-placeholder')) {
+            YouRHere.Utils.log('it\'s no bueno if we accidentally select the placeholder LI element!');
+            //it's no bueno if we accidentally select the placeholder LI element!
+            return this; 
+        } 
+
         if (!nextId) nextId = -2;
+        
         //would like to send a message to everyone that looks something like this
         //id: id of the mover 
         //nextId: id of the the item that follows the mover
         var data = {id: id, nextId: nextId};
-        this.moveDemoItem(data);
+        return this.moveDemoItem(data);
     },
     addDemoItem: function (demoItem) {
         $(this.el).append(new this.ItemView(demoItem).el);
@@ -96,17 +107,34 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     removeDemoItem: function (demoItem) {
         this.$("#" + demoItem.id).remove();
+        return this;
     },
     moveDemoItem: function(data) {
-        //YouRHere.Utils.log('moveDemoItem: ' + data);
-        if (data === null || typeof data === 'undefined') return this;
+        if (data === null || typeof data === 'undefined') {
+            YouRHere.Utils.log('moveDemoItem ==> exit early');
+            return this;
+        }
+        YouRHere.Utils.log('moveDemoItem ==> id:' + data.id + '; nextId: ' + data.nextId);
+        // var item;
+        // for (var i = this.demoItems.length - 1; i >= 0; i--) {
+        //     YouRHere.Utils.log('demoItem');
+        //     item = this.demoItems[i];
+        //     console.log(item);
+        //     if ( item.id == data.id) {
+        //         YouRHere.Utils.log("DemoListView: DemoItem: " + demoItem.id + " setting NextId: " + data.nextId);
+        //         //this.demoItems[i].save("nextId", data.nextId)
+        //         break;
+        //     }
+        // };
 
         this.demoItems.each(function (demoItem) {
+            YouRHere.Utils.log('demoItem');
             if (demoItem.id == data.id) {
                 YouRHere.Utils.log("DemoListView: DemoItem: " + demoItem.id + " setting NextId: " + data.nextId);
                 demoItem.save("nextId", data.nextId);
-                return;
+                //return false;
             }
+            //if (demoItem.id === data.id) YouRHere.Utils.log.log('doh!');
         });
         return this;
     }
@@ -219,10 +247,10 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
 YouRHere.DemoItemView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
-        _.bindAll(this, "activeChanged", "itemMoved");
+        _.bindAll(this, "activeChanged", "moveItem");
         this.model = demoItem;
         this.model.bind("change:active", this.activeChanged);
-        this.model.bind("change:nextId", this.itemMoved);
+        this.model.bind("change:nextId", this.moveItem);
         this.render();
         return this;
     },
@@ -246,15 +274,21 @@ YouRHere.DemoItemView = Backbone.View.extend({
         } else {
             this.$el.removeClass("highlight");
         }
+        return this;
     },
-    itemMoved: function() {
+    moveItem: function() {
+        var nextId = this.model.get('nextId');
+
+        if (nextId == -1) {
+            YouRHere.Utils.log('DemoItemView.moveItem ==> exit early nextId = -1');
+            return this;
+        }
         var id = this.model.get('id'),
-            nextId = this.model.get('nextId'),
             moverEl = $('#' + id),
             moverParent = moverEl.parent();
             YouRHere.Utils.log('DemoItemView => id: ' + id + '; nextId: ' + nextId);
 
-        if (nextId < 0) {
+        if (nextId == -2) {
             YouRHere.Utils.log('DemoItemView => move to end of the line');
             moverParent.append($(moverEl));
         } else {
@@ -262,6 +296,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
             var nextEl = $('#' + nextId);
             nextEl.before(moverEl);
         }
+        return this;
     }
 });
 
@@ -294,11 +329,13 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
         } else {
             this.$el.removeClass("highlight");
         }
+        return this;
     },
     itemMoved: function() {
         var id = this.model.get('id'),
             nextId = this.model.get('nextId');
         YouRHere.Utils.log('DemoItemDeailView.itemMoved => id: ' + id + '; nextId: ' + nextId);
+        return this;
     }
 
 });
@@ -316,12 +353,14 @@ YouRHere.DetailsDemoItemView = Backbone.View.extend({
     },
     clearDemoItems: function () {
         $("#DemoListView").empty();
+        return this;
     },
     addDemoItem: function (demoItem) {
         var demoItemView = new YouRHere.DemoItemDetailView(demoItem);
         $("#DemoListView").append(demoItemView.el);
         //remove all the style attributes from TP
         $('[style]').removeAttr('style');
+        return this;
     },
     render: function () {
 
@@ -381,6 +420,7 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
             if (invertedLogic) attribVal = !attribVal;
             this.$("." + checkBoxContainerClass + " input").prop("checked", attribVal);
         }
+        return this;
     }
 });
 

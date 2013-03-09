@@ -22,10 +22,12 @@ YouRHere.DemoItem = Backbone.Model.extend({
         nextId: -1                              //The id of the next element that follows in the list. Used to indicate where in the list an item is moving when sort is changed by the organizer 
     },
     initialize: function () {
-        _.bindAll(this, "serverChange", "setActive", "modelCleanup", "itemMoved");
+        _.bindAll(this, "serverChange", "setActive", "modelCleanup", "itemMoved","noDemoChanged","shownChanged");
         this.ioBind("update", this.serverChange, this);
         this.ioBind("activeChanged", this.setActive, this);
-        this.ioBind("positionChanged", this.itemMoved, this);
+        this.ioBind("nextIdChanged", this.itemMoved, this);
+        this.ioBind("demonstrableChanged", this.noDemoChanged, this);
+        this.ioBind("demonstratedChanged", this.shownChanged, this);
     },
     serverChange: function (data) {
         YouRHere.Utils.log("DemoItem: " + data.id + ".serverChange");
@@ -43,8 +45,18 @@ YouRHere.DemoItem = Backbone.Model.extend({
         return this;
     },
     itemMoved: function(data) {
-        YouRHere.Utils.log("DemoItem: " + data.id + ".itemMoved");
-        YouRHere.Utils.log("DemoItem: nextId " + data.nextId + ".itemMoved");
+        //YouRHere.Utils.log("DemoItem: " + data.id + ".itemMoved");
+        //YouRHere.Utils.log("DemoItem: nextId " + data.nextId + ".itemMoved");
+        //data.fromServer = true;
+        //this.set(data);  
+    },
+    noDemoChanged: function(data) {
+        YouRHere.Utils.log("noDemoChanged: " + data.id + ".noDemoChanged");
+        data.fromServer = true;
+        this.set(data);  
+    },
+    shownChanged: function(data) {
+        YouRHere.Utils.log("DemoItem: " + data.id + ".shownChanged");
         data.fromServer = true;
         this.set(data);  
     }
