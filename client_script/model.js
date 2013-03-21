@@ -74,9 +74,12 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     },
     filterByActive: function (active) {
 		YouRHere.Utils.log("this.length = " + this.length);
+
         var filtered = _(this.filter(function (demoItem) { //wrapping with underscore function returns collection            
+            console.log(demoItem.get("active"));
             return demoItem.get("active").toString() == active.toString();
         }));
+        console.log(filtered);
         YouRHere.Utils.log("filtered.length = " + filtered.length);
         return filtered;
     },
@@ -153,7 +156,7 @@ YouRHere.User = Backbone.Model.extend({
     serverDelete: function (data) {
         YouRHere.Utils.log("User: " + this.id + ".serverDelete");
         if (this.collection) {
-            YouRHere.Utils.log("removing from collection");
+            YouRHere.Utils.log("removing from User collection");
             this.collection.remove(this);
         } else {
             YouRHere.Utils.log("triggering remove");

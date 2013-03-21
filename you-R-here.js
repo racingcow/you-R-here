@@ -98,6 +98,8 @@ _io.sockets.on("connection", function (socket) {
     socket.on("demoitems:read", function (data, callback) {
         //logIt("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
+
+        showItems(_demoItems,"demoItems:read ===> ");
     });
 
     // called when .save() is called on DemoItem model
@@ -129,6 +131,7 @@ _io.sockets.on("connection", function (socket) {
 
         //update the order of demoItems if nextId != -1
         if (updatedDemoItem.nextId != -2 && updatedDemoItem.nextId != -1) {
+            console.log('OH NOES!!!');
 
             if (nextIdx < len && _demoItems[idx+1] && updatedDemoItem.nextId != _demoItems[idx+1].id) {
                 var nextDemoItem = _.find(_demoItems, function (e) { 
