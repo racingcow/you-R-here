@@ -9,7 +9,7 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     initialize: function (ItemView, demoItems, options) {
         YouRHere.Utils.log("DemoListView.initialize");
-        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem");
+        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem","reload");
         this.options = options;
         this.ItemView = ItemView;
         this.demoItems = demoItems;        
@@ -17,11 +17,18 @@ YouRHere.DemoListView = Backbone.View.extend({
         this.render();        
         return this;
     },
+    reload: function() {
+        console.log('reload!');
+        this.demoItems.reset();
+        this.demoItems.fetch();
+    },
     render: function () {
         YouRHere.Utils.log("DemoListView.render");
         var self = this;
         if (this.demoItems.length > 0) {
-            $("#datepicker").val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")); //Date comes back from server now
+            var $datepicker = $('#datepicker');
+            $datepicker.val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")) //Date comes back from server now
+                    .change(this.reload);
         }
         this.demoItems.each(function (demoItem) {
             self.addDemoItem(demoItem);

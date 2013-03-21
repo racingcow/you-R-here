@@ -15,7 +15,8 @@ var _uuid = require("node-uuid"); //Creates "guids" for use as unique object ids
 var _ = require("underscore");
 _.str = require("underscore.string"); //there are name conflicts with underscore.string
 _.mixin(_.str.exports()); //put the non-conflicting methods in _ var
-_.str.include("Unserscore.string", "string"); //put all conflicting methods in _.str
+_.str.include("underscore.string", "string"); //put all conflicting methods in _.str
+
 _io.set('log level', 1); //reduce logging
 
 var config = require("./targetprocess.config");
@@ -98,8 +99,12 @@ _io.sockets.on("connection", function (socket) {
     socket.on("demoitems:read", function (data, callback) {
         //logIt("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
-
         showItems(_demoItems,"demoItems:read ===> ");
+
+    });
+
+    socket.on("demoitems:reset", function(data) {
+        showItems(_demoItems,"demoItems:reset ===> ");
     });
 
     // called when .save() is called on DemoItem model
