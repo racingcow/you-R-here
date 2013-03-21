@@ -18,14 +18,16 @@ YouRHere.App = Backbone.Router.extend({
         $("#itemsView").append(demoListView.el);
         demoItems.fetch();
 
+
         //Capture the email address of the currently logged in user from the users view
         userListView.on("user:login", function (email) {
             YouRHere.Utils.log("Router received 'user:login' event - email is " + email);
             demoListView.email = email;
             //select one of the menu items... "myItems" seems good
             //YouRHere.Utils.log('click myItems');
-            $('li.myItems').click();
+            $('li.allItems').click();
         });
+
     }
 });
 

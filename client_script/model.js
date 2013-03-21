@@ -45,10 +45,10 @@ YouRHere.DemoItem = Backbone.Model.extend({
         return this;
     },
     itemMoved: function(data) {
-        //YouRHere.Utils.log("DemoItem: " + data.id + ".itemMoved");
-        //YouRHere.Utils.log("DemoItem: nextId " + data.nextId + ".itemMoved");
-        //data.fromServer = true;
-        //this.set(data);  
+        YouRHere.Utils.log("DemoItem: " + data.id + ".itemMoved");
+        YouRHere.Utils.log("DemoItem: nextId " + data.nextId + ".itemMoved");
+        data.fromServer = true;
+        this.set(data);  
     },
     noDemoChanged: function(data) {
         YouRHere.Utils.log("noDemoChanged: " + data.id + ".noDemoChanged");
@@ -91,7 +91,47 @@ YouRHere.DemoItems = Backbone.Collection.extend({
             model.modelCleanup();
         });
         return this;
-    }    
+    },
+    moveItem: function(data) {
+        var currItem = this.get(data.id);
+        var nextItem = this.find(function(val) {
+                return val.id == data.nextId;
+        });
+
+        currItem.save("nextId", data.nextId);
+
+        var currIdx = this.indexOf(currItem),
+            nextIdx = this.indexOf(nextItem);
+
+
+        if (currIdx < nextIdx) nextIdx--;
+
+        this.remove(currItem, {silent: true});
+        this.add(currItem, {at: nextIdx});
+    },
+    reorderList: function(itemModel) {
+        console.log('reorderList');
+        //we know we've moved...
+        console.log(itemModel);
+
+        var nextId = itemModel.get('nextId');
+     
+        var nextItem = this.find(function(val) {
+                return val.id == nextId;
+        });
+
+        console.log(nextItem);
+
+        var currIdx = this.indexOf(itemModel),
+            nextIdx = this.indexOf(nextItem);
+        console.log('ORIG: currIdx: ' + currIdx + '; nextIdx: ' + nextIdx);
+
+        if (currIdx < nextIdx) nextIdx--;;
+        console.log('FINAL: currIdx: ' + currIdx + '; nextIdx: ' + nextIdx);
+
+        this.remove(itemModel, {silent: true});
+        this.add(itemModel, {at: nextIdx});
+    }
 });
 
 YouRHere.User = Backbone.Model.extend({

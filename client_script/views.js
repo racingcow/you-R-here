@@ -17,34 +17,8 @@ YouRHere.DemoListView = Backbone.View.extend({
         this.render();        
         return this;
     },
-    clickDemoItem: function (e) {
-
-        var target = e.srcElement;
-
-        if (typeof target === 'undefined') {
-            target = e.target;
-        }
-        if (target) {            
-            var elemId = target.id;
-            if (target.tagName != "LI") {
-                elemId = $(target).closest('li').attr('id');
-            };
-            YouRHere.Utils.log('using id: ' + elemId);
-
-            this.demoItems.each(function (demoItem) {
-                if (!demoItem.active && demoItem.id == elemId) {
-                    YouRHere.Utils.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
-                    demoItem.save("active", true); //The item that was clicked (the newly active item)
-                } else if ($("#" + demoItem.id).hasClass("highlight")) {
-                    YouRHere.Utils.log("DemoListView: Setting DemoItem " + demoItem.id + " to inactive");
-                    demoItem.save("active", false); //The currently (soon to be previously) active item
-                }
-            });
-            //return this;
-        }
-        return this;
-    },
     render: function () {
+        YouRHere.Utils.log("DemoListView.render");
         var self = this;
         if (this.demoItems.length > 0) {
             $("#datepicker").val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")); //Date comes back from server now
@@ -74,6 +48,33 @@ YouRHere.DemoListView = Backbone.View.extend({
             }).disableSelection();
 
             $('#DemoListView li:first-child').click();
+        }
+        return this;
+    },
+    clickDemoItem: function (e) {
+
+        var target = e.srcElement;
+
+        if (typeof target === 'undefined') {
+            target = e.target;
+        }
+        if (target) {            
+            var elemId = target.id;
+            if (target.tagName != "LI") {
+                elemId = $(target).closest('li').attr('id');
+            };
+            YouRHere.Utils.log('using id: ' + elemId);
+
+            this.demoItems.each(function (demoItem) {
+                if (!demoItem.active && demoItem.id == elemId) {
+                    YouRHere.Utils.log("DemoListView: Setting DemoItem " + demoItem.id + " to active");
+                    demoItem.save("active", true); //The item that was clicked (the newly active item)
+                } else if ($("#" + demoItem.id).hasClass("highlight")) {
+                    YouRHere.Utils.log("DemoListView: Setting DemoItem " + demoItem.id + " to inactive");
+                    demoItem.save("active", false); //The currently (soon to be previously) active item
+                }
+            });
+            //return this;
         }
         return this;
     },
@@ -115,33 +116,13 @@ YouRHere.DemoListView = Backbone.View.extend({
             return this;
         }
         YouRHere.Utils.log('moveDemoItem ==> id:' + data.id + '; nextId: ' + data.nextId);
-        // var item;
-        // for (var i = this.demoItems.length - 1; i >= 0; i--) {
-        //     YouRHere.Utils.log('demoItem');
-        //     item = this.demoItems[i];
-        //     console.log(item);
-        //     if ( item.id == data.id) {
-        //         YouRHere.Utils.log("DemoListView: DemoItem: " + demoItem.id + " setting NextId: " + data.nextId);
-        //         //this.demoItems[i].save("nextId", data.nextId)
-        //         break;
-        //     }
-        // };
-
-        this.demoItems.each(function (demoItem) {
-            YouRHere.Utils.log('demoItem');
-            if (demoItem.id == data.id) {
-                YouRHere.Utils.log("DemoListView: DemoItem: " + demoItem.id + " setting NextId: " + data.nextId);
-                demoItem.save("nextId", data.nextId);
-                //return false;
-            }
-            //if (demoItem.id === data.id) YouRHere.Utils.log.log('doh!');
-        });
+        this.demoItems.moveItem(data);
         return this;
     }
 });
 
 //todo: I had problems when trying to extend SortableDemoListView here. Need to come back and try again.
-YouRHere.FilterableDemoListView = Backbone.View.extend({
+YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View.extend({
     id: "DemoListView",
     tagName: "div",
     events: {
@@ -150,7 +131,23 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         "click li.allItems": "filterAllItems",
         "click li.menu": "clickMenuItem"
     },
-    initialize: function (itemView, demoItems) {
+    initialize: function(itemView, demoItems, options) {
+        //super.initialize(itemView, demoItems, options);
+        YouRHere.Utils.log("FilterableDemoListView.initialize");
+        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "itemMoved", "updateView");
+        this.options = options;
+        this.ItemView = itemView;
+        this.demoItems = demoItems;        
+        this.demoItems.bind("reset", this.render); //Called during fetch   
+        this.demoItems.bind("add", this.updateView); //Called during fetch   
+
+        this.demoItems.bind("change:nextId", this.itemMoved);
+     
+        this.render();        
+        return this;
+
+    },
+/*    initialize: function (itemView, demoItems) {
 
         YouRHere.Utils.log("FilterableDemoListView.initialize");
 
@@ -164,18 +161,29 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
 
         return this;
     },
+    */
     render: function () {
         YouRHere.Utils.log("FilterableDemoListView.render");
 
-        //render the filter controls
-        //todo: think about making this a separate view
-        this.$el.append("<ul class='tabs'><li id='currentItem' class='menu first selected currentItem'>Current Item</li><li id='myItems' class='menu last myItems'>My Items</li><li id='allItems' class='menu last allItems'>All Items</li></ul>");
+        var $tabs = $('.tabs');
+        if ($tabs.length === 0) {
+            //render the filter controls
+            //todo: think about making this a separate view
+            this.$el.append("<ul class='tabs'><li id='currentItem' class='menu first currentItem'>Current Item</li><li id='myItems' class='menu last myItems'>My Items</li><li id='allItems' class='menu last allItems'>All Items</li></ul>");
+            //render a sub-container for the items
+            this.$el.append("<ul class='items'></ul>");
 
-        //render a sub-container for the items
-        this.$el.append("<ul class='items'></ul>");
-
-        //make list sortable
-        $(".items").sortable({ axis: "y", containment: "parent" }).disableSelection();
+            //make list sortable
+            $(".items").sortable({ axis: "y", containment: "parent" }).disableSelection();
+        }
+        return this;
+    },
+    itemMoved: function(item) {
+        console.log('itemMoved!!');
+        console.log(item);
+        var nextId = item.get('nextId');
+        console.log(nextId);
+        this.demoItems.reorderList(item);
         return this;
     },
     renderList: function (filteredItems) {
@@ -203,7 +211,7 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         });
     },
     addDemoItem: function (demoItem) {
-        var demoItemView = new this.itemView(demoItem);
+        var demoItemView = new this.ItemView(demoItem);
         $(".items").append(demoItemView.el);
     },
     removeDemoItem: function (demoItem) {
@@ -212,21 +220,36 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
     clearDemoItems: function () {
         $(".items").empty();
     },
+    updateView: function() {
+        YouRHere.Utils.log("FilterableDemoListView.updateView");
+        var $selectMenuItem = $('li.selected'),
+            id = $selectMenuItem.attr('id'),
+            casedId = id.charAt(0).toUpperCase() + id.substring(1);
+            functionName = 'filter' + casedId;
+        console.log(functionName);
+        //window[functionName];
+        if (id == 'allItems') { this.filterAllItems(); } 
+        if (id == 'myItems') { this.filterMyItems(); }
+        if (id == 'currentItem') { this.filterCurrentItem(); }
+        return this;
+    },
     filterCurrentItem: function () {
-        //YouRHere.Utils.log("FilterableDemoListView.filterCurrentItem");
+        YouRHere.Utils.log("FilterableDemoListView.filterCurrentItem");
         this.renderList(this.demoItems.filterByActive(true));
+        //this.renderList(this.demoItems);
         this.selectMenuItem('currentItem');
         return this;
     },
     filterMyItems: function () {
-        //YouRHere.Utils.log("FilterableDemoListView.filterMyItems - email is " + this.email);
+        YouRHere.Utils.log("FilterableDemoListView.filterMyItems - email is " + this.email);
         var filteredList = this.demoItems.filterByEmail(this.email);
         this.renderList(filteredList);
+        //this.renderList(this.demoItems);
         this.selectMenuItem('myItems');
         return this;
     },
     filterAllItems: function () {
-        //YouRHere.Utils.log("FilterableDemoListView.filterAllItems");
+        YouRHere.Utils.log("FilterableDemoListView.filterAllItems");
         this.renderList(this.demoItems);
         this.selectMenuItem('allItems');
         return this;
@@ -239,7 +262,7 @@ YouRHere.FilterableDemoListView = Backbone.View.extend({
         this.selectMenuItem(e.srcElement.id);
     },
     selectMenuItem: function(elemId) {
-        $('li.menu').removeClass('selected');
+        $('li.menu.selected').removeClass('selected');
         $('#' + elemId).addClass('selected');
     }
 });
@@ -277,7 +300,9 @@ YouRHere.DemoItemView = Backbone.View.extend({
         return this;
     },
     moveItem: function() {
-        var nextId = this.model.get('nextId');
+        console.log('moveItem: SHORT-CIRCUIT');
+        return this;
+/*        var nextId = this.model.get('nextId');
 
         if (nextId == -1) {
             YouRHere.Utils.log('DemoItemView.moveItem ==> exit early nextId = -1');
@@ -297,6 +322,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
             nextEl.before(moverEl);
         }
         return this;
+        */
     }
 });
 
