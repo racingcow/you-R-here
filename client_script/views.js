@@ -433,8 +433,15 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
     render: function () {
         this.constructor.__super__.render.apply(this);
 
-        var editableDemoItemTemplate = "<br/> <div class='shown left' data-id='<%= item.id %>'><label for='chkShown<%= item.id %>'>Shown</label><input type='checkbox' class='itemShownCheck' id='chkShown<%= item.id %>' data-id='<%= item.id %>' /></div> <div class='noDemo right' data-id='<%= item.id %>'><label for='chkNodemo<%= item.id %>'>No Demo</label><input type='checkbox' class='itemNoDemoCheck' id='chkNodemo<%= item.id %>' data-id='<%= item.id %>' /></div>";
-        this.$el.append(_.template(editableDemoItemTemplate, { item: this.model.toJSON() }));
+        var id = this.model.get('id').toString(),
+            demonstrated = this.model.get('demonstrated') ? 'checked' : '',
+            notdemonstrable = this.model.get('demonstrable') ? '' : 'checked',
+            editableDemoItemTemplate = "<br/> <div class='shown left' data-id='<%= item.id %>'><label for='chkShown<%= item.id %>'>Shown</label><input type='checkbox' class='itemShownCheck' <%= demonstrated %> id='chkShown<%= item.id %>' data-id='<%= item.id %>' /></div> <div class='noDemo right' data-id='<%= item.id %>'><label for='chkNodemo<%= item.id %>'>No Demo</label><input type='checkbox' class='itemNoDemoCheck'  <%= notdemonstrable %>  id='chkNodemo<%= item.id %>' data-id='<%= item.id %>' /></div>";
+
+        var tmpl = _.template(editableDemoItemTemplate);
+        var tmpl_data = _.extend({ item: this.model.toJSON() }, { demonstrated: demonstrated }, { notdemonstrable: notdemonstrable });
+
+        this.$el.append(tmpl(tmpl_data));
 
         return this;
     },
