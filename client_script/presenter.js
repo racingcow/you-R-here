@@ -15,7 +15,7 @@ YouRHere.App = Backbone.Router.extend({
 
         var demoItems = new YouRHere.DemoItems();
         var demoListView = new YouRHere.FilterableDemoListView(YouRHere.DemoItemView, demoItems);
-        $("#itemsView").append(demoListView.el);
+        $("#itemsView").hide().append(demoListView.el);
         demoItems.fetch();
 
 
@@ -26,6 +26,8 @@ YouRHere.App = Backbone.Router.extend({
             //select one of the menu items... "myItems" seems good
             //YouRHere.Utils.log('click myItems');
             $('li.allItems').click();
+            $("#itemsView").show();
+
         });
 
     }
