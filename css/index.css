@@ -151,14 +151,16 @@ div.shown, div.noDemo {
     font-size: 12px;
 }
 
-.itemCanDemo0 {
-    color: #006400 !important;
-}
-
-.itemShown1 {
+.demonstrated {
     color: gainsboro !important;
 }
 
+.notDemonstrable {
+    color: #006400 !important;
+}
+.currentItem {
+    height: auto;
+}
 .itemName {
     font-size: 20px;
     padding-top: 5px;

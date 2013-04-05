@@ -18,7 +18,6 @@ YouRHere.DemoListView = Backbone.View.extend({
         return this;
     },
     reload: function() {
-        console.log('reload!');
         this.demoItems.reset();
         this.demoItems.fetch();
     },
@@ -34,7 +33,6 @@ YouRHere.DemoListView = Backbone.View.extend({
             self.addDemoItem(demoItem);
         });
         if (this.options.sortable) {
-            console.log("sortable is true. setting up sorting in view.");
             $("#DemoListView").sortable({ 
                 axis: "y",
                 containment: "parent",
@@ -151,30 +149,14 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         this.ItemView = itemView;
         this.demoItems = demoItems;        
         this.demoItems.bind("reset", this.render); //Called during fetch   
-        this.demoItems.bind("add", this.updateView); //Called during fetch   
+        this.demoItems.bind("add", this.updateView);
         this.demoItems.bind("activeChanged", this.activeChanged);
-
         this.demoItems.bind("change:nextId", this.itemMoved);
      
         this.render();        
         return this;
 
     },
-/*    initialize: function (itemView, demoItems) {
-
-        YouRHere.Utils.log("FilterableDemoListView.initialize");
-
-        _.bindAll(this);
-
-        this.itemView = itemView;
-        this.demoItems = demoItems;
-        this.email = "";
-
-        this.demoItems.bind("reset", this.render, this); //Called during fetch
-
-        return this;
-    },
-    */
     render: function () {
         YouRHere.Utils.log("FilterableDemoListView.render");
 
@@ -192,10 +174,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     itemMoved: function(item) {
-        console.log('itemMoved!!');
-        console.log(item);
         var nextId = item.get('nextId');
-        console.log(nextId);
         this.demoItems.reorderList(item);
         return this;
     },
@@ -219,7 +198,9 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         this.$("#" + demoItem.id).remove();
     },
     clearDemoItems: function () {
-        $(".items").empty();
+        $('.items').empty();
+        $('.items').removeClass('currentItem');
+        $('.currentItemDesc').remove();
     },
     updateView: function() {
         YouRHere.Utils.log("FilterableDemoListView.updateView");
@@ -227,8 +208,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
             id = $selectMenuItem.attr('id'),
             casedId = id.charAt(0).toUpperCase() + id.substring(1);
             functionName = 'filter' + casedId;
-        console.log(functionName);
-        //window[functionName];
+
         if (id == 'allItems') { this.filterAllItems(); } 
         if (id == 'myItems') { this.filterMyItems(); }
         if (id == 'currentItem') { this.filterCurrentItem(); }
@@ -243,9 +223,25 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     },
     filterCurrentItem: function () {
         YouRHere.Utils.log("FilterableDemoListView.filterCurrentItem");
-        this.renderList(this.demoItems.filterByActive(true));
-        //this.renderList(this.demoItems);
+
+        var activeArray = this.demoItems.filterByActive(true);
+        this.renderList(activeArray);
+
+        $('.items').addClass('currentItem');
+
         this.selectMenuItem('currentItem');
+
+        //TODO: find a better way to get the current item
+        var self = this, currentItem;
+        activeArray.each(function (demoItem) {
+            currentItem = self.demoItems.get(demoItem.id);
+        });        
+
+        if (currentItem) {
+            /* this is the item descrition info, but we only want to show when we're the "current item" */
+            var descItemplate = "<div class='currentItemDesc'><h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div></div>";
+            this.$el.append(_.template(descItemplate, { item: currentItem.toJSON() }));
+        }
         return this;
     },
     filterMyItems: function () {
@@ -278,9 +274,11 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
 YouRHere.DemoItemView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
-        _.bindAll(this, "activeChanged");
+        _.bindAll(this, "activeChanged", "demonstrableChanged", "demonstratedChanged");
         this.model = demoItem;
         this.model.bind("change:active", this.activeChanged);
+        this.model.bind("change:demonstrable", this.demonstrableChanged);
+        this.model.bind("change:demonstrated", this.demonstratedChanged);
         this.render();
         return this;
     },
@@ -292,8 +290,19 @@ YouRHere.DemoItemView = Backbone.View.extend({
             .addClass(this.model.get("type"))
             .addClass("admin"); //TODO: pass this into the view, somehow
         if (this.model.get("active")) {
-            this.$el.attr("id", this.model.id).addClass("highlight");
+            this.$el.addClass("highlight");
         }
+        if (this.model.get("demonstrated")) {
+            this.$el.addClass("demonstrated");
+        }
+        if (!this.model.get("demonstrable")) {
+            this.$el.addClass("notDemonstrable");
+        }
+
+        /* this is the item descrition info, but we only want to show when we're the "current item"        
+        var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
+        this.$el.append(_.template(descItemplate, { item: this.model.toJSON() }));
+        */
         return this;
     },
     activeChanged: function () {
@@ -305,9 +314,29 @@ YouRHere.DemoItemView = Backbone.View.extend({
             this.$el.removeClass("highlight");
         }
         return this;
+    },
+    demonstrableChanged: function () {
+        var demonstrable = this.model.get("demonstrable");
+        YouRHere.Utils.log("DemoItemView.demonstrableChanged: Refreshing view for DemoItem " + this.model.id + ", demonstrable = " + demonstrable);
+        if (demonstrable) {
+            this.$el.removeClass("notDemonstrable");
+        } else {
+            this.$el.addClass("notDemonstrable");
+        }
+        return this;
+    },
+    demonstratedChanged: function () {
+        var demonstrated = this.model.get("demonstrated");
+        YouRHere.Utils.log("DemoItemView.demonstratedChanged: Refreshing view for DemoItem " + this.model.id + ", demonstrated = " + demonstrated);
+        if (demonstrated) {
+            this.$el.addClass("demonstrated");
+        } else {
+            this.$el.removeClass("demonstrated");
+        }
+        return this;
     }
 });
-
+/*
 YouRHere.DemoItemDetailView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
@@ -347,7 +376,7 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
     }
 
 });
-
+*/
 YouRHere.DetailsDemoItemView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "ul",    
@@ -411,9 +440,11 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
         return this;
     },
     setDemonstrable: function (e) {
+        if (e.stopPropagation) { e.stopPropagation(); }
         this.setAttrib(e, "demonstrable", "noDemo", true);
     },
     setDemonstrated: function (e) {
+        if (e.stopPropagation) { e.stopPropagation(); }
         this.setAttrib(e, "demonstrated", "shown", false);
     },
     setAttrib: function (e, attribName, checkBoxContainerClass, invertedLogic) {
