@@ -336,7 +336,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
         return this;
     }
 });
-/*
+
 YouRHere.DemoItemDetailView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
@@ -376,7 +376,6 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
     }
 
 });
-*/
 YouRHere.DetailsDemoItemView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "ul",    
