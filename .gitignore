@@ -23,6 +23,9 @@ $RECYCLE.BIN/
 Web.config
 run.ps1
 
+#Sublime Stuff
+*.sublime-*
+
 #Modules
 node_modules/
 
