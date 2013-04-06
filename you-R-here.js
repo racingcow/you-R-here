@@ -26,6 +26,7 @@ var _port = config.info.serverPort; //8080; //TODO: move this to a config file
 _server.listen(_port);
 var _users = []; //users currently connected 
 var _demoItems = []; //user stories and bugs 
+var _iteration = {endDate: new Date()}; //information about the current iteration to which the demo items belong
 var _activeItemId = 0;
 var _staticContentItems = {
     title: "you-R-here",
@@ -73,7 +74,7 @@ _app.get("/presenter.html", function (req, res) {
 _app.get("/*", function(req, res){         
     var uri = _url.parse(req.url).pathname;         
     var filename = _path.join(process.cwd(), uri);         
-    _path.exists(filename, function(exists){
+    _fs.exists(filename, function(exists){
         if(!exists){        
             res.writeHead(404, {"Content-Type" : "text/plain"});        
             res.write("Content not found");        
@@ -90,21 +91,38 @@ _app.get("/*", function(req, res){
 
 //auto-load entities list for most recent iteration when app starts
 _tp.api("getMostRecentIterationBoundary", function (boundaryDate) {
-    refreshEntities(boundaryDate);
+    //console.log('getMostRecentIterationBoundary: boundaryDate = "' + boundaryDate + '"');
+    _iteration.endDate = boundaryDate;
+    refreshEntities();
 });
 
 _io.sockets.on("connection", function (socket) {    
+
+    socket.on("iteration:read", function(data, callback) {
+        console.log("iteration:read - endDate = '" + _iteration.endDate + "'");
+        callback(null, _iteration);
+    });
+
+    socket.on("iteration:create", function(iteration, callback) {
+        console.log("iteration:create - iteration.endDate = '" + iteration.endDate + "'");
+        //todo: filter out bad dates
+        _iteration = iteration;
+        refreshEntities(function() {
+            //showItems(_demoItems,"iteration:create ===> ");
+            socket.broadcast.emit("iteration:update", _iteration);
+            _io.sockets.emit("demoitems:refresh", _demoItems);
+        });
+    });
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
         //logIt("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
-        showItems(_demoItems,"demoItems:read ===> ");
-
+        //showItems(_demoItems,"demoItems:read ===> ");
     });
 
     socket.on("demoitems:reset", function(data) {
-        showItems(_demoItems,"demoItems:reset ===> ");
+        //showItems(_demoItems,"demoItems:reset ===> ");
     });
 
     // called when .save() is called on DemoItem model
@@ -116,7 +134,7 @@ _io.sockets.on("connection", function (socket) {
 
         if (idx < 0) {
             logIt('WARN: idx less than zero! oldDemoItem NOT FOUND! for id: ' + updatedDemoItem.id);
-            showItems(_demoItems,"WARN: idx < zero ==> ");
+            //showItems(_demoItems,"WARN: idx < zero ==> ");
             return;  
         } 
 
@@ -136,7 +154,6 @@ _io.sockets.on("connection", function (socket) {
 
         //update the order of demoItems if nextId != -1
         if (updatedDemoItem.nextId != -2 && updatedDemoItem.nextId != -1) {
-            console.log('OH NOES!!!');
 
             if (nextIdx < len && _demoItems[idx+1] && updatedDemoItem.nextId != _demoItems[idx+1].id) {
                 var nextDemoItem = _.find(_demoItems, function (e) { 
@@ -156,19 +173,19 @@ _io.sockets.on("connection", function (socket) {
                     _demoItems.splice(nextIdx, 0, updatedDemoItem);
                 } else {
                     console.log('WARN: "nextDemoItem not found! nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
-                    showItems(_demoItems,"WARN: nextDemoItem not found! ==> ");
+                    //showItems(_demoItems,"WARN: nextDemoItem not found! ==> ");
                 } 
             } else {
                 if (updatedDemoItem.nextId == _demoItems[idx+1].id) {
                     logIt('No move required!')
                 } else {
                     console.log('WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
-                    showItems(_demoItems,'WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len + ' ==> ');
+                    //showItems(_demoItems,'WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len + ' ==> ');
                 }
             }
         }
 
-        //showItems(_demoItems,"AFTER  ==> ");
+        showItems(_demoItems,"AFTER  ==> ");
  
         //tell everyone else what happened
         var activeChanged = !oldDemoItem.active && updatedDemoItem.active,
@@ -176,7 +193,7 @@ _io.sockets.on("connection", function (socket) {
         
         socket.broadcast.emit("demoitems/" + updatedDemoItem.id + ":" + action, updatedDemoItem);
 
-        callback(null, updatedDemoItem); //do we need both this and socket.emit?
+        callback(null, updatedDemoItem);
     }); 
 
     // called when .fetch() is called on Users collection on client side
@@ -237,13 +254,14 @@ _io.sockets.on("connection", function (socket) {
     });
 });
 
-function refreshEntities(boundaryDate) {
+function refreshEntities(callback) {
     _tp.api("getEntitiesForActiveIteration", function (data) {
-        _demoItems = tpToModelSchema(data, boundaryDate);
-    }, { date: boundaryDate });
+        _demoItems = tpToModelSchema(data);
+        if (callback) callback();
+    }, { date: _iteration.endDate });
 }
 
-function tpToModelSchema(data, boundaryDate) {
+function tpToModelSchema(data) {
 
     //TODO: Replace this transformation method with another object/middleware               
 
@@ -267,7 +285,7 @@ function tpToModelSchema(data, boundaryDate) {
             demonstratorEmail: assignedUser.Email,
             demonstrable: true,
             demonstrated: false,
-            boundaryDate: boundaryDate,
+            boundaryDate: _iteration.endDate,
             active: false,
             nextId: -1
         });
@@ -308,7 +326,7 @@ function logIt(msg) {
 function showItems(demoItems, prefix) {
     var msg = prefix + " length: " + demoItems.length + ". ";
     _.each(demoItems, function(val) {
-        msg += val.id + ";";
+        msg += val.id + (val.active ? "," + val.active : "") + ";";
     });
     logIt(msg);
 }

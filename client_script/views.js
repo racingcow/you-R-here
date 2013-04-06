@@ -1,6 +1,35 @@
 ﻿console = console || { log: function() {} };
 var YouRHere = YouRHere || {};
 
+YouRHere.IterationView = Backbone.View.extend({
+    initialize: function(iteration) {
+        
+        _.bindAll(this);
+
+        this.iteration = iteration || new YouRHere.Iteration({endDate: new Date()});
+
+        this.setElement($('#datepicker')[0]); //bind to existing element on page instead of rendering new one
+        this.$el.datepicker({dateFormat: 'mm-dd-yy'});
+        this.$el.on('change', this.clientDateChange);
+
+        //YouRHere.Utils.log('YouRHere.IterationView.initialize(): endDate = "' + this.iteration.get('endDate') + '"');
+        this.iteration.bind('change', this.render);
+        this.render();
+        return this;
+    },
+    render: function() {
+        YouRHere.Utils.log('YouRHere.IterationView.render(): endDate = "' + this.iteration.get('endDate') + '"');
+        this.$el.datepicker('setDate', this.iteration.get('endDate'));
+        return this;
+    },
+    clientDateChange: function() {
+        YouRHere.Utils.log('YouRHere.IterationView.clientDateChange(): $el endDate = "' + this.$el.val() + '"');
+        this.iteration.set('endDate', this.$el.val());
+        this.iteration.save();
+        return this;
+    }
+});
+
 YouRHere.DemoListView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "ul",
@@ -19,17 +48,20 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     reload: function() {
         console.log('reload!');
-        this.demoItems.reset();
+        //this.demoItems.reset();
         this.demoItems.fetch();
     },
     render: function () {
         YouRHere.Utils.log("DemoListView.render");
         var self = this;
+        /*
         if (this.demoItems.length > 0) {
             var $datepicker = $('#datepicker');
             $datepicker.val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")) //Date comes back from server now
                     .change(this.reload);
         }
+        */
+        this.$el.empty();
         this.demoItems.each(function (demoItem) {
             self.addDemoItem(demoItem);
         });
@@ -44,7 +76,7 @@ YouRHere.DemoListView = Backbone.View.extend({
                 },
                 update: function(event, ui) {
                     //YouRHere.Utils.log('sortable:update');
-                },
+                },  
                 change: function(event, ui) {
                     YouRHere.Utils.log('sortable:change');
                     self.sortChanged(event, ui);
@@ -146,13 +178,14 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     initialize: function(itemView, demoItems, options) {
         //super.initialize(itemView, demoItems, options);
         YouRHere.Utils.log("FilterableDemoListView.initialize");
-        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "itemMoved", "updateView", "activeChanged");
+        _.bindAll(this);
         this.options = options;
         this.ItemView = itemView;
         this.demoItems = demoItems;        
-        this.demoItems.bind("reset", this.render); //Called during fetch   
+        //this.demoItems.bind("reset", this.render); //Called during fetch   
         this.demoItems.bind("add", this.updateView); //Called during fetch   
         this.demoItems.bind("activeChanged", this.activeChanged);
+        this.demoItems.bind("reset", this.renderList);
 
         this.demoItems.bind("change:nextId", this.itemMoved);
      
@@ -353,10 +386,10 @@ YouRHere.DetailsDemoItemView = Backbone.View.extend({
     tagName: "ul",    
     initialize: function (demoItems) {
         YouRHere.Utils.log("DemoListView.initialize");
-        _.bindAll(this, "render");
+        _.bindAll(this);
         this.demoItems = demoItems;
-        this.demoItems.bind("reset", this.render); //Called during fetch
         this.demoItems.bind("change", this.render); //Called when active item changes
+        this.demoItems.bind("reset", this.render);
         this.render();
     },
     clearDemoItems: function () {
@@ -439,7 +472,7 @@ YouRHere.UserListView = Backbone.View.extend({
         _.bindAll(this, "render", "addUser", "removeUser", "getEmail");
         this.users = users;
         this.users.bind("add", this.addUser);
-        this.users.bind("reset", this.render); //Called during fetch
+        //this.users.bind("reset", this.render); //Called during fetch
         this.users.bind("remove", this.removeUser);
         this.getEmail(role);
         this.render();

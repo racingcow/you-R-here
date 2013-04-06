@@ -16,10 +16,12 @@ YouRHere.App = Backbone.Router.extend({
         var demoItems = new YouRHere.DemoItems();
         var demoListView = new YouRHere.DetailsDemoItemView(demoItems);
         $("#itemsView").append(demoListView.el);
+        /*
         demoItems.on("change", function() {
             YouRHere.Utils.log("DemoItems has changed for spectator!");
         });
-        YouRHere.Utils.log("DemoItems being fetched for spectator.");
+        */
+        //YouRHere.Utils.log("DemoItems being fetched for spectator.");
         demoItems.fetch();
     }
 });
