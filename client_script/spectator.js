@@ -15,21 +15,9 @@ YouRHere.App = Backbone.Router.extend({
         users.fetch();
 
         var demoItems = new YouRHere.DemoItems();
-<<<<<<< HEAD
         var demoListView = new YouRHere.FilterableDemoListView(YouRHere.DemoItemView, demoItems);
         $("#itemsView").hide().append(demoListView.el);
-=======
-        var demoListView = new YouRHere.DetailsDemoItemView(demoItems);
-        $("#itemsView").append(demoListView.el);
-        /*
-        demoItems.on("change", function() {
-            YouRHere.Utils.log("DemoItems has changed for spectator!");
-        });
-        */
-        //YouRHere.Utils.log("DemoItems being fetched for spectator.");
->>>>>>> refresh-list
         demoItems.fetch();
-
 
         //Capture the email address of the currently logged in user from the users view
         userListView.on("user:login", function (email) {

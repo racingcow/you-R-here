@@ -47,12 +47,7 @@ YouRHere.DemoListView = Backbone.View.extend({
         return this;
     },
     reload: function() {
-<<<<<<< HEAD
-        this.demoItems.reset();
-=======
-        console.log('reload!');
         //this.demoItems.reset();
->>>>>>> refresh-list
         this.demoItems.fetch();
     },
     render: function () {
@@ -184,21 +179,12 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         _.bindAll(this);
         this.options = options;
         this.ItemView = itemView;
-        this.demoItems = demoItems;        
-<<<<<<< HEAD
-        this.demoItems.bind("reset", this.render); //Called during fetch   
-        this.demoItems.bind("add", this.updateView);
-        this.demoItems.bind("activeChanged", this.activeChanged);
-=======
-        //this.demoItems.bind("reset", this.render); //Called during fetch   
+        this.demoItems = demoItems;          
         this.demoItems.bind("add", this.updateView); //Called during fetch   
         this.demoItems.bind("activeChanged", this.activeChanged);
         this.demoItems.bind("reset", this.renderList);
-
->>>>>>> refresh-list
         this.demoItems.bind("change:nextId", this.itemMoved);
-     
-        this.render();        
+        this.render();
         return this;
 
     },
