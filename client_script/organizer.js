@@ -7,14 +7,20 @@ YouRHere.App = Backbone.Router.extend({
         '/': 'index'
     },
     index: function () {
-        var users = new YouRHere.Users();
-        var userListView = new YouRHere.UserListView(users, 'organizer');
+
+        var users = new YouRHere.Users(),
+            userListView = new YouRHere.UserListView(users, 'organizer');
         $("#users").append(userListView.el);
         users.fetch();
 
-        var demoItems = new YouRHere.DemoItems();
-        //var demoListView = new YouRHere.SortableDemoListView(YouRHere.EditableDemoItemView, demoItems);
-        var demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems, { sortable: true });
+        var iteration = new YouRHere.Iteration(),
+            iterationView = new YouRHere.IterationView(iteration);
+        iteration.fetch();
+
+        var demoItems = new YouRHere.DemoItems(),
+            demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems, { 
+                sortable: true,
+            });
         $("#itemsView").append(demoListView.el);
         demoItems.fetch();
     }
@@ -23,5 +29,8 @@ YouRHere.App = Backbone.Router.extend({
 $(document).ready(function () {
     var app = new YouRHere.App();
     Backbone.history.start();
-    $('#datepicker').datepicker({dateFormat: 'mm-dd-yy'});
+
+    //DCM - replaced with iteration view
+    //$('#datepicker').datepicker({dateFormat: 'mm-dd-yy'});
+
 });

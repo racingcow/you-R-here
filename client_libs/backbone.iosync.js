@@ -41,6 +41,7 @@
  * @name sync
  */
 Backbone.sync = function (method, model, options) {
+  console.log('Backbone.sync: ' + method);
   var getUrl = function (object) {
     if (!(object && object.url)) return null;
     return _.isFunction(object.url) ? object.url() : object.url;

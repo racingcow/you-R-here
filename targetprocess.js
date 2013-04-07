@@ -17,6 +17,8 @@ var methods = {
     },
     getEntitiesForActiveIteration : function(callback, options) {
 
+        console.log('getEntitiesForActiveIteration');
+
         //todo: extend globalOptions with options to create localOptions variable
         options = options || {};
         var getOptions = {
@@ -53,6 +55,8 @@ var methods = {
     },
     getMostRecentIterationBoundary: function (callback, options) {
 
+        console.log('getMostRecentIterationBoundary');
+        
         var url = [];
         url.push(config.info.url);
         url.push("Iterations?format=");
@@ -76,8 +80,9 @@ var methods = {
                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
                 });                                
                 var boundary = underscore.max(dates, function (date) { return date.getTime(); });
-                //logIt("Boundary Date: " + boundary);
-                callback(boundary);
+                var formattedBoundary = moment(boundary).format("MM-DD-YYYY");
+                console.log("Boundary Date: " + formattedBoundary);
+                callback(formattedBoundary);
             }
         });
     }

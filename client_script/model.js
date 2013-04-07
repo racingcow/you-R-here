@@ -6,6 +6,25 @@ YouRHere.DemoItemTypes = {
     Bug: "Bug"
 };
 
+YouRHere.Iteration = Backbone.Model.extend({
+    urlRoot: 'iteration',
+    socket: window.socket,
+    defaults: {
+        endDate: new Date()
+    },
+    initialize: function() {
+        //YouRHere.Utils.log('YouRHere.Iteration.initialize(): endDate = "' + this.get('endDate') + '"');
+        _.bindAll(this);
+        this.ioBind('update', this.serverUpdate, this);
+        return this;
+    },
+    serverUpdate: function(iteration) {
+        YouRHere.Utils.log('YouRHere.Iteration.modelChanged(): endDate = "' + iteration.endDate + '"');
+        this.set(iteration);
+        return this;
+    }
+});
+
 YouRHere.DemoItem = Backbone.Model.extend({
     socket: window.socket,
     defaults: {
@@ -22,7 +41,7 @@ YouRHere.DemoItem = Backbone.Model.extend({
         nextId: -1                              //The id of the next element that follows in the list. Used to indicate where in the list an item is moving when sort is changed by the organizer 
     },
     initialize: function () {
-        _.bindAll(this, "serverChange", "setActive", "modelCleanup", "itemMoved","noDemoChanged","shownChanged");
+        _.bindAll(this);
         this.ioBind("update", this.serverChange, this);
         this.ioBind("activeChanged", this.setActive, this);
         this.ioBind("nextIdChanged", this.itemMoved, this);
@@ -30,13 +49,12 @@ YouRHere.DemoItem = Backbone.Model.extend({
         this.ioBind("demonstratedChanged", this.shownChanged, this);
     },
     serverChange: function (data) {
-        YouRHere.Utils.log("DemoItem: " + data.id + ".serverChange");
-        YouRHere.Utils.log("DemoItem: nextId " + data.nextId + ".serverChange");
+        YouRHere.Utils.log("YouRHere.DemoItem.serverChange: " + JSON.stringify(_.pick(data, 'id', 'active', 'nextId')));
         data.fromServer = true;
         this.set(data);
     },
     setActive: function (data) {
-        YouRHere.Utils.log("DemoItem: " + data.id + ".setActive");
+        YouRHere.Utils.log("YouRHere.DemoItem.setActive: " + JSON.stringify(_.pick(data, 'id', 'active', 'nextId')));
         data.fromServer = true;
         this.set(data);
     },
@@ -67,20 +85,26 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     url: "demoitems",
     socket: window.socket,    
     initialize: function () {
-        _.bindAll(this, "collectionCleanup");
+        _.bindAll(this);
+        this.ioBind('refresh', this.serverReset, this);
     },
     change : function() {
         YouRHere.Utils.log("I have changed.");
     },
+    serverReset: function(demoItems) {
+        YouRHere.Utils.log('YouRHere.DemoItem.serverReset: Count = "' + demoItems.length + '"');
+        console.log(demoItems);
+        this.reset(demoItems);
+    },
     filterByActive: function (active) {
-		YouRHere.Utils.log("this.length = " + this.length);
+		//YouRHere.Utils.log("this.length = " + this.length);
 
         var filtered = _(this.filter(function (demoItem) { //wrapping with underscore function returns collection            
-            console.log(demoItem.get("active"));
+            //console.log(demoItem.get("active"));
             return demoItem.get("active").toString() == active.toString();
         }));
-        console.log(filtered);
-        YouRHere.Utils.log("filtered.length = " + filtered.length);
+        //console.log(filtered);
+        //YouRHere.Utils.log("filtered.length = " + filtered.length);
         return filtered;
     },
     filterByEmail: function (email) {
