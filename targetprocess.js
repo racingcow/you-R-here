@@ -15,6 +15,21 @@ var methods = {
         self.globalOptions.password = config.info.password;
         self.globalOptions.url = config.info.url;
     },
+    buildBaseUrlForActiveIteration : function(options) {
+
+        console.log('builUrlForActiveIteration');
+
+        var url = [];
+        url.push(config.info.url);
+        url.push("Assignables?take=50&format=");
+        url.push(config.info.format);             
+        url.push("&include=[Id,Description,Name,EntityType,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]&where=");
+        url.push(encodeURIComponent("(EntityType.Name in ('UserStory','Bug'))"));
+        url.push(encodeURIComponent(" and (Iteration.EndDate eq '"));     
+        url.push(moment(options.date).format("YYYY-MM-DD"));           
+        url.push(encodeURIComponent("')"));
+        return url.join("");
+    },
     getEntitiesForActiveIteration : function(callback, options) {
 
         console.log('getEntitiesForActiveIteration');
@@ -26,30 +41,44 @@ var methods = {
             password: config.info.password,
             url: options.url || config.info.url,
             format: options.format || "json",
-            date: options.date || self.globalOptions.date,
+            date: options.date || methods.globalOptions.date,
             parser: rest.parsers.json,
             iterationDurationInWeeks: config.info.iterationDurationInWeeks
         };
 
-        var url = [];
-        url.push(config.info.url);
-        url.push("Assignables?format=");
-        url.push(config.info.format);             
-        url.push("&include=[Id,Description,Name,EntityType,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]&where=");
-        url.push(encodeURIComponent("(EntityType.Name in ('UserStory','Bug'))"));
-        url.push(encodeURIComponent(" and (Iteration.EndDate eq '"));     
-        url.push(moment(getOptions.date).format("YYYY-MM-DD"));           
-        url.push(encodeURIComponent("')"));
-        url.push(encodeURIComponent(" and (EntityState.Name in ('To Verify','Done','Fixed','Closed'))"));
-        url = url.join("");
+        var baseUrl = methods.buildBaseUrlForActiveIteration(getOptions),
+            encodedEntityStateClause = encodeURIComponent(" and (EntityState.Name in ('To Verify','Done','Fixed','Closed'))"),
+            encodedTagsClause = encodeURIComponent(" and (Tags contains 'Demo')"),            
+            itemsUrl = baseUrl + encodedEntityStateClause,
+            taggedItemsUrl = baseUrl + encodedTagsClause;
 
-        //logIt("getEntitiesForActiveIteration TP API: " + url);
+        //console.log("getEntitiesForActiveIteration 'normal items' TP API: \n" + itemsUrl);
 
-        rest.get(url, getOptions).on("complete", function(result) {
+        var itemResults;
+        rest.get(itemsUrl, getOptions).on("complete", function(result) {
             if (result instanceof Error) {        
-                sys.puts("ERROR: " + result.message);
-            } else {
-                callback(result);
+                sys.puts("ERROR (1): " + result.message);
+            } else {        
+
+                itemResults = result;
+                console.log('results: ' + itemResults.Items.length);
+
+                //HACK: not happy about this, but software that works is better than 
+                //software waiting for an answer on how to use "OR" in the WHERE of TP API calls
+                rest.get(taggedItemsUrl, getOptions).on("complete", function(taggedResults) {
+                    if (taggedResults instanceof Error) {        
+                        sys.puts("ERROR (2): " + taggedResults.message);
+                    } else {
+                        for(var i=0,len = taggedResults.Items.length; i < len; i++) {
+                            itemResults.Items.push(taggedResults.Items[i]);
+                        }
+
+                        console.log('taggedResults: ' + taggedResults.Items.length);
+                        console.log('combined results: ' + itemResults.Items.length);
+                        callback(itemResults);
+                    }
+                });
+
             }
         });
     },
