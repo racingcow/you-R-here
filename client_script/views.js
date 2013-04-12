@@ -11,6 +11,7 @@ YouRHere.IterationView = Backbone.View.extend({
         this.setElement($('#datepicker')[0]); //bind to existing element on page instead of rendering new one
         this.$el.datepicker({dateFormat: 'mm-dd-yy'});
         this.$el.on('change', this.clientDateChange);
+		this.$el.parent().find('#refresh').on('click', this.clientDateChange);
 
         //YouRHere.Utils.log('YouRHere.IterationView.initialize(): endDate = "' + this.iteration.get('endDate') + '"');
         this.iteration.bind('change', this.render);

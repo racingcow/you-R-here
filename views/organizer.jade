@@ -4,8 +4,10 @@ append head
 block header
   h1 you-&#1103;-here - Organizer
 block items 
-  section#items    
-    input#datepicker(type='text')
+  section#items
+    div.iteration
+      input#refresh(type='button', value='Refresh')
+      input#datepicker(type='text')
     h3.left Items
     div.clear
     div#itemsView
