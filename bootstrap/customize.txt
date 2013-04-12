@@ -1,0 +1,16 @@
+@textColor: 				#696969
+@linkColor: 				#0082e5
+@blue:						#005495
+@sansFontFamily:			Arial
+@baseFontSize:				12px
+@warningText:				#FFCE00
+@errorText:					#FF1800
+@infoText:					#5E3DF4
+
+@navbarHeight:				45px
+@navbarBackground:			#005495
+@navbarBackgroundHighlight:	#0082E5
+@navbarText:				#FFFFFF
+@navbarLinkColor:			#FFFFFF
+@navbarLinkColorHover:		darken(@navbarLinkColor, 15%)
+

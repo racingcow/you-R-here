@@ -34,6 +34,7 @@ YouRHere.IterationView = Backbone.View.extend({
 YouRHere.DemoListView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "ul",
+	className: 'unstyled',
     events: {
         "click li": "clickDemoItem"
     },
@@ -168,6 +169,7 @@ YouRHere.DemoListView = Backbone.View.extend({
 YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View.extend({
     id: "DemoListView",
     tagName: "div",
+	className: 'unstyled',
     events: {
         "click li.currentItem": "filterCurrentItem",
         "click li.myItems": "filterMyItems",
@@ -316,7 +318,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
         return this;
     },
     render: function () {
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span></header><section><span class='itemName'> <%= item.name %> </span></section>";
         this.$el.html(_.template(demoItemTemplate, { item: this.model.toJSON() }));
         this.$el.attr("id", this.model.id)
             .attr("data-user-login", this.model.demonstrator)
@@ -411,7 +413,8 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
 });
 YouRHere.DetailsDemoItemView = Backbone.View.extend({
     id: "DemoListView",
-    tagName: "ul",    
+    tagName: "ul",
+	className: 'unstyled',
     initialize: function (demoItems) {
         YouRHere.Utils.log("DemoListView.initialize");
         _.bindAll(this);
@@ -469,7 +472,7 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
         var id = this.model.get('id').toString(),
             demonstrated = this.model.get('demonstrated') ? 'checked' : '',
             notdemonstrable = this.model.get('demonstrable') ? '' : 'checked',
-            editableDemoItemTemplate = "<br/> <div class='shown left' data-id='<%= item.id %>'><label for='chkShown<%= item.id %>'>Shown</label><input type='checkbox' class='itemShownCheck' <%= demonstrated %> id='chkShown<%= item.id %>' data-id='<%= item.id %>' /></div> <div class='noDemo right' data-id='<%= item.id %>'><label for='chkNodemo<%= item.id %>'>No Demo</label><input type='checkbox' class='itemNoDemoCheck'  <%= notdemonstrable %>  id='chkNodemo<%= item.id %>' data-id='<%= item.id %>' /></div>";
+            editableDemoItemTemplate = "<footer><div class='shown left' data-id='<%= item.id %>'><label for='chkShown<%= item.id %>'>Shown</label><input type='checkbox' class='itemShownCheck' <%= demonstrated %> id='chkShown<%= item.id %>' data-id='<%= item.id %>' /></div> <div class='noDemo right' data-id='<%= item.id %>'><label for='chkNodemo<%= item.id %>'>No Demo</label><input type='checkbox' class='itemNoDemoCheck'  <%= notdemonstrable %>  id='chkNodemo<%= item.id %>' data-id='<%= item.id %>' /></div></footer>";
 
         var tmpl = _.template(editableDemoItemTemplate);
         var tmpl_data = _.extend({ item: this.model.toJSON() }, { demonstrated: demonstrated }, { notdemonstrable: notdemonstrable });
@@ -505,6 +508,7 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
 YouRHere.UserListView = Backbone.View.extend({
     id: "UserListView",
     tagName: "ul",
+	className: 'inline',
     initialize: function (users, role) {
         _.bindAll(this, "render", "addUser", "removeUser", "getEmail");
         this.users = users;

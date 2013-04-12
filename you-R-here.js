@@ -45,9 +45,10 @@ var _staticContentItems = {
         "client_script/views.js"
     ],
     styles: [
-        "css/index.css",
+        "bootstrap/css/bootstrap.min.css",
         "css/jquery.jgrowl.css",
-        "css/jquery-ui-1.8.21.custom.css"
+        "css/jquery-ui-1.8.21.custom.css",
+		"css/index.css",
     ],
     version: JSON.parse(_fs.readFileSync("package.json", "utf8")).version, //get the version from the package.json file and hand it off to the views
     address: _address,
@@ -209,7 +210,7 @@ _io.sockets.on("connection", function (socket) {
         if (!newUser.email || _.trim(newUser.email) === "") return;
 
         newUser.id = _uuid.v4(); //backbone.iobind loses its mind if ids are not unique
-        newUser.gravatarUrl = _gravatar.url(newUser.email, { size: "80", default: "identicon" });
+        newUser.gravatarUrl = _gravatar.url(newUser.email, { size: "32", default: "identicon" });
         _users.push(newUser);
 
         socket.userid = newUser.id;

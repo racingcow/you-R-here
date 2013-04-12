@@ -2,12 +2,11 @@ extends layout
 append head
   script(src='client_script/organizer.js', type='text/javascript')
 block header
-  h1 you-&#1103;-here - Organizer
+  .iteration.text-right
+      input#datepicker.search-query(type='text')
+      input#refresh.btn.btn-mini(type='button', value='refresh')
 block items 
   section#items
-    div.iteration
-      input#refresh(type='button', value='Refresh')
-      input#datepicker(type='text')
-    h3.left Items
+    h3.left items
     div.clear
     div#itemsView
