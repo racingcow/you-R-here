@@ -266,12 +266,16 @@ function tpToModelSchema(data) {
     //TODO: Replace this transformation method with another object/middleware               
 
     //Transform to standard model schema
-    var entities = [];
+    var entities = [],
+        notDemonstrableRegex = new RegExp('not demonstrable', 'i'),
+        developerRegex = new RegExp('developer', 'i');
+
     for (var i = 0, len = data.Items.length; i < len; i++) {
-        var item = data.Items[i];
+        var item = data.Items[i],
+            isDemonstrable = notDemonstrableRegex.test(item.Tags) ? false : true;
 
         var assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
-            return item.Role.Name === "Developer";
+            return developerRegex.test(item.Role.Name);
         });        		
 		var assignedUser = assignedDevelopers.length > 0 ? assignedDevelopers[0].GeneralUser : {FirstName: "not", LastName: "assigned", Email: ""};
 
@@ -283,7 +287,7 @@ function tpToModelSchema(data) {
             type: item.EntityType.Name,
             demonstratorName: assignedUser.FirstName + " " + assignedUser.LastName,
             demonstratorEmail: assignedUser.Email,
-            demonstrable: true,
+            demonstrable: isDemonstrable,
             demonstrated: false,
             boundaryDate: _iteration.endDate,
             active: false,

@@ -23,7 +23,7 @@ var methods = {
         url.push(config.info.url);
         url.push("Assignables?take=50&format=");
         url.push(config.info.format);             
-        url.push("&include=[Id,Description,Name,EntityType,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]&where=");
+        url.push("&include=[Id,Description,Name,EntityType,Tags,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]&where=");
         url.push(encodeURIComponent("(EntityType.Name in ('UserStory','Bug'))"));
         url.push(encodeURIComponent(" and (Iteration.EndDate eq '"));     
         url.push(moment(options.date).format("YYYY-MM-DD"));           
