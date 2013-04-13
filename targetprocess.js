@@ -2,7 +2,7 @@ var sys = require("util");
 var rest = require("restler"); //https://github.com/danwrong/restler 
 var moment = require("moment");//http://momentjs.com
 var config = require("./targetprocess.config");
-var underscore = require("underscore");
+var _ = require("underscore");
 
 var self = this;
 var methods = {    
@@ -17,7 +17,7 @@ var methods = {
     },
     buildBaseUrlForActiveIteration : function(options) {
 
-        console.log('builUrlForActiveIteration');
+        console.log('buildBaseUrlForActiveIteration');
 
         var url = [];
         url.push(config.info.url);
@@ -72,7 +72,9 @@ var methods = {
                         for(var i=0,len = taggedResults.Items.length; i < len; i++) {
                             itemResults.Items.push(taggedResults.Items[i]);
                         }
-
+                        itemResults.Items = _.uniq(itemResults.Items,false, function(item) {
+                            return item.Id;
+                        });
                         console.log('taggedResults: ' + taggedResults.Items.length);
                         console.log('combined results: ' + itemResults.Items.length);
                         callback(itemResults);
@@ -104,11 +106,11 @@ var methods = {
             if (result instanceof Error) {
                 sys.puts("ERROR: " + result.message);
             } else {                
-                var dates = underscore.map(result.Items, function (item) {
+                var dates = _.map(result.Items, function (item) {
                     //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
                 });                                
-                var boundary = underscore.max(dates, function (date) { return date.getTime(); });
+                var boundary = _.max(dates, function (date) { return date.getTime(); });
                 var formattedBoundary = moment(boundary).format("MM-DD-YYYY");
                 console.log("Boundary Date: " + formattedBoundary);
                 callback(formattedBoundary);
