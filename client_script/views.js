@@ -198,9 +198,9 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         if ($tabs.length === 0) {
             //render the filter controls
             //todo: think about making this a separate view
-            this.$el.append("<ul class='tabs'><li id='currentItem' class='menu first currentItem'>Current Item</li><li id='myItems' class='menu last myItems'>My Items</li><li id='allItems' class='menu last allItems'>All Items</li></ul>");
+            this.$el.append("<ul class='tabs inline'><li id='currentItem' class='menu first currentItem'>Current Item</li><li id='myItems' class='menu last myItems'>My Items</li><li id='allItems' class='menu last allItems'>All Items</li></ul>");
             //render a sub-container for the items
-            this.$el.append("<ul class='items'></ul>");
+            this.$el.append("<ul class='items unstyled'></ul>");
 
             //make list sortable
             $(".items").sortable({ axis: "y", containment: "parent" }).disableSelection();

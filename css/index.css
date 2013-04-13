@@ -25,7 +25,7 @@
 .Bug {
 	border-left-style: solid;
 	border-left-width: 3px;
-	margin: 10px 0;
+	margin: 2px 0;
 	padding: 5px;
 	background-color: whitesmoke;
 	border-right: 1px solid #696969;
@@ -53,4 +53,25 @@
 .shown,
 .noDemo {
 	display: inline-block;
+}
+.current.currentDesc {
+	/*don't worry about color here, the master branch has removed the TP inline style, so bootstrap body.color should flow on through here... */ 
+	padding: 5px;
+	background-color: whitesmoke;
+	border: 1px solid #696969;
+}
+ul.tabs li {
+	color: #0082E5;
+	border: 1px solid #0082E5;
+	background-color: whitesmoke;
+	text-transform: lowercase;
+	/*margin-right: 1px;*/
+}
+ul.tabs li.selected {
+	color: #fff;
+	border-color: #0082E5;
+	background-color: #0082E5;
+}
+.currentItemDesc h4 {
+	text-transform: lowercase;
 }
