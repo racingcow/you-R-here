@@ -61,7 +61,6 @@ var methods = {
             } else {        
 
                 itemResults = result;
-                console.log('results: ' + itemResults.Items.length);
 
                 //HACK: not happy about this, but software that works is better than 
                 //software waiting for an answer on how to use "OR" in the WHERE of TP API calls
@@ -69,14 +68,12 @@ var methods = {
                     if (taggedResults instanceof Error) {        
                         sys.puts("ERROR (2): " + taggedResults.message);
                     } else {
-                        for(var i=0,len = taggedResults.Items.length; i < len; i++) {
+                        for (var i=0,len = taggedResults.Items.length; i < len; i++) {
                             itemResults.Items.push(taggedResults.Items[i]);
                         }
                         itemResults.Items = _.uniq(itemResults.Items,false, function(item) {
                             return item.Id;
                         });
-                        console.log('taggedResults: ' + taggedResults.Items.length);
-                        console.log('combined results: ' + itemResults.Items.length);
                         callback(itemResults);
                     }
                 });

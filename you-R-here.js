@@ -239,7 +239,7 @@ _io.sockets.on("connection", function (socket) {
         logIt(_users);
 
         //remove the user from the array
-        for (var i = 0; i < _users.length; i++) {
+        for (var i = 0, len = _users.length; i < len; i++) {
             if (_users[i].id === socket.userid) {
                 logIt("deleting item " + i);
                 _users.splice(i, 1);
@@ -267,7 +267,7 @@ function tpToModelSchema(data) {
 
     //Transform to standard model schema
     var entities = [];
-    for (var i = 0; i < data.Items.length; i++) {
+    for (var i = 0, len = data.Items.length; i < len; i++) {
         var item = data.Items[i];
 
         var assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
@@ -306,9 +306,9 @@ function tpToModelSchema(data) {
 function getItem(itemId) {
     var id = parseInt(itemId),
         item = null;
-    for (var idx = 0; idx < _demoItems.length; idx++) {
-        if (parseInt(_demoItems[idx].id) === id) {
-            item = _demoItems[idx];
+    for (var i = 0, len = _demoItems.length; i < len; i++) {
+        if (parseInt(_demoItems[i].id) === id) {
+            item = _demoItems[i];
             break;
         }
     };
