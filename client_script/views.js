@@ -509,7 +509,7 @@ YouRHere.UserListView = Backbone.View.extend({
         _.bindAll(this, "render", "addUser", "removeUser", "getEmail");
         this.users = users;
         this.users.bind("add", this.addUser);
-        //this.users.bind("reset", this.render); //Called during fetch
+        this.users.bind("reset", this.render); //Called during fetch
         this.users.bind("remove", this.removeUser);
         this.getEmail(role);
         this.render();
