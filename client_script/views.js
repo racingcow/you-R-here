@@ -254,7 +254,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     filterCurrentItem: function () {
-        YouRHere.Utils.log("FilterableDemoListView.filterCurrentItem");
+        YouRHere.Utils.log('FilterableDemoListView.filterCurrentItem');
 
         var activeArray = this.demoItems.filterByActive(true);
         this.renderList(activeArray);
@@ -270,9 +270,10 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         });        
 
         if (currentItem) {
-            /* this is the item descrition info, but we only want to show when we're the "current item" */
-            var descItemplate = "<div class='currentItemDesc'><h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div></div>";
+            /* this is the item description info, but we only want to show when we're the "current item" */
+            var descItemplate = '<div class="currentItemDesc"><h4>Description</h4><div id="currentDesc" class="current currentDesc highlight"><%= item.description %></div></div>';
             this.$el.append(_.template(descItemplate, { item: currentItem.toJSON() }));
+            $('#currentDesc').find('div').children().attr('style','');
         }
         return this;
     },
