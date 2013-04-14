@@ -15,6 +15,10 @@
             "url": "https://github.com/ryoe"
         }
     ],
+    "engines": {
+        "node": "0.8.x"
+    }
+    ,
     "dependencies": {
         "express": ">= 3.0.0rc2",
         "gravatar": ">= 1.0.6",
