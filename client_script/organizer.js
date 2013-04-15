@@ -10,6 +10,7 @@ YouRHere.App = Backbone.Router.extend({
 
         var users = new YouRHere.Users(),
             userListView = new YouRHere.UserListView(users, 'organizer');
+
         $("#users").append(userListView.el);
         users.fetch();
 
@@ -21,8 +22,19 @@ YouRHere.App = Backbone.Router.extend({
             demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems, { 
                 sortable: true,
             });
-        $("#itemsView").append(demoListView.el);
+
+        $("#itemsView").hide().append(demoListView.el);
         demoItems.fetch();
+
+
+        //Capture the email address of the currently logged in user from the users view
+        userListView.on("user:login", function (email) {
+            YouRHere.Utils.log("Router received 'user:login' event - email is " + email);
+            demoListView.email = email;
+            //always click the first item!
+            //$('#DemoListView').first().click();
+            $("#itemsView").show();
+        });
     }
 });
 

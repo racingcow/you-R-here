@@ -8,13 +8,13 @@ YouRHere.App = Backbone.Router.extend({
     },
     index: function () {
 
-        var users = new YouRHere.Users();
-        var userListView = new YouRHere.UserListView(users, 'presenter');
+        var users = new YouRHere.Users(),
+            userListView = new YouRHere.UserListView(users, 'presenter');
         $("#users").append(userListView.el);
         users.fetch();
 
-        var demoItems = new YouRHere.DemoItems();
-        var demoListView = new YouRHere.FilterableDemoListView(YouRHere.DemoItemView, demoItems);
+        var demoItems = new YouRHere.DemoItems(),
+            demoListView = new YouRHere.FilterableDemoListView(YouRHere.DemoItemView, demoItems);
         $("#itemsView").hide().append(demoListView.el);
         demoItems.fetch();
 
