@@ -318,7 +318,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
         return this;
     },
     render: function () {
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span></header><section><span class='itemName'> <%= item.name %> </span></section>";
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<%= item.id %>)</span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header><section><span class='itemName'> <%= item.name %> </span></section>";
         this.$el.html(_.template(demoItemTemplate, { item: this.model.toJSON() }));
         this.$el.attr("id", this.model.id)
             .attr("data-user-login", this.model.demonstrator)
