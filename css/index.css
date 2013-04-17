@@ -11,6 +11,19 @@
 .navbar-inner .iteration {
 	height:45px;
 }
+
+.footer .navbar-inner {
+	background-color: #fff;
+	background-image: none;
+	border: none;
+	box-shadow: none;
+}
+
+.footer .navbar-inner .nav > li > a {
+	color: inherit;
+	text-shadow: none;
+}
+
 .search-query {
 	width: 95px;
 	vertical-align: bottom !important;
@@ -25,18 +38,24 @@
 .Bug {
 	border-left-style: solid;
 	border-left-width: 3px;
-	margin: 2px 0;
+	margin: 10px 0;
 	padding: 5px;
-	background-color: whitesmoke;
-	border-right: 1px solid #696969;
-	border-top: 1px solid #696969;
-	border-bottom: 1px solid #696969;
+	background-color: #fafafa;		
+	border-radius: 2px;
 }
 .UserStory {
 	border-left-color: #0082e5;
+	box-shadow: 0 0 2px 2px rgba(0, 130, 229, 0.1);
 }
 .Bug {
 	border-left-color: #FF1800;
+	box-shadow: 0 0 2px 2px rgba(255, 24, 0, 0.1);
+}
+.UserStory.highlight {
+	background-color: rgba(0, 130, 229, 0.1);
+}
+.Bug.highlight {
+	background-color: rgba(255, 24, 0, 0.1);
 }
 
 /* other stuff */
@@ -50,9 +69,34 @@
 	
 }
 
+.demonstrated {
+	color: #e0e0e0;
+}
+.UserStory.demonstrated {
+	border-left-color: rgba(0, 130, 229, 0.5);
+}
+.Bug.demonstrated {
+	border-left-color: rgba(255, 24, 0, 0.1);
+}
+.notDemonstrable {
+	color: #e0e0e0;
+	background-color: #fff;
+	box-shadow: 0 0 2px 2px rgba(224, 224, 224, 0.1);	
+}
+.UserStory.notDemonstrable {
+	border-left-color: rgba(0, 130, 229, 0.1);
+}
+.Bug.notDemonstrable {
+	border-left-color: rgba(255, 24, 0, 0.1);
+}
+
 .shown,
 .noDemo {
 	display: inline-block;
+}
+.shown label,
+.noDemo label {
+	display: inline;
 }
 .current.currentDesc {
 	/*don't worry about color here, the master branch has removed the TP inline style, so bootstrap body.color should flow on through here... */ 
