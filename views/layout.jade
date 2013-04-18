@@ -23,12 +23,9 @@ html
             a.right-text(href='https://en.gravatar.com/') add your pic
       .navbar.footer
         .navbar-inner
-          ul.nav
-            li
-              a(href='#')=version
-            li
-              //q: assume one day this will be role?
-              a(href='#') organizer
+          div.pull-left
+            p.version 
+              =version
           div.pull-right
             a(href='http://nodejs.org', target='_blank')
               img(src='images/nodejs-dark.png', alt='node.js')

@@ -122,3 +122,6 @@ ul.tabs li.selected {
 header { 
 	font-weight: bold;
 }
+.version{
+	padding-top: 20px;
+}
