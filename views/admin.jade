@@ -1,0 +1,23 @@
+extends layout
+append head
+  script(src='/client_script/admin.js', type='text/javascript')
+block header
+  //.iteration.text-right
+      //input#datepicker.search-query(type='text')
+      //input#refresh.btn.btn-mini(type='button', value='refresh')
+block items 
+  section#items
+    h3.left admin area
+    div.clear
+    div#itemsView
+      div.admin
+        h4 Reserved for future use.
+        p
+          | Might I interest you in something else?
+          ul
+            li
+              a(href='/organizer', 'Organizer') Organizer
+            li
+              a(href='/presenter', 'Presenter') Presenter
+            li
+              a(href='/', 'Spectator') Spectator

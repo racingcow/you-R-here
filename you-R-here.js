@@ -67,7 +67,7 @@ _app.get("/", function(req, res) {
     res.render("spectator.jade", _staticContentItems);
 });
 _app.get("/admin*", function (req, res) {
-    res.render("organizer.jade", _staticContentItems);
+    res.render("admin.jade", _staticContentItems);
 });
 _app.get("/organizer*", function (req, res) {
     res.render("organizer.jade", _staticContentItems);
