@@ -17,6 +17,13 @@ html
       .row-fluid
         .span10
           block items
+          block emailRequired
+            div.hidden#emailRequired
+              h3 login required
+              p
+                | Whoa! You're not logged in. Click the fancy button to join the party!
+                form
+                  input#loginAgain.btn.btn-primary(type='submit', value='login')
         .span2
           section#users
             h3 users

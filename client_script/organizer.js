@@ -1,4 +1,4 @@
-﻿var socket = io.connect(_address + ":" + _port);
+﻿var socket = io.connect(_address + ':' + _port);
 var YouRHere = YouRHere || {};
 
 YouRHere.App = Backbone.Router.extend({
@@ -7,11 +7,12 @@ YouRHere.App = Backbone.Router.extend({
         '/': 'index'
     },
     index: function () {
+        $('#emailRequired').hide();
+        $('#items').hide();
 
         var users = new YouRHere.Users(),
             userListView = new YouRHere.UserListView(users, 'organizer');
-
-        $("#users").append(userListView.el);
+        $('#users').hide().append(userListView.el);
         users.fetch();
 
         var iteration = new YouRHere.Iteration(),
@@ -19,21 +20,23 @@ YouRHere.App = Backbone.Router.extend({
         iteration.fetch();
 
         var demoItems = new YouRHere.DemoItems(),
-            demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems, { 
+            demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems, {
                 sortable: true,
             });
 
-        $("#itemsView").hide().append(demoListView.el);
+        $('#itemsView').append(demoListView.el);
         demoItems.fetch();
 
-
         //Capture the email address of the currently logged in user from the users view
-        userListView.on("user:login", function (email) {
-            YouRHere.Utils.log("Router received 'user:login' event - email is " + email);
+        userListView.on('user:login', function (email) {
+            YouRHere.Utils.log('Router received "user:login" event - email is ' + email);
             demoListView.email = email;
-            //always click the first item!
-            //$('#DemoListView').first().click();
-            $("#itemsView").show();
+            if (email && email.length > 0) {
+                $('#users').show();
+                $('#items').show();
+            } else {
+                $('#emailRequired').removeClass('hidden').show();
+            }
         });
     }
 });
@@ -41,8 +44,4 @@ YouRHere.App = Backbone.Router.extend({
 $(document).ready(function () {
     var app = new YouRHere.App();
     Backbone.history.start();
-
-    //DCM - replaced with iteration view
-    //$('#datepicker').datepicker({dateFormat: 'mm-dd-yy'});
-
 });

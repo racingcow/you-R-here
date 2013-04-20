@@ -7,29 +7,31 @@ YouRHere.App = Backbone.Router.extend({
         '/': 'index'
     },
     index: function () {
+        $('#emailRequired').hide();
 
         var users = new YouRHere.Users(),
             userListView = new YouRHere.UserListView(users, 'presenter');
-        $("#users").append(userListView.el);
+        
+        $('#users').hide().append(userListView.el);
         users.fetch();
 
         var demoItems = new YouRHere.DemoItems(),
             demoListView = new YouRHere.FilterableDemoListView(YouRHere.DemoItemView, demoItems);
-        $("#itemsView").hide().append(demoListView.el);
+        $('#itemsView').hide().append(demoListView.el);
         demoItems.fetch();
 
-
         //Capture the email address of the currently logged in user from the users view
-        userListView.on("user:login", function (email) {
+        userListView.on('user:login', function (email) {
             YouRHere.Utils.log("Router received 'user:login' event - email is " + email);
             demoListView.email = email;
-            //select one of the menu items... "myItems" seems good
-            //YouRHere.Utils.log('click myItems');
-            $('li.allItems').click();
-            $("#itemsView").show();
-
+            if (email && email.length > 0) {
+                $('li.allItems').click();
+                $('#users').show();
+                $('#itemsView').show();
+            } else {
+                $('#emailRequired').removeClass('hidden').show();
+            }
         });
-
     }
 });
 
