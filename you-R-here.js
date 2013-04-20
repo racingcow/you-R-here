@@ -47,7 +47,8 @@ var _staticContentItems = {
     styles: [
         "/bootstrap/css/bootstrap.min.css",
         "/css/jquery.jgrowl.css",
-        "/css/jquery-ui-1.8.21.custom.css",
+        //"/css/jquery-ui-1.8.21.custom.css",
+        "http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/base/jquery-ui.css",
 		"/css/index.css",
     ],
     version: JSON.parse(_fs.readFileSync("package.json", "utf8")).version, //get the version from the package.json file and hand it off to the views
