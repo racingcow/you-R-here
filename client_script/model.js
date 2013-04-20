@@ -161,6 +161,125 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     }
 });
 
+YouRHere.Conference = Backbone.Model.extend({
+    urlRoot: 'conference',
+    //socket: window.socket,
+    defaults: {
+        roomName: 'you-R-here'
+    },
+    openSocket: function (config) {
+        YouRHere.Utils.log('YouRHere.Conference.openSocket');
+
+        if (!window.Firebase) return;
+        console.log('window.Firebase exists');
+        var channel = config.channel || location.hash.replace('#', '') || 'video-conferencing';
+        var socket = new Firebase('https://webrtc-experiment.firebaseIO.com/' + channel);
+        console.log('firebase socket');
+        console.log(socket);
+        console.log('firebase channel');
+        console.log(channel);
+        socket.channel = channel;
+        socket.on("child_added", function (data) {
+            console.log('child_added');
+            console.log(data.val());
+            config.onmessage && config.onmessage(data.val());
+        });
+        socket.send = function (data) {
+            console.log('socket.send');
+            console.log(data);
+            this.push(data);
+        }
+        config.onopen && setTimeout(config.onopen, 1);
+        socket.onDisconnect().remove();
+        return socket;
+    },
+    onRemoteStream: function (media) {
+        YouRHere.Utils.log('YouRHere.Conference.onRemoteStream');
+        //this.trigger('onRemoteStream');
+        
+        var video = media.video;
+        video.setAttribute('controls', true);
+
+        var participants = document.getElementById("participants");
+        participants.insertBefore(video, participants.firstChild);
+
+        video.play();
+        this.rotateVideo(video);
+    },
+    onRoomFound: function (room) {
+        YouRHere.Utils.log('YouRHere.Conference.onRoomFound: "' + room.roomName + '"');
+        if (room.roomName !== this.get('roomName')) return;
+
+        if (this.joined) return;
+        this.joined = true;
+        YouRHere.Utils.log('YouRHere.Conference.onRoomFound: Room name matches. Joining room "' + room.roomName + '"');
+
+        /*
+        var self = this;
+        this.captureUserMedia(function (stream) {
+            self.conference.joinRoom({
+                roomToken: room.roomToken,
+                joinUser: room.broadcaster
+            });
+        });
+*/
+    },
+    captureUserMedia: function(callback) {
+        var video = document.createElement('video');
+        video.setAttribute('autoplay', true);
+        video.setAttribute('controls', true);
+
+        var participants = document.getElementById("participants");
+        participants.insertBefore(video, participants.firstChild);
+
+        console.log('getting user media');
+
+        var self = this;
+        getUserMedia({
+            video: video,
+            onsuccess: function (stream) {
+                self.confConfig.attachStream = stream;
+                callback && callback(stream);
+
+                video.setAttribute('muted', true);
+                self.rotateVideo(video);
+            },
+            onerror: function () {
+                alert('unable to get access to your webcam');
+                callback && callback();
+            }
+        });
+    },
+    rotateVideo: function(video) {
+        video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(0deg)';
+        setTimeout(function () {
+            video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform'] = 'rotate(360deg)';
+        }, 1000);
+    },
+    initialize: function() {
+        YouRHere.Utils.log('YouRHere.Conference.initialize()');
+        _.bindAll(this);
+        this.confConfig = {
+            openSocket: this.openSocket,
+            onRemoteStream: this.onRemoteStream,
+            onRoomFound: this.onRoomFound
+        };
+        this.conference = conference(this.confConfig);
+        var self = this;
+        
+        $(document).ready(function() {
+            self.captureUserMedia(function (stream) {
+                console.log('creating room "' + self.get('roomName') + '"');
+                self.conference.createRoom({
+                    roomName: (self.get('roomName'))
+                });
+            });
+        });
+
+        return this;
+    }
+});
+
 YouRHere.User = Backbone.Model.extend({
     urlRoot: "user",
     socket: window.socket,

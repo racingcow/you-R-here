@@ -36,19 +36,19 @@ var _staticContentItems = {
         "https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js",
         "http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js",
         //"http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone.js",
-        "client_libs/backbone.js", //development version
+        "/client_libs/backbone.js", //development version
         "http://cdn.jsdelivr.net/jgrowl/1.2.6/jquery.jgrowl_minimized.js",
-        "client_libs/backbone.iobind.js",
-        "client_libs/backbone.iosync.js",
-        "client_libs/moment.min.js",
-        "client_script/model.js",
-        "client_script/views.js"
+        "/client_libs/backbone.iobind.js",
+        "/client_libs/backbone.iosync.js",
+        "/client_libs/moment.min.js",
+        "/client_script/model.js",
+        "/client_script/views.js"
     ],
     styles: [
-        "bootstrap/css/bootstrap.min.css",
-        "css/jquery.jgrowl.css",
-        "css/jquery-ui-1.8.21.custom.css",
-		"css/index.css",
+        "/bootstrap/css/bootstrap.min.css",
+        "/css/jquery.jgrowl.css",
+        "/css/jquery-ui-1.8.21.custom.css",
+		"/css/index.css",
     ],
     version: JSON.parse(_fs.readFileSync("package.json", "utf8")).version, //get the version from the package.json file and hand it off to the views
     address: _address,
@@ -63,6 +63,9 @@ var _staticContentItems = {
 _tp.api("getUserImage", function(data) {        
 res.send(image, "binary");
 }, { id: req.params["id"] }); }); */ 
+_app.get("/rtc", function(req, res) {         
+    res.render("rtc.jade", _staticContentItems);
+});
 _app.get("/", function(req, res) {         
     res.render("spectator.jade", _staticContentItems);
 });

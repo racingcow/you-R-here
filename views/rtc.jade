@@ -1,0 +1,18 @@
+html
+  head
+    script(type='text/javascript', src='https://webrtc-experiment.appspot.com/firebase.js')
+    //script(type='text/javascript', src='https://webrtc-experiment.appspot.com/RTCPeerConnection-v1.5.js')
+    script(type='text/javascript', src='/client_script/RTCPeerConnection-v1.5.js')
+    script(type='text/javascript', src='/client_script/conference.js')
+    script(type='text/javascript')
+        var _address = '#{address}';
+        var _port = '#{port}';
+      - each script in scripts
+        script(src=script, type='text/javascript')
+      - each style in styles
+        link(href=style, rel='stylesheet', type='text/css')
+    script(type='text/javascript')
+      var conf = new YouRHere.Conference('ct-test');
+  body
+    input(type='button',value='Connect')
+    #participants
