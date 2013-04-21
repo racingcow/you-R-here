@@ -125,3 +125,6 @@ header {
 .version{
 	padding-top: 20px;
 }
+#email {
+	width: 100%;
+}

@@ -544,6 +544,8 @@ YouRHere.UserListView = Backbone.View.extend({
         });
 
         $("#login").dialog({
+            title: 'Enter email address',
+            resizable: false,
             buttons: [{
                 id: "emailBtn",
                 text: "OK",
