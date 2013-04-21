@@ -543,6 +543,8 @@ YouRHere.UserListView = Backbone.View.extend({
             }
         });
 
+        var self = this;
+
         $("#login").dialog({
             title: 'Enter email address',
             resizable: false,
@@ -550,19 +552,29 @@ YouRHere.UserListView = Backbone.View.extend({
                 id: "emailBtn",
                 text: "OK",
                 click: function () {
+                    $('#emailMsg').addClass('hidden');
 
-                    $(this).dialog("close");
+                    var email = $.trim($("#email").val()),
+                        isUsed = false;
+                    self.users.each(function(u) {
+                        if (!isUsed && u.get('email') === email && u.get('role') === role) {
+                            isUsed = true;
+                        }
+                    });
 
-                    var email = $.trim($("#email").val());
+                    if (!isUsed) {
+                        var user = new YouRHere.User();
+                        user.set("email", email);
+                        user.set('role', role);
+                        user.save();
 
-                    var user = new YouRHere.User();
-                    user.set("email", email);
-                    user.set('role', role);
-                    user.save();
-
-                    //send email address out to other views
-                    YouRHere.Utils.log("UserListView: raising 'user:login' event - email is " + email);
-                    view.trigger("user:login", email);
+                        $(this).dialog("close");
+                        //send email address out to other views
+                        YouRHere.Utils.log("UserListView: raising 'user:login' event - email is " + email);
+                        view.trigger("user:login", email);
+                    } else {
+                        $('#emailMsg').removeClass('hidden');
+                    }
                 }
             }]
         });
