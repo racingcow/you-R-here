@@ -53,32 +53,37 @@ var methods = {
             taggedItemsUrl = baseUrl + encodedTagsClause;
 
         //console.log("getEntitiesForActiveIteration 'normal items' TP API: \n" + itemsUrl);
-
         var itemResults;
-        rest.get(itemsUrl, getOptions).on("complete", function(result) {
-            if (result instanceof Error) {        
-                sys.puts("ERROR (1): " + result.message);
-            } else {        
+        rest.get(itemsUrl,  getOptions)
+            .on('success', function(data, response) {
+                itemResults = data; 
 
-                itemResults = result;
-
-                //HACK: not happy about this, but software that works is better than 
-                //software waiting for an answer on how to use "OR" in the WHERE of TP API calls
-                rest.get(taggedItemsUrl, getOptions).on("complete", function(taggedResults) {
-                    if (taggedResults instanceof Error) {        
-                        sys.puts("ERROR (2): " + taggedResults.message);
-                    } else {
-                        for (var i=0,len = taggedResults.Items.length; i < len; i++) {
-                            itemResults.Items.push(taggedResults.Items[i]);
+                //we need the combined results...
+                rest.get(taggedItemsUrl, getOptions)
+                    .on('success', function(data, response) {
+                        for (var i=0,len = data.Items.length; i < len; i++) {
+                            itemResults.Items.push(data.Items[i]);
                         }
                         itemResults.Items = _.uniq(itemResults.Items,false, function(item) {
                             return item.Id;
                         });
+
                         callback(itemResults);
-                    }
+
+                }).on('fail', function(data, response) {
+                    sys.puts('FAIL (get "tagged" items): \n' + data);
+                }).on('error', function(err, response) {
+                    sys.puts('ERROR (get "tagged" items): ' + err.message);
+                }).on('complete', function(result, response) {
+                    console.log('COMPLETE  (get "tagged" items): ' + response.statusCode);
                 });
 
-            }
+        }).on('fail', function(data, response) {
+            sys.puts('FAIL (get items): \n' + data);
+        }).on('error', function(err, response) {
+            sys.puts('ERROR (get items): ' + err.message);
+        }).on('complete', function(result, response) {
+            console.log('COMPLETE  (get items): ' + response.statusCode);
         });
     },
     getMostRecentIterationBoundary: function (callback, options) {
@@ -99,11 +104,10 @@ var methods = {
 
         //logIt("getMostRecentIterationBoundary TP API: " + url);
 
-        rest.get(url, config.info).on("complete", function (result) {
-            if (result instanceof Error) {
-                sys.puts("ERROR: " + result.message);
-            } else {                
-                var dates = _.map(result.Items, function (item) {
+        //handle the different events individually... 
+        rest.get(url, config.info)
+            .on('success', function(data, response) {
+                var dates = _.map(data.Items, function (item) {
                     //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
                 });                                
@@ -111,9 +115,15 @@ var methods = {
                 var formattedBoundary = moment(boundary).format("MM-DD-YYYY");
                 console.log("Boundary Date: " + formattedBoundary);
                 callback(formattedBoundary);
-            }
+ 
+        }).on('fail', function(data, response) {
+            sys.puts("FAIL: \n" + data);
+        }).on('error', function(err, response) {
+            sys.puts("ERROR: " + err.message);
+        }).on('complete', function(result, response) {
+            console.log('COMPLETE: ' + response.statusCode);
         });
-    }
+   }
 };
 api = function(methodName, callback, options) {
     //logIt("Calling " + methodName);      
