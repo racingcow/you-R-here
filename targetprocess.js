@@ -115,8 +115,9 @@ var methods = {
         paramMap['where'] = '(EndDate lte \'' + moment().format('YYYY-MM-DD') + '\')'
                             + ' and (EndDate gte \'' + moment().subtract('weeks', config.info.iterationDurationInWeeks).format('YYYY-MM-DD') + '\')';
 
-        var url = config.info.url + 'Iterations?' + methods.buildRequestParams(paramMap, true),
-            plainUrl = config.info.url + 'Iterations?' + methods.buildRequestParams(paramMap, false);
+        var baseUrl = config.info.url + 'Iterations?',
+            url = baseUrl + methods.buildRequestParams(paramMap, true),
+            plainUrl = baseUrl + methods.buildRequestParams(paramMap, false);
 
         //console.log('plain URL: \n' + plainUrl);
         //console.log('encoded URL: \n' + url);
