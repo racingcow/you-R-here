@@ -74,16 +74,22 @@ var methods = {
                     sys.puts('FAIL (get "tagged" items): \n' + data);
                 }).on('error', function(err, response) {
                     sys.puts('ERROR (get "tagged" items): ' + err.message);
+                    //TODO: figure out to decode the raw buffer, so we can know what happened!
+                    if (response) console.log(response.raw);
                 }).on('complete', function(result, response) {
                     console.log('COMPLETE  (get "tagged" items): ' + response.statusCode);
+                    if (response.statusCode != 200) console.log(result);
                 });
 
         }).on('fail', function(data, response) {
             sys.puts('FAIL (get items): \n' + data);
         }).on('error', function(err, response) {
             sys.puts('ERROR (get items): ' + err.message);
+            //TODO: figure out to decode the raw buffer, so we can know what happened!
+            if (response) console.log(response.raw);
         }).on('complete', function(result, response) {
             console.log('COMPLETE  (get items): ' + response.statusCode);
+            if (response.statusCode != 200) console.log(result);
         });
     },
     getMostRecentIterationBoundary: function (callback, options) {
@@ -120,8 +126,11 @@ var methods = {
             sys.puts("FAIL: \n" + data);
         }).on('error', function(err, response) {
             sys.puts("ERROR: " + err.message);
+            //TODO: figure out to decode the raw buffer, so we can know what happened!
+            if (response) console.log(response.raw);
         }).on('complete', function(result, response) {
             console.log('COMPLETE: ' + response.statusCode);
+            if (response.statusCode != 200) console.log(result);
         });
    }
 };
