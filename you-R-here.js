@@ -273,11 +273,15 @@ function tpToModelSchema(data) {
     //Transform to standard model schema
     var entities = [],
         notDemonstrableRegex = new RegExp('not demonstrable', 'i'),
-        developerRegex = new RegExp('developer', 'i');
+        developerRegex = new RegExp('developer', 'i'),
+        h1Regex = new RegExp('(<h1>|<H1>|</h1>|</H1>)')
 
     for (var i = 0, len = data.Items.length; i < len; i++) {
         var item = data.Items[i],
-            isDemonstrable = notDemonstrableRegex.test(item.Tags) ? false : true;
+            isDemonstrable = notDemonstrableRegex.test(item.Tags) ? false : true,
+            descStartsWithH1 = (item.Description) ? item.Description.startsWith('<h1>') || item.Description.startsWith('<H1>') : '',
+            desc = (descStartsWithH1) ? item.Name : item.Description,
+            title =  (descStartsWithH1) ? item.Description.replace(h1Regex, '') : item.Name;
 
         var assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
             return developerRegex.test(item.Role.Name);
@@ -286,8 +290,8 @@ function tpToModelSchema(data) {
 
         entities.push({
             id: item.Id,
-            name: item.Name,
-            description: item.Description,
+            name: title, //item.Name,
+            description: desc, //item.Description,
             project: item.Project.Name,
             type: item.EntityType.Name,
             demonstratorName: assignedUser.FirstName + " " + assignedUser.LastName,
@@ -338,4 +342,17 @@ function showItems(demoItems, prefix) {
         msg += val.id + (val.active ? "," + val.active : "") + ";";
     });
     logIt(msg);
+}
+
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
+if (!String.prototype.startsWith) {
+  Object.defineProperty(String.prototype, 'startsWith', {
+    enumerable: false,
+    configurable: false,
+    writable: false,
+    value: function (searchString, position) {
+      position = position || 0;
+      return this.indexOf(searchString, position) === position;
+    }
+  });
 }
