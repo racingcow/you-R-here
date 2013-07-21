@@ -55,7 +55,7 @@ var _staticContentItems = {
     address: _address,
     port: _port
 };
-
+var _headerInfo;
 //routing 
 /* _app.get("/userimage/:id", function(req, res) {          
 //logIt("userimage");         
@@ -101,7 +101,12 @@ _tp.api("getMostRecentIterationBoundary", function (boundaryDate) {
     refreshEntities();
 });
 
-_io.sockets.on("connection", function (socket) {    
+_io.sockets.on("connection", function (socket) {
+    socket.on('headerinfo:read', function(data, callback){
+        console.log('headerinfo:read!!');
+        _headerInfo = buildHeaderInfo();
+        callback(null, _headerInfo);
+    });
 
     socket.on("iteration:read", function(data, callback) {
         console.log("iteration:read - endDate = '" + _iteration.endDate + "'");
@@ -116,6 +121,10 @@ _io.sockets.on("connection", function (socket) {
             //showItems(_demoItems,"iteration:create ===> ");
             socket.broadcast.emit("iteration:update", _iteration);
             _io.sockets.emit("demoitems:refresh", _demoItems);
+
+
+            _headerInfo = buildHeaderInfo();
+            _io.sockets.emit('headerinfo:update', _headerInfo);
         });
     });
 
@@ -124,6 +133,8 @@ _io.sockets.on("connection", function (socket) {
         //logIt("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
         //showItems(_demoItems,"demoItems:read ===> ");
+        //_io.sockets.emit('headerinfo:update', _headerInfo);
+
     });
 
     socket.on("demoitems:reset", function(data) {
@@ -223,8 +234,8 @@ _io.sockets.on("connection", function (socket) {
         socket.emit("users:create", newUser);
         socket.broadcast.emit("users:create", newUser);
 
-        logIt("Users...");
-        logIt(_users);
+        //logIt("Users...");
+        //logIt(_users);
 
         callback(null, newUser);
 
@@ -240,8 +251,8 @@ _io.sockets.on("connection", function (socket) {
         var user = _.where(_users, { id: socket.userid });
         socket.broadcast.emit("user/" + socket.userid + ":delete", user);
 
-        logIt("Users...");
-        logIt(_users);
+        //logIt("Users...");
+        //logIt(_users);
 
         //remove the user from the array
         for (var i = 0, len = _users.length; i < len; i++) {
@@ -252,10 +263,10 @@ _io.sockets.on("connection", function (socket) {
             }
         }
 
-        logIt("Users...");
-        logIt(_users);
+        //logIt("Users...");
+        //logIt(_users);
 
-        logIt("USERS LIST (after removal): " + _users);
+        //logIt("USERS LIST (after removal): " + _users);
     });
 });
 
@@ -337,12 +348,31 @@ function logIt(msg) {
 }
 
 function showItems(demoItems, prefix) {
+    return;
     var msg = prefix + " length: " + demoItems.length + ". ";
     _.each(demoItems, function(val) {
         msg += val.id + (val.active ? "," + val.active : "") + ";";
     });
     logIt(msg);
 }
+
+function buildHeaderInfo() {
+    var itemCount = (_demoItems) ? _demoItems.length : 0,
+        bugRegex = new RegExp('Bug', 'i'),
+        bugList = _.filter(_demoItems, function(item) {
+                //console.log(item.type);
+                return bugRegex.test(item.type); 
+            }),
+        bugCount = (itemCount < 1) ? 0 : bugList.length,
+        headerinfo = {
+            endDate: _iteration.endDate,
+            itemCount: itemCount,
+            bugCount: bugCount,
+            userStoryCount: itemCount - bugCount
+    };
+    console.log(headerinfo);
+    return headerinfo;
+};
 
 //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
 if (!String.prototype.startsWith) {

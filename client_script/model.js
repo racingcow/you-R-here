@@ -25,6 +25,31 @@ YouRHere.Iteration = Backbone.Model.extend({
     }
 });
 
+YouRHere.HeaderInfo = Backbone.Model.extend({
+    urlRoot: 'headerinfo',
+    socket: window.socket,
+    defaults: {
+        endDate: new Date(),
+        itemCount: -1,
+        bugCount: -1,
+        userStoryCount: -1
+    },
+    initialize: function() {
+        console.log('headerinfo init!');
+        _.bindAll(this);
+        this.ioBind('update', this.serverChange, this);
+        return this;
+    },
+    serverChange: function (data) {
+        console.log('HeaderInfo serverChange');
+        //console.log(data);
+        if (data) {
+            data.fromServer = true;
+            this.set(data);
+        }
+    }
+});
+
 YouRHere.DemoItem = Backbone.Model.extend({
     socket: window.socket,
     defaults: {
@@ -93,7 +118,6 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     },
     serverReset: function(demoItems) {
         YouRHere.Utils.log('YouRHere.DemoItem.serverReset: Count = "' + demoItems.length + '"');
-        console.log(demoItems);
         this.reset(demoItems);
     },
     filterByActive: function (active) {

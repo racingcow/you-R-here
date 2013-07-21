@@ -131,3 +131,16 @@ header {
 .error {
 	color: red;
 }
+div.bug, div.userstory {
+	margin-left: 20px;
+}
+.count {
+	margin-left: 2px;
+}
+.navbar { 
+	margin-bottom: 0;
+}
+h3 { 
+	margin-top: 0 !important;
+	line-height: 20px;
+}

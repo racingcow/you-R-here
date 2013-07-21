@@ -16,6 +16,23 @@ html
           block header
       .row-fluid
         .span10
+          block header-info
+            div.hidden.hide-for-login.pull-right#header-info
+              div.pull-right.bug#header-info-bugs
+                | Bugs:
+                span.count
+              div.pull-right.userstory#header-info-stories
+                | User Stories:
+                span.count
+              div.pull-right.userstory.hidden#header-info-iteration-date
+                | Date:
+                span
+            div.hidden.hide-for-login.pull-left
+              div.pull-left.bug.hidden#header-info-org
+                | Organization Name
+                span.count
+      .row-fluid
+        .span10
           block items
           block emailRequired
             div.hidden#emailRequired
@@ -43,4 +60,4 @@ html
       label(for='email')
       input#email(type='text')
       label.hidden.error#emailMsg
-        | Whoops! That email address is already in use.
+        | Whoops! That email address is already in use

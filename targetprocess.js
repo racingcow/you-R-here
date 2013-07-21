@@ -62,7 +62,7 @@ var methods = {
             plainTaggedItemsUrl = baseUrl + plainParams +  tagsClause;
 
         $.when($.ajax(itemsUrl, getOptions), $.ajax(taggedItemsUrl, getOptions))
-            .done(function(a1, a2) {
+            .done(function(a1, a2) { //a1 and a2 contain the standard .done() args: data, textStatus, jqXHR
                 var itemResults = a1[0],
                     taggedItemResults = a2[0];
 
@@ -77,8 +77,8 @@ var methods = {
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
+                //console.log(textStatus);
+                //console.log(errorThrown);
             });
     },
     getMostRecentIterationBoundary: function (callback, options) {
@@ -95,7 +95,7 @@ var methods = {
             plainUrl = baseUrl + methods.buildRequestParams(paramMap, false);
 
           $.ajax(url, config.info)
-            .done(function(data) {
+            .done(function(data, textStatus, jqXHR) {
                 var dates = _.map(data.Items, function (item) {
                     //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
@@ -107,8 +107,8 @@ var methods = {
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR);
-                console.log(textStatus);
-                console.log(errorThrown);
+                //console.log(textStatus);
+                //console.log(errorThrown);
             });
    }
 };

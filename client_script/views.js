@@ -31,6 +31,70 @@ YouRHere.IterationView = Backbone.View.extend({
     }
 });
 
+YouRHere.HeaderInfoView = Backbone.View.extend({
+    initialize: function(data, demoItems) {
+        console.log('HeaderInfoView.initialize');        
+        _.bindAll(this);
+
+        this.demoItems = demoItems;          
+        this.demoItems.bind('reset', this.refreshDemoItems);
+
+        this.headerInfo = data || new YouRHere.HeaderInfo();
+        this.headerInfo.bind('update', this.updateHeaderInfo);
+        this.setElement($('#header-info')[0]); //bind to existing element on page instead of rendering new one
+        if (this.demoItems) {
+            this.render();            
+        }
+        return this;
+    },
+    render: function() {
+        console.log('HeaderInfoView.render');
+        var bugCount = this.headerInfo.get('bugCount'), userStoryCount, iterationEndDate;
+
+        if (bugCount < 0) {
+            //console.log('bugCount < 0')
+            //oh, ho! get those values the hard way
+            var itemTypes = [],
+                demoList = this.demoItems;
+
+            this.demoItems.each(function (demoItem) {
+                itemTypes.push(demoList.get(demoItem.id).get('type'));
+            });
+
+            var itemCount = (itemTypes) ? itemTypes.length : 0,
+                bugRegex = new RegExp('Bug', 'i'),
+                bugList = _.filter(itemTypes, function(itemType) {
+                        return (itemType) && bugRegex.test(itemType); 
+                    });
+
+            bugCount = (itemCount < 1) ? 0 : bugList.length;
+            userStoryCount = itemCount - bugCount;
+            
+        } else {
+            this.demoItems.unbind('reset', this.refreshDemoItems);
+
+            //console.log('bugCount >= 0')
+            userStoryCount = this.headerInfo.get('userStoryCount');
+            iterationEndDate = this.headerInfo.get('endDate');
+        }
+        //console.log(this.headerInfo.get('bugCount'));
+        //console.log(iterationEndDate);
+        $('#header-info-iteration-date span').text(iterationEndDate);
+        $('#header-info-bugs span').text(bugCount);
+        $('#header-info-stories span').text(userStoryCount);
+
+        return this;
+    },
+    updateHeaderInfo: function() {
+        console.log('HeaderInfoView.updateHeaderInfo');
+        return this.render();
+    },
+    refreshDemoItems: function() {
+        console.log('HeaderInfoView.refreshDemoItems');
+        return this.render();
+    }
+});
+
 YouRHere.DemoListView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "ul",
@@ -88,6 +152,7 @@ YouRHere.DemoListView = Backbone.View.extend({
 
             $('#DemoListView li:first-child').click();
         }
+
         return this;
     },
     clickDemoItem: function (e) {
