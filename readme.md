@@ -38,7 +38,8 @@ info = {
 	iterationDurationInWeeks: 2,
 	format: "json",
 	serverAddress: "http://localhost",
-	serverPort: 8080
+	serverPort: 8080,
+	baseImageUrl: "https://mycompany.tpondemand.com" // v. 0.1.2
 };
 exports.info = info;
 ```
