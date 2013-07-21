@@ -40,19 +40,21 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         this.demoItems.bind('reset', this.refreshDemoItems);
 
         this.headerInfo = data || new YouRHere.HeaderInfo();
+        this.headerInfo.bind('read', this.updateHeaderInfo);
         this.headerInfo.bind('update', this.updateHeaderInfo);
         this.setElement($('#header-info')[0]); //bind to existing element on page instead of rendering new one
         if (this.demoItems) {
-            this.render();            
+            //this.render();            
         }
         return this;
     },
     render: function() {
         console.log('HeaderInfoView.render');
-        var bugCount = this.headerInfo.get('bugCount'), userStoryCount, iterationEndDate;
+        var bugCount = this.headerInfo.get('bugCount'), userStoryCount, endDate, startDate, orgName, dateRange;
 
         if (bugCount < 0) {
-            //console.log('bugCount < 0')
+            console.log('bugCount < 0')
+            /* we don't need this extra work now. we just send an update later that hits the "else"
             //oh, ho! get those values the hard way
             var itemTypes = [],
                 demoList = this.demoItems;
@@ -69,19 +71,23 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
 
             bugCount = (itemCount < 1) ? 0 : bugList.length;
             userStoryCount = itemCount - bugCount;
-            
+            */
         } else {
             this.demoItems.unbind('reset', this.refreshDemoItems);
 
-            //console.log('bugCount >= 0')
+            console.log('bugCount >= 0')
             userStoryCount = this.headerInfo.get('userStoryCount');
-            iterationEndDate = this.headerInfo.get('endDate');
+            endDate = this.headerInfo.get('endDate');
+            startDate = this.headerInfo.get('startDate');
+            orgName = this.headerInfo.get('orgName');
+            dateRange = startDate + ' - ' + endDate;
         }
-        //console.log(this.headerInfo.get('bugCount'));
-        //console.log(iterationEndDate);
-        $('#header-info-iteration-date span').text(iterationEndDate);
+
+        $('#header-info-iteration-date span').text(dateRange);
         $('#header-info-bugs span').text(bugCount);
         $('#header-info-stories span').text(userStoryCount);
+        $('#header-info-org span.orgName').text(orgName);
+        $('#header-info-org span.dateRange').text(' (' + dateRange + ')');
 
         return this;
     },

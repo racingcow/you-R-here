@@ -19,6 +19,7 @@ _.str.include("underscore.string", "string"); //put all conflicting methods in _
 
 _io.set('log level', 1); //reduce logging
 
+var moment = require('moment');
 var config = require("./targetprocess.config");
 var _address = config.info.serverAddress;// "http://localhost"; //TODO: move this to a config file
 var _port = config.info.serverPort; //8080; //TODO: move this to a config file
@@ -98,14 +99,18 @@ _app.get("/*", function(req, res){
 _tp.api("getMostRecentIterationBoundary", function (boundaryDate) {
     //console.log('getMostRecentIterationBoundary: boundaryDate = "' + boundaryDate + '"');
     _iteration.endDate = boundaryDate;
-    refreshEntities();
+    refreshEntities(sendHeaderInfo);
 });
 
 _io.sockets.on("connection", function (socket) {
+
     socket.on('headerinfo:read', function(data, callback){
         console.log('headerinfo:read!!');
         _headerInfo = buildHeaderInfo();
         callback(null, _headerInfo);
+        //this probably means that I'm doing something wrong in creatin/init of HeaderInfoView
+        //but this update assures that organizer first page load gets correct header info
+        _io.sockets.emit('headerinfo:update', _headerInfo);
     });
 
     socket.on("iteration:read", function(data, callback) {
@@ -121,10 +126,7 @@ _io.sockets.on("connection", function (socket) {
             //showItems(_demoItems,"iteration:create ===> ");
             socket.broadcast.emit("iteration:update", _iteration);
             _io.sockets.emit("demoitems:refresh", _demoItems);
-
-
-            _headerInfo = buildHeaderInfo();
-            _io.sockets.emit('headerinfo:update', _headerInfo);
+            sendHeaderInfo();
         });
     });
 
@@ -273,7 +275,10 @@ _io.sockets.on("connection", function (socket) {
 function refreshEntities(callback) {
     _tp.api("getEntitiesForActiveIteration", function (data) {
         _demoItems = tpToModelSchema(data);
-        if (callback) callback();
+        if (callback) {
+            console.log('refreshEntities callback!')
+            callback();
+        }
     }, { date: _iteration.endDate });
 }
 
@@ -358,7 +363,8 @@ function showItems(demoItems, prefix) {
 }
 
 function buildHeaderInfo() {
-    var itemCount = (_demoItems) ? _demoItems.length : 0,
+    var dateFormat = 'MMM D [\']YY', //use 'll' with moment 2.0.x
+        itemCount = (_demoItems) ? _demoItems.length : 0,
         bugRegex = new RegExp('Bug', 'i'),
         bugList = _.filter(_demoItems, function(item) {
                 //console.log(item.type);
@@ -366,14 +372,22 @@ function buildHeaderInfo() {
             }),
         bugCount = (itemCount < 1) ? 0 : bugList.length,
         headerinfo = {
-            endDate: _iteration.endDate,
+            startDate: moment(_iteration.endDate).subtract('weeks', config.info.iterationDurationInWeeks).format(dateFormat),
+            endDate: moment(_iteration.endDate).format(dateFormat),
             itemCount: itemCount,
             bugCount: bugCount,
-            userStoryCount: itemCount - bugCount
+            userStoryCount: itemCount - bugCount,
+            orgName: config.info.orgName
     };
     console.log(headerinfo);
     return headerinfo;
 };
+
+function sendHeaderInfo() {
+    console.log('sendHeaderInfo');   
+    _headerInfo = buildHeaderInfo();
+    _io.sockets.emit('headerinfo:update', _headerInfo);
+}
 
 //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
 if (!String.prototype.startsWith) {

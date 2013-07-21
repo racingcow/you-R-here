@@ -39,7 +39,8 @@ info = {
 	format: "json",
 	serverAddress: "http://localhost",
 	serverPort: 8080,
-	baseImageUrl: "https://mycompany.tpondemand.com" // v. 0.1.2
+	baseImageUrl: "https://mycompany.tpondemand.com", // v. 0.1.2
+	orgName: "My Company" // v. 0.1.3
 };
 exports.info = info;
 ```

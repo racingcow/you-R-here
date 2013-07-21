@@ -15,7 +15,7 @@ html
           a.brand(href='#') you-R-here
           block header
       .row-fluid
-        .span10
+        .span10.header-info
           block header-info
             div.hidden.hide-for-login.pull-right#header-info
               div.pull-right.bug#header-info-bugs
@@ -28,9 +28,9 @@ html
                 | Date:
                 span
             div.hidden.hide-for-login.pull-left
-              div.pull-left.bug.hidden#header-info-org
-                | Organization Name
-                span.count
+              h3.pull-left.orgname#header-info-org
+                span.orgname
+                span.dateRange
       .row-fluid
         .span10
           block items
