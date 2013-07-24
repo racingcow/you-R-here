@@ -291,7 +291,7 @@ function tpToModelSchema(data) {
         notDemonstrableRegex = new RegExp('not demonstrable', 'i'),
         developerRegex = new RegExp('developer', 'i'),
         h1Regex = new RegExp('(<h1>|<H1>|</h1>|</H1>)'),
-        imageLinkRegex =  new RegExp('~/images'); //new RegExp('((https://|http://)(.)*/~)');
+        imageLinkRegex =  new RegExp('~/images', 'gi'); //new RegExp('((https://|http://)(.)*/~)');
 
     for (var i = 0, len = data.Items.length; i < len; i++) {
         var item = data.Items[i],
