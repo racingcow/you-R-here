@@ -303,11 +303,6 @@ function tpToModelSchema(data) {
         title = (descHasH1) ? descAfterCapture[0].replace(h1ReplaceRegex, '') : item.Name;
         descAfterH1Replace = (descHasH1) ? item.Description.replace(h1CaptureDescRegex,'').replace(h1ReplaceRegex, '') : item.Description;
         desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : item.Name;
-            //descStartsWithH1 = (item.Description) ? item.Description.startsWith('<h1>') || item.Description.startsWith('<H1>') : '',
-            //desc = (descStartsWithH1) ? item.Name : item.Description,
-            //title =  (descStartsWithH1) ? item.Description.replace(h1Regex, '') : item.Name;
-
-        if (descHasH1) console.log('XXX' + h1CaptureDescRegex.exec(item.Description) + 'XXX');
 
         assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
             return developerRegex.test(item.Role.Name);
