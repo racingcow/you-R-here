@@ -293,7 +293,7 @@ function tpToModelSchema(data) {
         developerRegex = new RegExp('developer', 'i'),
         h1CaptureDescRegex = new RegExp('<[h|H]1>((.)*)</[h|H]1>'),
         h1ReplaceRegex = new RegExp('(<h1>|<H1>|</h1>|</H1>)'),
-        imageLinkRegex =  new RegExp('(~)/images', 'gi'); //new RegExp('((https://|http://)(.)*/~)');
+        imageLinkRegex =  new RegExp('="(~)?/images', 'gi'); 
 
     for (var i = 0, len = data.Items.length; i < len; i++) {
         item = data.Items[i];
@@ -312,7 +312,7 @@ function tpToModelSchema(data) {
         entities.push({
             id: item.Id,
             name: title, //item.Name,
-            description: (desc) ? desc.replace(imageLinkRegex, config.info.baseImageUrl + '/images') : '', //item.Description,
+            description: (desc) ? desc.replace(imageLinkRegex, '="' +config.info.baseImageUrl + '/images') : '', //item.Description,
             project: item.Project.Name,
             type: item.EntityType.Name,
             demonstratorName: assignedUser.FirstName + " " + assignedUser.LastName,
