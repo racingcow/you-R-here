@@ -285,25 +285,34 @@ function refreshEntities(callback) {
 function tpToModelSchema(data) {
 
     //TODO: Replace this transformation method with another object/middleware               
-
     //Transform to standard model schema
-    var entities = [],
+    var item, isDemonstrable,descHasH1, title, 
+        desc, descAfterCapture, descAfterH1Replace, assignedDevelopers, assignedUser,
+        entities = [],
         notDemonstrableRegex = new RegExp('not demonstrable', 'i'),
         developerRegex = new RegExp('developer', 'i'),
-        h1Regex = new RegExp('(<h1>|<H1>|</h1>|</H1>)'),
-        imageLinkRegex =  new RegExp('~/images', 'gi'); //new RegExp('((https://|http://)(.)*/~)');
+        h1CaptureDescRegex = new RegExp('<[h|H]1>((.)*)</[h|H]1>'),
+        h1ReplaceRegex = new RegExp('(<h1>|<H1>|</h1>|</H1>)'),
+        imageLinkRegex =  new RegExp('(~)/images', 'gi'); //new RegExp('((https://|http://)(.)*/~)');
 
     for (var i = 0, len = data.Items.length; i < len; i++) {
-        var item = data.Items[i],
-            isDemonstrable = notDemonstrableRegex.test(item.Tags) ? false : true,
-            descStartsWithH1 = (item.Description) ? item.Description.startsWith('<h1>') || item.Description.startsWith('<H1>') : '',
-            desc = (descStartsWithH1) ? item.Name : item.Description,
-            title =  (descStartsWithH1) ? item.Description.replace(h1Regex, '') : item.Name;
+        item = data.Items[i];
+        isDemonstrable = notDemonstrableRegex.test(item.Tags) ? false : true;
+        descHasH1 = h1ReplaceRegex.test(item.Description);
+        descAfterCapture = (descHasH1) ? h1CaptureDescRegex.exec(item.Description) : '';
+        title = (descHasH1) ? descAfterCapture[0].replace(h1ReplaceRegex, '') : item.Name;
+        descAfterH1Replace = (descHasH1) ? item.Description.replace(h1CaptureDescRegex,'').replace(h1ReplaceRegex, '') : item.Description;
+        desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : item.Name;
+            //descStartsWithH1 = (item.Description) ? item.Description.startsWith('<h1>') || item.Description.startsWith('<H1>') : '',
+            //desc = (descStartsWithH1) ? item.Name : item.Description,
+            //title =  (descStartsWithH1) ? item.Description.replace(h1Regex, '') : item.Name;
 
-        var assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
+        if (descHasH1) console.log('XXX' + h1CaptureDescRegex.exec(item.Description) + 'XXX');
+
+        assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
             return developerRegex.test(item.Role.Name);
         });        		
-		var assignedUser = assignedDevelopers.length > 0 ? assignedDevelopers[0].GeneralUser : {FirstName: "not", LastName: "assigned", Email: ""};
+		assignedUser = assignedDevelopers.length > 0 ? assignedDevelopers[0].GeneralUser : {FirstName: "not", LastName: "assigned", Email: ""};
 
         entities.push({
             id: item.Id,
