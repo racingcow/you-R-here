@@ -2,7 +2,8 @@ var sys = require('util');
 var moment = require('moment');//http://momentjs.com
 var config = require('./targetprocess.config');
 var _ = require('underscore');
-var $ = require('jquery');
+var rest = require('restler'); //https://github.com/danwrong/restler 
+//var $ = require('jquery');
 
 var self = this;
 var methods = {    
@@ -44,7 +45,7 @@ var methods = {
             url: options.url || config.info.url,
             format: options.format || 'json',
             date: options.date || methods.globalOptions.date,
-            //parser: rest.parsers.json,
+            parser: rest.parsers.json,
             iterationDurationInWeeks: config.info.iterationDurationInWeeks
         };
 
@@ -61,6 +62,48 @@ var methods = {
             taggedItemsUrl = baseUrl + encodedParams +  encodedTagsClause,
             plainTaggedItemsUrl = baseUrl + plainParams +  tagsClause;
 
+        var itemResults;
+        rest.get(itemsUrl,  getOptions)
+            .on('success', function(data, response) {
+                itemResults = data; 
+
+                //console.log('plain taggedItemsUrl: \n' + plainTaggedItemsUrl);
+                //console.log('encoded taggedItemsUrl: \n' + taggedItemsUrl);
+
+                //we need the combined results...
+                rest.get(taggedItemsUrl, getOptions)
+                    .on('success', function(data, response) {
+                        for (var i=0,len = data.Items.length; i < len; i++) {
+                            itemResults.Items.push(data.Items[i]);
+                        }
+                        itemResults.Items = _.uniq(itemResults.Items,false, function(item) {
+                            return item.Id;
+                        });
+
+                    callback(itemResults);
+
+                }).on('fail', function(data, response) {
+                    sys.puts('FAIL (get "tagged" items): \n' + data);
+                }).on('error', function(err, response) {
+                    sys.puts('ERROR (get "tagged" items): ' + err.message);
+                    //TODO: figure out to decode the raw buffer, so we can know what happened!
+                    if (response) console.log(response.raw);
+                }).on('complete', function(result, response) {
+                    console.log('COMPLETE  (get "tagged" items): ' + response.statusCode);
+                    if (response.statusCode != 200) console.log(result);
+                 }); 
+        }).on('fail', function(data, response) {
+            sys.puts('FAIL (get items): \n' + data);
+        }).on('error', function(err, response) {
+            sys.puts('ERROR (get items): ' + err.message);
+            //TODO: figure out to decode the raw buffer, so we can know what happened!
+            if (response) console.log(response.raw);
+        }).on('complete', function(result, response) {
+            console.log('COMPLETE  (get items): ' + response.statusCode);
+            if (response.statusCode != 200) console.log(result);
+        });
+
+/*
         $.when($.ajax(itemsUrl, getOptions), $.ajax(taggedItemsUrl, getOptions))
             .done(function(a1, a2) { //a1 and a2 contain the standard .done() args: data, textStatus, jqXHR
                 var itemResults = a1[0],
@@ -80,6 +123,7 @@ var methods = {
                 //console.log(textStatus);
                 //console.log(errorThrown);
             });
+*/
     },
     getMostRecentIterationBoundary: function (callback, options) {
         console.log('getMostRecentIterationBoundary');
@@ -94,11 +138,34 @@ var methods = {
             url = baseUrl + methods.buildRequestParams(paramMap, true),
             plainUrl = baseUrl + methods.buildRequestParams(paramMap, false);
 
+        //handle the different events individually... 
+        rest.get(url, config.info)
+            .on('success', function(data, response) {
+                var dates = _.map(data.Items, function (item) {
+                     //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
+                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
+                });
+                var boundary = _.max(dates, function (date) { return date.getTime(); });
+                var formattedBoundary = moment(boundary).format('MM-DD-YYYY');
+                console.log('Boundary Date: ' + formattedBoundary);
+                callback(formattedBoundary); 
+        }).on('fail', function(data, response) {
+            sys.puts('FAIL: \n' + data);
+        }).on('error', function(err, response) {
+            sys.puts('ERROR: ' + err.message);
+            //TODO: figure out to decode the raw buffer, so we can know what happened!
+            if (response) console.log(response.raw);
+        }).on('complete', function(result, response) {
+            console.log('COMPLETE: ' + response.statusCode);
+            if (response.statusCode != 200) console.log(result);
+        });
+
+/*
           $.ajax(url, config.info)
             .done(function(data, textStatus, jqXHR) {
                 var dates = _.map(data.Items, function (item) {
                     //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
-                    return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
+                    return new Date(parseInt(/\/Date\((\d+).* /.exec(item.EndDate)[1]));
                 });                                
                 var boundary = _.max(dates, function (date) { return date.getTime(); });
                 var formattedBoundary = moment(boundary).format('MM-DD-YYYY');
@@ -110,6 +177,7 @@ var methods = {
                 //console.log(textStatus);
                 //console.log(errorThrown);
             });
+*/
    }
 };
 api = function(methodName, callback, options) {
