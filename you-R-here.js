@@ -157,9 +157,9 @@ _io.sockets.on("connection", function (socket) {
         }
 
         //update the order of demoItems if nextId != -1
-        if (updatedDemoItem.nextId != -2 && updatedDemoItem.nextId != -1) {
+        if (nextIdx < len && updatedDemoItem.nextId != -2 && updatedDemoItem.nextId != -1) {
 
-            if (nextIdx < len && _demoItems[idx+1] && updatedDemoItem.nextId != _demoItems[idx+1].id) {
+            if (_demoItems[idx+1] && updatedDemoItem.nextId != _demoItems[idx+1].id) {
                 var nextDemoItem = _.find(_demoItems, function (e) { 
                     var found = e.id == updatedDemoItem.nextId;
                     if (!found) {
