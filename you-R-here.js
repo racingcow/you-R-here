@@ -273,68 +273,17 @@ _io.sockets.on("connection", function (socket) {
 });
 
 function refreshEntities(callback) {
-    _tp.api("getEntitiesForActiveIteration", function (data) {
-        _demoItems = tpToModelSchema(data);
-        if (callback) {
-            console.log('refreshEntities callback!')
-            callback();
-        }
-    }, { date: _iteration.endDate });
-}
-
-function tpToModelSchema(data) {
-
-    //TODO: Replace this transformation method with another object/middleware               
-    //Transform to standard model schema
-    var item, isDemonstrable,descHasH1, title, 
-        desc, descAfterCapture, descAfterH1Replace, assignedDevelopers, assignedUser,
-        entities = [],
-        notDemonstrableRegex = new RegExp('not demonstrable', 'i'),
-        developerRegex = new RegExp('developer', 'i'),
-        h1CaptureDescRegex = new RegExp('<[h|H]1>((.)*)</[h|H]1>'),
-        h1ReplaceRegex = new RegExp('(<h1>|<H1>|</h1>|</H1>)'),
-        imageLinkRegex =  new RegExp('="(~)?/images', 'gi'); 
-
-    for (var i = 0, len = data.Items.length; i < len; i++) {
-        item = data.Items[i];
-        isDemonstrable = notDemonstrableRegex.test(item.Tags) ? false : true;
-        descHasH1 = h1ReplaceRegex.test(item.Description);
-        descAfterCapture = (descHasH1) ? h1CaptureDescRegex.exec(item.Description) : '';
-        title = (descHasH1) ? descAfterCapture[0].replace(h1ReplaceRegex, '') : item.Name;
-        descAfterH1Replace = (descHasH1) ? item.Description.replace(h1CaptureDescRegex,'').replace(h1ReplaceRegex, '') : item.Description;
-        desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : item.Name;
-
-        assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
-            return developerRegex.test(item.Role.Name);
-        });        		
-		assignedUser = assignedDevelopers.length > 0 ? assignedDevelopers[0].GeneralUser : {FirstName: "not", LastName: "assigned", Email: ""};
-
-        entities.push({
-            id: item.Id,
-            name: title, //item.Name,
-            description: (desc) ? desc.replace(imageLinkRegex, '="' +config.info.baseImageUrl + '/images') : '', //item.Description,
-            project: item.Project.Name,
-            type: item.EntityType.Name,
-            demonstratorName: assignedUser.FirstName + " " + assignedUser.LastName,
-            demonstratorEmail: assignedUser.Email,
-            demonstrable: isDemonstrable,
-            demonstrated: false,
-            boundaryDate: _iteration.endDate,
-            active: false,
-            nextId: -1
-        });
-    }
-
-    return entities.sort(function (a, b) { 
-        //we want User Story to be before Bug
-        var typeSort = b.type.localeCompare(a.type); 
-        if (typeSort != 0) return typeSort;
-        
-        var projectSort = a.project.localeCompare(b.project);
-        if (projectSort != 0) return projectSort;
-
-        return a.demonstratorName.localeCompare(b.demonstratorName);
-    });
+    _tp.api("getEntitiesForActiveIteration", 
+            function (data) {
+                _demoItems = data;//tpToModelSchema(data);
+                if (callback) {
+                    console.log('refreshEntities callback!')
+                    callback();
+                }
+            }, 
+            { 
+                date: _iteration.endDate 
+            });
 }
 
 function getItem(itemId) {
