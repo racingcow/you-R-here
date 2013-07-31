@@ -1,5 +1,3 @@
-console = console || { log: function() {} };
-
 var _express = require("express");
 var _app = _express();
 var _http = require("http");
@@ -21,8 +19,8 @@ _io.set('log level', 1); //reduce logging
 
 var moment = require('moment');
 var config = require("./targetprocess.config");
-var _address = config.info.serverAddress;// "http://localhost"; //TODO: move this to a config file
-var _port = config.info.serverPort; //8080; //TODO: move this to a config file
+var _address = config.info.serverAddress;
+var _port = config.info.serverPort;
 
 _server.listen(_port);
 var _users = []; //users currently connected 
@@ -48,7 +46,6 @@ var _staticContentItems = {
     styles: [
         "/bootstrap/css/bootstrap.min.css",
         "/css/jquery.jgrowl.css",
-        //"/css/jquery-ui-1.8.21.custom.css",
         "http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/base/jquery-ui.css",
 		"/css/index.css",
     ],
@@ -57,14 +54,8 @@ var _staticContentItems = {
     port: _port
 };
 var _headerInfo;
+
 //routing 
-/* _app.get("/userimage/:id", function(req, res) {          
-//logIt("userimage");         
-//logIt(req.params["id"]);          
-//Return a picture of the user         
-_tp.api("getUserImage", function(data) {        
-res.send(image, "binary");
-}, { id: req.params["id"] }); }); */ 
 _app.get("/", function(req, res) {         
     res.render("spectator.jade", _staticContentItems);
 });
@@ -97,7 +88,6 @@ _app.get("/*", function(req, res){
 
 //auto-load entities list for most recent iteration when app starts
 _tp.api("getMostRecentIterationBoundary", function (boundaryDate) {
-    //console.log('getMostRecentIterationBoundary: boundaryDate = "' + boundaryDate + '"');
     _iteration.endDate = boundaryDate;
     refreshEntities(sendHeaderInfo);
 });
@@ -132,11 +122,7 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
-        //logIt("DEMOITEMS:READ --------------------------");
         callback(null, _demoItems);
-        //showItems(_demoItems,"demoItems:read ===> ");
-        //_io.sockets.emit('headerinfo:update', _headerInfo);
-
     });
 
     socket.on("demoitems:reset", function(data) {
@@ -216,13 +202,10 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on Users collection on client side
     socket.on("users:read", function (data, callback) {
-        //logIt("USERS:READ --------------------------");
         callback(null, _users);
     });
 
     socket.on("user:create", function (newUser, callback) {
-
-        logIt("USER:CREATE --------------------------");
 
         if (!newUser.email || _.trim(newUser.email) === "") return;
 
@@ -236,11 +219,7 @@ _io.sockets.on("connection", function (socket) {
         socket.emit("users:create", newUser);
         socket.broadcast.emit("users:create", newUser);
 
-        //logIt("Users...");
-        //logIt(_users);
-
         callback(null, newUser);
-
     });
 
     //handle client disconnects
@@ -253,9 +232,6 @@ _io.sockets.on("connection", function (socket) {
         var user = _.where(_users, { id: socket.userid });
         socket.broadcast.emit("user/" + socket.userid + ":delete", user);
 
-        //logIt("Users...");
-        //logIt(_users);
-
         //remove the user from the array
         for (var i = 0, len = _users.length; i < len; i++) {
             if (_users[i].id === socket.userid) {
@@ -264,18 +240,13 @@ _io.sockets.on("connection", function (socket) {
                 break;
             }
         }
-
-        //logIt("Users...");
-        //logIt(_users);
-
-        //logIt("USERS LIST (after removal): " + _users);
     });
 });
 
 function refreshEntities(callback) {
     _tp.api("getEntitiesForActiveIteration", 
             function (data) {
-                _demoItems = data;//tpToModelSchema(data);
+                _demoItems = data;
                 if (callback) {
                     console.log('refreshEntities callback!')
                     callback();
