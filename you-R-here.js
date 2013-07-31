@@ -98,7 +98,7 @@ _io.sockets.on("connection", function (socket) {
         console.log('headerinfo:read!!');
         _headerInfo = buildHeaderInfo();
         callback(null, _headerInfo);
-        //this probably means that I'm doing something wrong in creatin/init of HeaderInfoView
+        //this probably means that I'm doing something wrong in creation/init of HeaderInfoView
         //but this update assures that organizer first page load gets correct header info
         _io.sockets.emit('headerinfo:update', _headerInfo);
     });
