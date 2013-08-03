@@ -17,6 +17,10 @@ html
       .row-fluid
         .span10.header-info
           block header-info
+            div.hidden.hide-for-login.pull-left
+              h3.pull-left.orgname#header-info-org
+                span.orgname.pull-left
+                span.dateRange.pull-right
             div.hidden.hide-for-login.pull-right#header-info
               div.pull-right.bug#header-info-bugs
                 | Bugs:
@@ -27,10 +31,6 @@ html
               div.pull-right.userstory.hidden#header-info-iteration-date
                 | Date:
                 span
-            div.hidden.hide-for-login.pull-left
-              h3.pull-left.orgname#header-info-org
-                span.orgname
-                span.dateRange
       .row-fluid
         .span10
           block items
