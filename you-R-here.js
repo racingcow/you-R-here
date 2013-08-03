@@ -23,6 +23,8 @@ var _address = config.info.serverAddress;
 var _port = config.info.serverPort;
 
 _server.listen(_port);
+console.log('node process version: ' + process.version);
+
 var _users = []; //users currently connected 
 var _demoItems = []; //user stories and bugs 
 var _iteration = {endDate: new Date()}; //information about the current iteration to which the demo items belong
