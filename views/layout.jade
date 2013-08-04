@@ -1,6 +1,7 @@
 html
   head
     block head
+      meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=1.0').
       script(type='text/javascript').
         var _address = '#{address}';
         var _port = '#{port}';
@@ -15,22 +16,18 @@ html
           a.brand(href='#') you-R-here
           block header
       .row-fluid
-        .span10.header-info
+        .span10
           block header-info
-            div.hidden.hide-for-login.pull-left
-              h3.pull-left.orgname#header-info-org
-                span.orgname.pull-left
-                span.dateRange.pull-right
-            div.hidden.hide-for-login.pull-right#header-info
-              div.pull-right.bug#header-info-bugs
+            div.hidden.hide-for-login.pull-left1.header-info.header-info-org
+              span.header-info1.orgname.pull-left
+              span.header-info1.dateRange.pull-left
+            div.hidden.hide-for-login.pull-right.header-info.header-info-counts1#header-info
+              span.pull-right.bug#header-info-bugs
                 | Bugs:
-                span.count
-              div.pull-right.userstory#header-info-stories
+                span.count.header-info-bugs
+              span.pull-right.userstory#header-info-stories
                 | User Stories:
-                span.count
-              div.pull-right.userstory.hidden#header-info-iteration-date
-                | Date:
-                span
+                span.count.header-info-stories
       .row-fluid
         .span10
           block items

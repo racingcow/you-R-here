@@ -86,8 +86,8 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         $('#header-info-iteration-date span').text(dateRange);
         $('#header-info-bugs span').text(bugCount);
         $('#header-info-stories span').text(userStoryCount);
-        $('#header-info-org span.orgName').text(orgName);
-        $('#header-info-org span.dateRange').text(' (' + dateRange + ')');
+        $('.header-info-org span.orgName').text(orgName);
+        $('.header-info-org span.dateRange').text(' (' + dateRange + ')');
 
         return this;
     },
