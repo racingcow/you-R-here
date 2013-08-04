@@ -135,7 +135,7 @@ header {
 	color: red;
 }
 .header-info {
-	padding: 0 5px;
+	padding: 5px 5px 0;
 	line-height: 20px;
 	white-space: nowrap;
 	margin-top: 0px;
@@ -173,4 +173,7 @@ span.bug, span.userstory {
 h3 { 
 	margin-top: 10px !important;
 	line-height: 20px;
+}
+.itemsView {
+	padding-top: 5px;
 }
