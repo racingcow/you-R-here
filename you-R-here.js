@@ -42,6 +42,8 @@ var _staticContentItems = {
         "/client_libs/backbone.iobind.js",
         "/client_libs/backbone.iosync.js",
         "/client_libs/moment.min.js",
+        //"/client_libs/safetyfirst.js",
+        //"/client_libs/json2.js",
         "/client_script/model.js",
         "/client_script/views.js"
     ],
