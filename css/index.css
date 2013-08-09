@@ -178,7 +178,12 @@ h3 {
 .itemsView {
 	padding-top: 5px;
 }
-.menu { height: 25px; font-size: 15px; line-height: 25px; min-width: 80px; padding: 0; margin: auto; text-align: center;}
-
-@media (max-width: 768px) {
+.menu {
+	height: 25px;
+	font-size: 15px;
+	line-height: 25px;
+	min-width: 80px;
+	padding: 0;
+	margin: auto;
+	text-align: center;
 }
