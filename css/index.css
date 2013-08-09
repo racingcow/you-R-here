@@ -32,8 +32,9 @@ body {
 	vertical-align: bottom !important;
 	margin-right: 5px;
 }
-.row-fluid [class*="span"]:first-child {
-	padding-left:30px;
+.row-fluid [class*="span"] {
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 /* entity types */
@@ -148,19 +149,19 @@ header {
 	font-weight: bold;
 	line-height: 20px;
 	padding-left: 0;
+	padding-right: 10px;
 }
-.header-info-counts {
-	position: absolute;
-	right: 0;
-	float: none;
+.header-info-counts1 {
+	padding-top: 0px;
 }
 .dateRange {
 	font-size: 14px;
 	font-weight: normal;
+	padding-right: 10px;
 }
 span.bug, span.userstory {
 	margin: 0;
-	margin-left: 5px;
+	margin-right: 5px;
 	padding: 0 5px;
 	line-height: 20px;	
 }
