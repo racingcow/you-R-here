@@ -256,7 +256,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         this.demoItems = demoItems;          
         this.demoItems.bind("add", this.updateView); //Called during fetch   
         this.demoItems.bind("activeChanged", this.activeChanged);
-        this.demoItems.bind("reset", this.renderList);
+        this.demoItems.bind("reset", this.updateView);
         this.demoItems.bind("change:nextId", this.itemMoved);
         this.render();
         return this;
@@ -310,9 +310,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     updateView: function() {
         YouRHere.Utils.log("FilterableDemoListView.updateView");
         var $selectMenuItem = $('li.selected'),
-            id = $selectMenuItem.attr('id'),
-            casedId = id.charAt(0).toUpperCase() + id.substring(1);
-            functionName = 'filter' + casedId;
+            id = $selectMenuItem.attr('id');
 
         if (id == 'allItems') { this.filterAllItems(); } 
         if (id == 'myItems') { this.filterMyItems(); }
@@ -354,7 +352,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         YouRHere.Utils.log("FilterableDemoListView.filterMyItems - email is " + this.email);
         var filteredList = this.demoItems.filterByEmail(this.email);
         this.renderList(filteredList);
-        //this.renderList(this.demoItems);
         this.selectMenuItem('myItems');
         return this;
     },
