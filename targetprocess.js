@@ -242,7 +242,10 @@ api = function(methodName, callback, options) {
     } else if (typeof methodName === 'object' || !methodName) {
         return methods.init.apply(this, arguments);
     } else {
-        throw  new Error('Method ' + method + ' does not exist in tp.api');
+        throw  new Error('Method ' + method + ' does not exist in targetprocess.api');
     }
 }
-exports.api = api;
+exports.plugin = {
+    api: api,
+    config: config
+};

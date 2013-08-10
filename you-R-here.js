@@ -4,7 +4,6 @@ var _http = require("http");
 var _server = _http.createServer(_app);
 var _io = require("socket.io").listen(_server);
 var _gravatar = require("gravatar");
-var _tp = require("./targetprocess");
 var _url = require("url");
 var _path = require("path");
 var _fs = require("fs");
@@ -25,7 +24,8 @@ var _port = appConfig.app.serverPort;
 _server.listen(_port);
 console.log('node process version: ' + process.version);
 
-var config = require("./targetprocess.config");
+var _plugin = require('./' + appConfig.app.plugin).plugin;
+var config = _plugin.config;
 var _users = []; //users currently connected 
 var _demoItems = []; //user stories and bugs 
 var _iteration = {endDate: new Date()}; //information about the current iteration to which the demo items belong
@@ -92,7 +92,7 @@ _app.get("/*", function(req, res){
 });
 
 //auto-load entities list for most recent iteration when app starts
-_tp.api("getMostRecentIterationBoundary", function (boundaryDate) {
+_plugin.api("getMostRecentIterationBoundary", function (boundaryDate) {
     _iteration.endDate = boundaryDate;
     refreshEntities(sendHeaderInfo);
 });
@@ -249,7 +249,7 @@ _io.sockets.on("connection", function (socket) {
 });
 
 function refreshEntities(callback) {
-    _tp.api("getEntitiesForActiveIteration", 
+    _plugin.api("getEntitiesForActiveIteration", 
             function (data) {
                 _demoItems = data;
                 if (callback) {
