@@ -18,13 +18,14 @@ _.str.include("underscore.string", "string"); //put all conflicting methods in _
 _io.set('log level', 1); //reduce logging
 
 var moment = require('moment');
-var config = require("./targetprocess.config");
-var _address = config.info.serverAddress;
-var _port = config.info.serverPort;
+var appConfig = require('./app.config');
+var _address = appConfig.app.serverAddress;
+var _port = appConfig.app.serverPort;
 
 _server.listen(_port);
 console.log('node process version: ' + process.version);
 
+var config = require("./targetprocess.config");
 var _users = []; //users currently connected 
 var _demoItems = []; //user stories and bugs 
 var _iteration = {endDate: new Date()}; //information about the current iteration to which the demo items belong
