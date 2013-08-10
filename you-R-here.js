@@ -31,7 +31,7 @@ var _demoItems = []; //user stories and bugs
 var _iteration = {endDate: new Date()}; //information about the current iteration to which the demo items belong
 var _activeItemId = 0;
 var _staticContentItems = {
-    title: "you-R-here",
+    title: appConfig.app.title,
     scripts: [
         "/socket.io/socket.io.js",
         "https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js",
