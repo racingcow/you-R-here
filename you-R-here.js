@@ -24,7 +24,7 @@ var _port = appConfig.app.serverPort;
 _server.listen(_port);
 console.log('node process version: ' + process.version);
 
-var _plugin = require('./' + appConfig.app.plugin).plugin;
+var _plugin = require('./plugins/' + appConfig.app.plugin).plugin;
 var config = _plugin.config;
 var _users = []; //users currently connected 
 var _demoItems = []; //user stories and bugs 
