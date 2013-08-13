@@ -27,7 +27,7 @@ Getting Started
 ```Shell
 npm install
 ```
-*  Create a file named __app.config.js__ file in your you-R-here root folder with the following format (sans comments of course)
+*  Create a file named __app.config.js__ in your __you-R-here__ root folder with the following format (sans comments of course)
 
 ```javascript
 app = {
@@ -39,7 +39,7 @@ app = {
 exports.app = app;
 ```
 
-*  Create a file named __targetprocess.config.js__ file in your `plugins` folder with the following format (sans comments of course)
+*  Create a file named __targetprocess.config.js__ in your `plugins` folder with the following format (sans comments of course)
 
 ```javascript
 info = {
