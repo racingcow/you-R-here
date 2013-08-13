@@ -27,9 +27,18 @@ Getting Started
 ```Shell
 npm install
 ```
+*  Create a file named __app.config.js__ file in your you-R-here root folder with the following format (sans comments of course)
+```javascript
+app = {
+	title: "You-R-Here",
+	serverAddress: "http://localhost",
+	serverPort: 8080,
+	plugin: "targetprocess"
+};
+exports.app = app;
+```
 
-*  Create a file named __targetprocess.config.js__ file in your you-R-here root folder with the following format...	
-
+*  Create a file named __targetprocess.config.js__ file in your 'plugins' folder with the following format (sans comments of course)
 ```javascript
 info = {
 	username: "myusername",
@@ -37,16 +46,14 @@ info = {
 	url: "https://mycompany.tpondemand.com/api/v1/",
 	iterationDurationInWeeks: 2,
 	format: "json",
-	serverAddress: "http://localhost",
-	serverPort: 8080,
 	baseImageUrl: "https://mycompany.tpondemand.com", // v. 0.1.2
 	orgName: "My Company" // v. 0.1.3
 };
 exports.info = info;
 ```
 
-*  Run the app and enjoy
+*  Launch __you-R-here__ to enjoy running your demo!
 
 ```Shell
-node you-R-here
+[sudo] node you-R-here
 ```
