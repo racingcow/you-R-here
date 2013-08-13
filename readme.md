@@ -28,6 +28,7 @@ Getting Started
 npm install
 ```
 *  Create a file named __app.config.js__ file in your you-R-here root folder with the following format (sans comments of course)
+
 ```javascript
 app = {
 	title: "You-R-Here",
@@ -39,6 +40,7 @@ exports.app = app;
 ```
 
 *  Create a file named __targetprocess.config.js__ file in your `plugins` folder with the following format (sans comments of course)
+
 ```javascript
 info = {
 	username: "myusername",
