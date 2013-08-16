@@ -40,6 +40,7 @@ var _staticContentItems = {
         //"http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone.js",
         "/client_libs/backbone.js", //development version
         "http://cdn.jsdelivr.net/jgrowl/1.2.6/jquery.jgrowl_minimized.js",
+        "client_libs/jquery.ui.touch-punch.min.js",
         "/client_libs/backbone.iobind.js",
         "/client_libs/backbone.iosync.js",
         "/client_libs/moment.min.js",
