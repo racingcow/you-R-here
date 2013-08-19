@@ -64,7 +64,7 @@ var methods = {
 
         var itemResults;
         rest.get(itemsUrl,  getOptions)
-            .on('success', function(data, response) {
+            .once('success', function(data, response) {
                 itemResults = data; 
 
                 //console.log('plain taggedItemsUrl: \n' + plainTaggedItemsUrl);
@@ -72,7 +72,7 @@ var methods = {
 
                 //we need the combined results...
                 rest.get(taggedItemsUrl, getOptions)
-                    .on('success', function(data, response) {
+                    .once('success', function(data, response) {
                         for (var i=0,len = data.Items.length; i < len; i++) {
                             itemResults.Items.push(data.Items[i]);
                         }
@@ -82,23 +82,23 @@ var methods = {
 
                     callback(methods.tpToModelSchema(itemResults, getOptions.date));
 
-                }).on('fail', function(data, response) {
+                }).once('fail', function(data, response) {
                     sys.puts('FAIL (get "tagged" items): \n' + data);
-                }).on('error', function(err, response) {
+                }).once('error', function(err, response) {
                     sys.puts('ERROR (get "tagged" items): ' + err.message);
                     //TODO: figure out to decode the raw buffer, so we can know what happened!
                     if (response) console.log(response.raw);
-                }).on('complete', function(result, response) {
+                }).once('complete', function(result, response) {
                     console.log('COMPLETE  (get "tagged" items): ' + response.statusCode);
                     if (response.statusCode != 200) console.log(result);
                  }); 
-        }).on('fail', function(data, response) {
+        }).once('fail', function(data, response) {
             sys.puts('FAIL (get items): \n' + data);
-        }).on('error', function(err, response) {
+        }).once('error', function(err, response) {
             sys.puts('ERROR (get items): ' + err.message);
             //TODO: figure out to decode the raw buffer, so we can know what happened!
             if (response) console.log(response.raw);
-        }).on('complete', function(result, response) {
+        }).once('complete', function(result, response) {
             console.log('COMPLETE  (get items): ' + response.statusCode);
             if (response.statusCode != 200) console.log(result);
         });
@@ -140,7 +140,7 @@ var methods = {
 
         //handle the different events individually... 
         rest.get(url, config.info)
-            .on('success', function(data, response) {
+            .once('success', function(data, response) {
                 var dates = _.map(data.Items, function (item) {
                      //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
                      return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
@@ -149,13 +149,13 @@ var methods = {
                 var formattedBoundary = moment(boundary).format('MM-DD-YYYY');
                 console.log('Boundary Date: ' + formattedBoundary);
                 callback(formattedBoundary); 
-        }).on('fail', function(data, response) {
+        }).once('fail', function(data, response) {
             sys.puts('FAIL: \n' + data);
-        }).on('error', function(err, response) {
+        }).once('error', function(err, response) {
             sys.puts('ERROR: ' + err.message);
             //TODO: figure out to decode the raw buffer, so we can know what happened!
             if (response) console.log(response.raw);
-        }).on('complete', function(result, response) {
+        }).once('complete', function(result, response) {
             console.log('COMPLETE: ' + response.statusCode);
             if (response.statusCode != 200) console.log(result);
         });
