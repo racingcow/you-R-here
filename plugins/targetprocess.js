@@ -209,7 +209,7 @@ var methods = {
             entities.push({
                 id: item.Id,
                 name: title, //item.Name,
-                description: (desc) ? desc.replace(imageLinkRegex, '="' + config.info.baseImageUrl + '/images') : '', //item.Description,
+                description: (desc) ? desc.replace(imageLinkRegex, '="' + config.info.baseHostUrl + '/images') : '', //item.Description,
                 project: item.Project.Name,
                 type: item.EntityType.Name,
                 demonstratorName: assignedUser.FirstName + " " + assignedUser.LastName,
@@ -219,7 +219,7 @@ var methods = {
                 boundaryDate: endDate,
                 active: false,
                 nextId: -1,
-                url: config.info.baseImageUrl + '/entity/' + item.Id
+                url: config.info.baseHostUrl + '/entity/' + item.Id
             });
         }
 
