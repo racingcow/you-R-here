@@ -70,7 +70,7 @@ info = {
 	url: "https://mycompany.tpondemand.com/api/v1/",
 	iterationDurationInWeeks: 2,
 	format: "json",
-	baseImageUrl: "https://mycompany.tpondemand.com", // v. 0.1.2
+	hostUrl: "https://mycompany.tpondemand.com", // v. 0.2.1 baseImageUrl --> hostUrl
 	orgName: "My Company" // v. 0.1.3
 };
 exports.info = info;
