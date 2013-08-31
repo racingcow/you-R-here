@@ -218,7 +218,8 @@ var methods = {
                 demonstrated: false,
                 boundaryDate: endDate,
                 active: false,
-                nextId: -1
+                nextId: -1,
+                url: config.info.baseImageUrl + '/entity/' + item.Id
             });
         }
 
