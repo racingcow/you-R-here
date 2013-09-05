@@ -296,17 +296,30 @@ function buildHeaderInfo() {
     var dateFormat = 'MMM D [\']YY', //use 'll' with moment 2.0.x
         itemCount = (_demoItems) ? _demoItems.length : 0,
         bugRegex = new RegExp('Bug', 'i'),
+        userStoryRegex = new RegExp('UserStory', 'i'),
+        impedimentRegex = new RegExp('Impediment', 'i'),
         bugList = _.filter(_demoItems, function(item) {
                 //console.log(item.type);
                 return bugRegex.test(item.type); 
             }),
+        userStoryList = _.filter(_demoItems, function(item) {
+                //console.log(item.type);
+                return userStoryRegex.test(item.type); 
+            }),
+        impedimentList = _.filter(_demoItems, function(item) {
+                //console.log(item.type);
+                return impedimentRegex.test(item.type); 
+            }),
         bugCount = (itemCount < 1) ? 0 : bugList.length,
+        userStoryCount = (itemCount < 1) ? 0 : userStoryList.length,
+        impedimentCount = (itemCount < 1) ? 0 : impedimentList.length,
         headerinfo = {
             startDate: moment(_iteration.endDate).subtract('weeks', config.info.iterationDurationInWeeks).format(dateFormat),
             endDate: moment(_iteration.endDate).format(dateFormat),
             itemCount: itemCount,
             bugCount: bugCount,
-            userStoryCount: itemCount - bugCount,
+            userStoryCount: userStoryCount,
+            impedimentCount: impedimentCount,
             orgName: config.info.orgName
     };
     console.log(headerinfo);

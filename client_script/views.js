@@ -50,7 +50,7 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
     },
     render: function() {
         console.log('HeaderInfoView.render');
-        var bugCount = this.headerInfo.get('bugCount'), userStoryCount, endDate, startDate, orgName, dateRange;
+        var bugCount = this.headerInfo.get('bugCount'), userStoryCount, impedimentCount, endDate, startDate, orgName, dateRange;
 
         if (bugCount < 0) {
             console.log('bugCount < 0')
@@ -77,6 +77,7 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
 
             console.log('bugCount >= 0')
             userStoryCount = this.headerInfo.get('userStoryCount');
+            impedimentCount = this.headerInfo.get('impedimentCount');
             endDate = this.headerInfo.get('endDate');
             startDate = this.headerInfo.get('startDate');
             orgName = this.headerInfo.get('orgName');
@@ -84,6 +85,7 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         }
 
         $('#header-info-iteration-date span').text(dateRange);
+        $('#header-info-impediments span').text(impedimentCount);
         $('#header-info-bugs span').text(bugCount);
         $('#header-info-stories span').text(userStoryCount);
         $('.header-info-org span.orgName').text(orgName);

@@ -62,6 +62,7 @@ var methods = {
             taggedItemsUrl = baseUrl + encodedParams +  encodedTagsClause,
             plainTaggedItemsUrl = baseUrl + plainParams +  tagsClause;
 
+
         var itemResults;
         rest.get(itemsUrl,  getOptions)
             .once('success', function(data, response) {
@@ -80,7 +81,37 @@ var methods = {
                             return item.Id;
                         });
 
-                    callback(methods.tpToModelSchema(itemResults, getOptions.date));
+                    //callback(methods.tpToModelSchema(itemResults, getOptions.date));
+//-------------
+
+
+       var baseImpedimentsUrl = getOptions.url + 'Impediments?format=json&take=250&where=EntityState.Name%20eq%20\'Open\''; 
+
+        rest.get(baseImpedimentsUrl, getOptions)
+            .once('success', function(data, response) {
+             
+            var impediments = methods.impedimentsToModelSchema(data, getOptions.date);
+            var entities = methods.tpToModelSchema(itemResults, getOptions.date);
+            var list = _.union(entities, impediments);
+            console.log('impediments: ' + impediments.length);
+            console.log('entities: ' + entities.length);
+            console.log('AFTER splice: ' + list.length);
+            callback(list);
+
+        }).once('fail', function(data, response) {
+            sys.puts('FAIL (get "Impediments" items): \n' + data);
+        }).once('error', function(err, response) {
+            sys.puts('ERROR (get "Impediments" items): ' + err.message);
+            //TODO: figure out to decode the raw buffer, so we can know what happened!
+            if (response) console.log(response.raw);
+        }).once('complete', function(result, response) {
+            console.log('COMPLETE  (get "Impediments" items): ' + response.statusCode);
+            if (response.statusCode != 200) console.log(result);
+         }); 
+
+//-----------------
+
+
 
                 }).once('fail', function(data, response) {
                     sys.puts('FAIL (get "tagged" items): \n' + data);
@@ -102,6 +133,34 @@ var methods = {
             console.log('COMPLETE  (get items): ' + response.statusCode);
             if (response.statusCode != 200) console.log(result);
         });
+
+/*        var baseImpedimentsUrl = getOptions.url + 'Impediments?format=json&take=250&where=EntityState.Name%20eq%20\'Open\''; 
+
+        rest.get(baseImpedimentsUrl, getOptions)
+            .once('success', function(data, response) {
+                
+                console.log('Impediments: ' + data.Items.length);
+
+
+                //for (var i=0,len = data.Items.length; i < len; i++) {
+                 //   itemResults.Items.push(data.Items[i]);
+                //}
+                //itemResults.Items = _.uniq(itemResults.Items,false, function(item) {
+                 //   return item.Id;
+                //});
+
+            //callback(methods.tpToModelSchema(itemResults, getOptions.date));
+
+        }).once('fail', function(data, response) {
+            sys.puts('FAIL (get "Impediments" items): \n' + data);
+        }).once('error', function(err, response) {
+            sys.puts('ERROR (get "Impediments" items): ' + err.message);
+            //TODO: figure out to decode the raw buffer, so we can know what happened!
+            if (response) console.log(response.raw);
+        }).once('complete', function(result, response) {
+            console.log('COMPLETE  (get "Impediments" items): ' + response.statusCode);
+            if (response.statusCode != 200) console.log(result);
+         }); 
 
 /*
         $.when($.ajax(itemsUrl, getOptions), $.ajax(taggedItemsUrl, getOptions))
@@ -233,9 +292,52 @@ var methods = {
 
             return a.demonstratorName.localeCompare(b.demonstratorName);
         });
+    },
+    impedimentsToModelSchema: function (data, endDate) {
+        //TODO: Replace this transformation method with another object/middleware               
+        //Transform to standard model schema
+        var item, isDemonstrable, title, 
+            desc, assignedUser, assignable,
+            entities = [];
+
+        for (var i = 0, len = data.Items.length; i < len; i++) {
+            item = data.Items[i];
+            isDemonstrable = true;
+            title = item.Name;
+            assignable = item.Assignable || { Name: 'no assignable', Id: 0 };
+            desc = 'Impediment for: ' + assignable.Name;
+
+            assignedUser = item.Responsible || {FirstName: 'not', LastName: 'assigned', Email: ''};
+
+            entities.push({
+                id: item.Id,
+                name: title, //item.Name,
+                description: desc, //item.Description,
+                project: item.Project.Name,
+                type: item.EntityType.Name,
+                demonstratorName: assignedUser.FirstName + " " + assignedUser.LastName,
+                demonstratorEmail: assignedUser.Email || '',
+                demonstrable: isDemonstrable,
+                demonstrated: false,
+                boundaryDate: endDate,
+                active: false,
+                nextId: -1,
+                url: config.info.hostUrl + '/entity/' + item.Id
+            });
+        }
+
+
+        return entities.sort(function (a, b) { 
+            //we want User Story to be before Bug
+            var typeSort = b.type.localeCompare(a.type); 
+            if (typeSort != 0) return typeSort;
+            
+            var projectSort = a.project.localeCompare(b.project);
+            if (projectSort != 0) return projectSort;
+
+            return a.demonstratorName.localeCompare(b.demonstratorName);
+        });
     }
-
-
 };
 api = function(methodName, callback, options) {
     if (methods[methodName]) {    
