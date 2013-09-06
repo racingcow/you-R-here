@@ -85,8 +85,13 @@ var methods = {
 //-------------
 
 
-       var baseImpedimentsUrl = getOptions.url + 'Impediments?format=json&take=250&where=EntityState.Name%20eq%20\'Open\''; 
-
+       var baseImpedimentsUrl = getOptions.url + 'Impediments?format=json&take=250&'; 
+       var includeParam = 'include=' + encodeURIComponent('[Id,Description,Name,EntityType[Name],Tags,Project[Name],Assignable[Id,Description,Name,EntityType], Responsible[Id,Kind,FirstName,LastName,Email,Login]]');
+       var whereParam = 'where=' + encodeURIComponent('EntityState.Name eq \'Open\'');
+       var params = [];
+       params.push(includeParam);
+       params.push(whereParam);
+       baseImpedimentsUrl += params.join('&');
         rest.get(baseImpedimentsUrl, getOptions)
             .once('success', function(data, response) {
              
