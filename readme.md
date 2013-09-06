@@ -4,7 +4,7 @@ you-R-here
 An agile iteration demo helper
 ------------------------------
 
-__you-R-here__ helps ease facilitation of agile iteration demos. 
+__you-R-here__ helps agile iteration demos suck less. 
 
 ### Current Features
 *  Integration with [Target Process](http://www.targetprocess.com/)
