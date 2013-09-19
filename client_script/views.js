@@ -415,6 +415,20 @@ YouRHere.DemoItemView = Backbone.View.extend({
         YouRHere.Utils.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
         if (curActive) {
             this.$el.addClass("highlight");
+            var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
+            var currentTemplate = "<h3>Now Showing</h3><div id='current' class='current highlight'>" + demoItemTemplate + "</div";
+            var topHtml = _.template(currentTemplate, { item: this.model.toJSON() });
+
+            var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
+            var bottomHtml = _.template(descItemplate, { item: this.model.toJSON() });
+            
+            var $detail = $('div.organizerDetail');
+            $detail.empty()
+                .append(topHtml)
+                .append(bottomHtml);
+            var top = this.$el.css('position').top;
+            $detail.css('position').top = top;
+
         } else {
             this.$el.removeClass("highlight");
         }

@@ -110,8 +110,10 @@ var methods = {
             //TODO: figure out to decode the raw buffer, so we can know what happened!
             if (response) console.log(response.raw);
         }).once('complete', function(result, response) {
-            console.log('COMPLETE  (get "Impediments" items): ' + response.statusCode);
-            if (response.statusCode != 200) console.log(result);
+            if (response) {
+                console.log('COMPLETE  (get "Impediments" items): ' + response.statusCode);
+                if (response.statusCode != 200) console.log(result);
+            } else sys.puts('no response');
          }); 
 
 //-----------------
@@ -125,8 +127,10 @@ var methods = {
                     //TODO: figure out to decode the raw buffer, so we can know what happened!
                     if (response) console.log(response.raw);
                 }).once('complete', function(result, response) {
-                    console.log('COMPLETE  (get "tagged" items): ' + response.statusCode);
-                    if (response.statusCode != 200) console.log(result);
+                    if (response) {
+                        console.log('COMPLETE  (get "tagged" items): ' + response.statusCode);
+                        if (response.statusCode != 200) console.log(result);
+                    } else sys.puts('no response');
                  }); 
         }).once('fail', function(data, response) {
             sys.puts('FAIL (get items): \n' + data);
@@ -135,8 +139,10 @@ var methods = {
             //TODO: figure out to decode the raw buffer, so we can know what happened!
             if (response) console.log(response.raw);
         }).once('complete', function(result, response) {
-            console.log('COMPLETE  (get items): ' + response.statusCode);
-            if (response.statusCode != 200) console.log(result);
+            if (response) {
+                console.log('COMPLETE  (get items): ' + response.statusCode);
+                if (response.statusCode != 200) console.log(result);
+            } else sys.puts('no response');
         });
 
 /*        var baseImpedimentsUrl = getOptions.url + 'Impediments?format=json&take=250&where=EntityState.Name%20eq%20\'Open\''; 
@@ -220,8 +226,10 @@ var methods = {
             //TODO: figure out to decode the raw buffer, so we can know what happened!
             if (response) console.log(response.raw);
         }).once('complete', function(result, response) {
-            console.log('COMPLETE: ' + response.statusCode);
-            if (response.statusCode != 200) console.log(result);
+            if (response) {
+                console.log('COMPLETE: ' + response.statusCode);
+                if (response.statusCode != 200) console.log(result);
+            } else sys.puts('no response');
         });
 
 /*

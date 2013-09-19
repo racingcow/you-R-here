@@ -1,6 +1,7 @@
 /* bootstrap overrides */
 body {
 	padding: 0px;
+	height: 100%;
 }
 .container-fluid {
 	padding: 0;
@@ -16,7 +17,7 @@ body {
 }
 
 .footer .navbar-inner {
-	background-color: #fff;
+	background-color: whitesmoke;
 	background-image: none;
 	border: none;
 	box-shadow: none;
@@ -190,6 +191,8 @@ h3 {
 }
 .itemsView {
 	padding-top: 5px;
+	display: inline-block;
+
 }
 .menu {
 	height: 25px;
@@ -199,4 +202,20 @@ h3 {
 	padding: 0;
 	margin: auto;
 	text-align: center;
+}
+.itemMaster, .itemDetail {
+	width: 55%;
+	display: inline-block;
+	float: left;
+	overflow: scroll;
+	height: 100%;
+}
+.itemMaster {
+	width: 35%;
+	margin-right: 10px;
+}
+.footer {
+	/*position: absolute;
+	bottom: 0;*/
+	border-top: 1px solid gainsboro;
 }
