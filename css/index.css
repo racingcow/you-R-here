@@ -219,9 +219,18 @@ h3 {
 	bottom: 0;*/
 	border-top: 1px solid gainsboro;
 }
-.organizerDetail.itemDetail {
+.itemDetail {
 	margin-top: 5px;
 	background-color: #fafafa;
 	height: auto;
 	padding: 10px;
+}
+.entity:hover {
+	border-color: lightgreen;
+}
+.userSelected {
+	background-color: lightgreen !important;
+}
+.itemDetail.entity {
+	margin-top: 40px;
 }

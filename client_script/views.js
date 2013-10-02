@@ -247,7 +247,8 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         "click li.currentItem": "filterCurrentItem",
         "click li.myItems": "filterMyItems",
         "click li.allItems": "filterAllItems",
-        "click li.menu": "clickMenuItem"
+        "click li.menu": "clickMenuItem",
+        "click li.entity": "clickEntityItem"
     },
     initialize: function(itemView, demoItems, options) {
         //super.initialize(itemView, demoItems, options);
@@ -305,8 +306,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         this.$("#" + demoItem.id).remove();
     },
     clearDemoItems: function () {
-        $('.items').empty();
-        $('.items').removeClass('currentItem');
+        $('.items').empty().removeClass('currentItem');
         $('.currentItemDesc').remove();
     },
     updateView: function() {
@@ -333,6 +333,8 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         this.renderList(activeArray);
 
         $('.items').addClass('currentItem');
+        $('.itemsView').removeClass('itemMaster');
+        $('.itemDetail').empty().addClass('hidden');
 
         this.selectMenuItem('currentItem');
 
@@ -352,6 +354,8 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     },
     filterMyItems: function () {
         YouRHere.Utils.log("FilterableDemoListView.filterMyItems - email is " + this.email);
+        $('.itemsView').addClass('itemMaster');
+        $('.itemDetail').empty().addClass('hidden');
         var filteredList = this.demoItems.filterByEmail(this.email);
         this.renderList(filteredList);
         this.selectMenuItem('myItems');
@@ -359,6 +363,9 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     },
     filterAllItems: function () {
         YouRHere.Utils.log("FilterableDemoListView.filterAllItems");
+        $('.itemsView').addClass('itemMaster');
+        $('.itemDetail').empty().addClass('hidden');
+
         this.renderList(this.demoItems);
         this.selectMenuItem('allItems');
         return this;
@@ -373,6 +380,37 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     selectMenuItem: function(elemId) {
         $('li.menu.selected').removeClass('selected');
         $('#' + elemId).addClass('selected');
+    },
+    clickEntityItem: function(e) {
+        if (!e.currentTarget) return;
+        if (e.currentTarget.tagName !== "LI") return;
+
+        var id = e.currentTarget.id;
+        $('li.entity.userSelected').removeClass('userSelected');
+        $('#' + id).addClass('userSelected');
+
+        var item = this.demoItems.get(id);
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <br/><span class='itemName'> <%= item.name %> </span>";
+        var currentTemplate = "<div id='current' class='current highlight'>" + demoItemTemplate + "</div";
+        var topHtml = _.template(currentTemplate, { item: item.toJSON() });
+
+        var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
+        var bottomHtml = _.template(descItemplate, { item: item.toJSON() });
+
+        var $detail = $('div.itemDetail'),
+            type = item.get('type');
+
+        if ($detail.length == 0) return; 
+
+        $detail.empty()
+            .append(topHtml)
+            .append(bottomHtml)
+            .removeClass()
+            .addClass('itemDetail entity ' + type);
+
+        //var top = $('ul.items').position().top;
+        //console.log(top);
+        //$detail.position().top = top;
     }
 });
 
@@ -392,8 +430,8 @@ YouRHere.DemoItemView = Backbone.View.extend({
         this.$el.html(_.template(demoItemTemplate, { item: this.model.toJSON() }));
         this.$el.attr("id", this.model.id)
             .attr("data-user-login", this.model.demonstrator)
-            .addClass(this.model.get("type"))
-            .addClass("admin"); //TODO: pass this into the view, somehow
+            .addClass(this.model.get('type'))
+            .addClass('entity');
         if (this.model.get("active")) {
             this.$el.addClass("highlight");
         }
@@ -404,7 +442,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
             this.$el.addClass("notDemonstrable");
         }
 
-        /* this is the item descrition info, but we only want to show when we're the "current item"        
+        /* this is the item description info, but we only want to show when we're the "current item"        
         var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
         this.$el.append(_.template(descItemplate, { item: this.model.toJSON() }));
         */
@@ -424,6 +462,8 @@ YouRHere.DemoItemView = Backbone.View.extend({
             
             var $detail = $('div.organizerDetail.itemDetail'),
                 type = this.model.get('type');
+
+            if ($detail.length == 0) return; 
 
             $detail.empty()
                 .append(topHtml)
