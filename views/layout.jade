@@ -32,7 +32,7 @@ html
                 | User Stories:
                 span.count.header-info-stories
       .row-fluid
-        .span10
+        .span12
           block items
           block emailRequired
             div.hidden#emailRequired
@@ -41,7 +41,8 @@ html
                 | Whoa! You're not logged in. Click the fancy button to join the party!
                 form
                   input#loginAgain.btn.btn-primary(type='submit', value='login')
-        .span2
+      .row-fluid.hidden
+        .span2.hidden
           section#users
             h3 users
             a.right-text(href='https://en.gravatar.com/') add your pic

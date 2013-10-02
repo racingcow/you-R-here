@@ -211,11 +211,17 @@ h3 {
 	height: 100%;
 }
 .itemMaster {
-	width: 35%;
+	width: 40%;
 	margin-right: 10px;
 }
 .footer {
 	/*position: absolute;
 	bottom: 0;*/
 	border-top: 1px solid gainsboro;
+}
+.organizerDetail.itemDetail {
+	margin-top: 5px;
+	background-color: #fafafa;
+	height: auto;
+	padding: 10px;
 }
