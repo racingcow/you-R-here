@@ -226,10 +226,12 @@ h3 {
 	padding: 10px;
 }
 .entity:hover {
-	border-color: lightgreen;
+	box-shadow: 0 0 2px 2px lightgreen;/*rgba(0, 130, 229, 0.1);*/
+	/*border-color: lightgreen;*/
 }
 .userSelected {
-	background-color: lightgreen !important;
+	border-color: lightgreen !important;
+	box-shadow: 0 0 2px 2px lightgreen;/*rgba(0, 130, 229, 0.1);*/
 }
 .itemDetail.entity {
 	margin-top: 40px;
