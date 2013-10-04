@@ -25,7 +25,6 @@ YouRHere.App = Backbone.Router.extend({
 
         //Capture the email address of the currently logged in user from the users view
         userListView.on('user:login', function (email) {
-            YouRHere.Utils.log("Router received 'user:login' event - email is " + email);
             demoListView.email = email;
             if (email && email.length > 0) {
                 headerInfo.fetch();
