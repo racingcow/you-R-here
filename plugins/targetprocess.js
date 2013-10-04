@@ -258,7 +258,7 @@ var methods = {
         var item, isDemonstrable,descHasH1, title, 
             desc, descAfterCapture, descAfterH1Replace, assignedDevelopers, assignedUser,
             entities = [],
-            notDemonstrableRegex = new RegExp('not demonstrable', 'i'),
+            notDemonstrableRegex = new RegExp('no demo|not demonstrable', 'i'),
             developerRegex = new RegExp('developer', 'i'),
             h1CaptureDescRegex = new RegExp('<[h|H]1>((.)*)</[h|H]1>'),
             h1ReplaceRegex = new RegExp('(<h1>|<H1>|</h1>|</H1>)'),
