@@ -20,9 +20,9 @@ var moment = require('moment');
 var appConfig = require('./app.config');
 var _address = appConfig.app.serverAddress;
 var _port = appConfig.app.serverPort;
+var pkg = require('./package.json');
 
 _server.listen(_port);
-console.log('node process version: ' + process.version);
 
 var _plugin = require('./plugins/' + appConfig.app.plugin).plugin;
 var config = _plugin.config;
@@ -46,16 +46,16 @@ var _staticContentItems = {
         "/client_libs/moment.min.js",
         //"/client_libs/safetyfirst.js",
         //"/client_libs/json2.js",
-        "/client_script/model.js",
-        "/client_script/views.js"
+        "/client_script/model.js?v=" + pkg.version,
+        "/client_script/views.js?v=" + pkg.version
     ],
     styles: [
         "/bootstrap/css/bootstrap.min.css",
         "/css/jquery.jgrowl.css",
         "http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/base/jquery-ui.css",
-		"/css/index.css",
+		"/css/index.css?v=" + pkg.version
     ],
-    version: JSON.parse(_fs.readFileSync("package.json", "utf8")).version, //get the version from the package.json file and hand it off to the views
+    version: pkg.version, //get the version from the package.json file and hand it off to the views
     address: _address,
     port: _port
 };

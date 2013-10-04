@@ -1,6 +1,6 @@
 extends layout
 append head
-  script(src='/client_script/organizer.js', type='text/javascript')
+  script(src='/client_script/organizer.js?v=' + version, type='text/javascript')
 block header
   .iteration.text-right
       input#datepicker.search-query(type='text')
