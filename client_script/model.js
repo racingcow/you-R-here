@@ -63,7 +63,8 @@ YouRHere.DemoItem = Backbone.Model.extend({
         demonstrated: true,                     //True if item has been demonstrated during this session; false otherwise.
         boundaryDate: "",                       //Date of last day in iteration to which the demo item belongs
         active: false,                          //True if the demo item is the one currently being demonstrated; false otherwise
-        nextId: -1                              //The id of the next element that follows in the list. Used to indicate where in the list an item is moving when sort is changed by the organizer 
+        nextId: -1,                             //The id of the next element that follows in the list. Used to indicate where in the list an item is moving when sort is changed by the organizer 
+        swapId: -1
     },
     initialize: function () {
         _.bindAll(this);
@@ -112,12 +113,13 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     initialize: function () {
         _.bindAll(this);
         this.ioBind('refresh', this.serverReset, this);
+        //this.ioBind('swapItem', this.swapItem, this);
     },
     change : function() {
-        YouRHere.Utils.log("I have changed.");
+        YouRHere.Utils.log("YouRHere.DemoItems. I have changed.");
     },
     serverReset: function(demoItems) {
-        YouRHere.Utils.log('YouRHere.DemoItem.serverReset: Count = "' + demoItems.length + '"');
+        YouRHere.Utils.log('YouRHere.DemoItems.serverReset: Count = "' + demoItems.length + '"');
         this.reset(demoItems);
     },
     filterByActive: function (active) {
@@ -141,6 +143,51 @@ YouRHere.DemoItems = Backbone.Collection.extend({
         this.each(function (model) {
             model.modelCleanup();
         });
+        return this;
+    },
+    swapItem: function(data) {
+        console.log('swapItem!');
+        console.log(data);
+        var currItem = this.get(data.id),
+            nextItem = this.get(data.nextId),
+            prevItem = this.get(data.prevId);
+
+        var currFollow, moverFollow,
+            currIdx = this.indexOf(currItem),
+            nextIdx = (nextItem) ? this.indexOf(nextItem) : -1,
+            prevIdx = (prevItem) ? this.indexOf(prevItem) : -1;
+
+        console.log('currIdx: ' + currIdx);
+        console.log('prevIdx: ' + prevIdx);
+        console.log('nextIdx: ' + nextIdx);
+
+
+        if (prevIdx == -1) {
+            //swap with nextItem
+            console.log('SWAP with nextItem');
+
+        } else if (nextIdx == -1) {
+            //swap with prevItem
+            console.log('SWAP with prevItem');
+        } else {
+            //currItem should place itself between prev and next
+            console.log('SWAP between prevItem and nextItem');
+            if (currIdx < prevIdx) {
+                console.log('SWAP: currIdx and prevIdx');
+                currFollow = this.at(prevIdx + 1);
+                moverFollow = this.at(currIdx + 1);
+                this.moveItem({id: currItem.id, nextId: currFollow.id});
+                this.moveItem({id: prevItem.id, nextId: moverFollow.id});
+            } else if (currIdx > nextIdx) {
+                console.log('SWAP: currIdx and nextIdx');
+                currFollow = this.at(nextIdx + 1);
+                moverFollow = this.at(currIdx + 1);
+                this.moveItem({id: currItem.id, nextId: currFollow.id});
+                this.moveItem({id: nextItem.id, nextId: moverFollow.id});                
+            } else { //if (currIdx > prevIdx && currIdx < nextIdx) {
+                console.log('no SWAP required!');
+            }
+        }
         return this;
     },
     moveItem: function(data) {

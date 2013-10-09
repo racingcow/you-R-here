@@ -110,16 +110,16 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     initialize: function (ItemView, demoItems, options) {
         YouRHere.Utils.log("DemoListView.initialize");
-        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem","reload");
+        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem", "reload", "itemMoved");
         this.options = options;
         this.ItemView = ItemView;
         this.demoItems = demoItems;        
-        this.demoItems.bind("reset", this.render); //Called during fetch        
-        this.render();        
+        this.demoItems.bind("reset", this.render); //Called during fetch
+        this.demoItems.bind("change:nextId", this.itemMoved);
+        this.render();
         return this;
     },
     reload: function() {
-        //this.demoItems.reset();
         this.demoItems.fetch();
     },
     render: function () {
@@ -226,14 +226,26 @@ YouRHere.DemoListView = Backbone.View.extend({
         return this;
     },
     moveDemoItem: function(data) {
-        if (data === null || typeof data === 'undefined') {
+        if (data == null) {
             YouRHere.Utils.log('moveDemoItem ==> exit early');
             return this;
         }
         YouRHere.Utils.log('moveDemoItem ==> id:' + data.id + '; nextId: ' + data.nextId);
         this.demoItems.moveItem(data);
         return this;
+    },
+    itemSwapped: function (item) {
+        console.log('itemSwapped ==> organizer knows!');
+        console.log('OH SHIT! The item is being swapped!');
+        return this;
+    },
+    itemMoved: function(item) {
+        console.log('itemMoved ==> organizer knows!');
+        console.log('OH SHIT! The item is being moved!');
+        this.demoItems.reorderList(item);
+        return this;
     }
+
 });
 
 //todo: I had problems when trying to extend SortableDemoListView here. Need to come back and try again.
@@ -274,7 +286,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     itemMoved: function(item) {
-        var nextId = item.get('nextId');
         this.demoItems.reorderList(item);
         return this;
     },
@@ -321,6 +332,39 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     },
     sortChanged: function(event, ui) {
         console.log('send a SWAP message so that organizer list can perform "authoritative" move?');
+        var el = $(ui.item),
+            id = el.attr('id');
+        //ugh! need to determine which direction we've moved
+        var prevEl = el.prev('li'),
+            nextEl = el.next('li'),
+            prevId = (prevEl) ? prevEl.attr('id') : -1,
+            nextId = (nextEl) ? nextEl.attr('id') : -1; 
+
+        YouRHere.Utils.log('sortChanged ==> prevId: ' + prevId);
+        YouRHere.Utils.log('sortChanged ==> nextId: ' + nextId);
+
+        if (prevEl && prevEl.hasClass('ui-sortable-placeholder')) {
+            YouRHere.Utils.log('SWAP (prev): it\'s no bueno if we accidentally select the placeholder LI element!');
+            //it's no bueno if we accidentally select the placeholder LI element!
+            return this; 
+        } 
+
+        if (nextEl && nextEl.hasClass('ui-sortable-placeholder')) {
+            YouRHere.Utils.log('SWAP (next): it\'s no bueno if we accidentally select the placeholder LI element!');
+            //it's no bueno if we accidentally select the placeholder LI element!
+            return this; 
+        } 
+        
+        //would like to send a message to everyone that looks something like this
+        //knowing both prev and next allows us to orient ourselves correctly within the array
+        //id: id of the mover 
+        //prevId: id of the element in "front"
+        //nextId: id of the the item that follows the mover
+        var data = {id: id, prevId: prevId, nextId: nextId};
+        return this.swapItem(data);
+    },
+    swapItem: function(data) {
+        return this.demoItems.swapItem(data);
     },
     addDemoItem: function (demoItem) {
         var demoItemView = new this.ItemView(demoItem);
