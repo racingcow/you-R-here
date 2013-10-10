@@ -110,12 +110,12 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     initialize: function (ItemView, demoItems, options) {
         YouRHere.Utils.log("DemoListView.initialize");
-        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem", "reload", "itemMoved");
+        _.bindAll(this, "render", "clickDemoItem", "addDemoItem", "removeDemoItem", "moveDemoItem", "reload", "itemSwapped");
         this.options = options;
         this.ItemView = ItemView;
         this.demoItems = demoItems;        
         this.demoItems.bind("reset", this.render); //Called during fetch
-        this.demoItems.bind("change:nextId", this.itemMoved);
+        this.demoItems.bind("change:swapId", this.itemSwapped);
         this.render();
         return this;
     },
@@ -162,11 +162,8 @@ YouRHere.DemoListView = Backbone.View.extend({
         return this;
     },
     clickDemoItem: function (e) {
-        var target = e.srcElement;
+        var target = e.srcElement || e.target;
 
-        if (typeof target === 'undefined') {
-            target = e.target;
-        }
         if (target) {            
             var elemId = target.id;
             if (target.tagName != "LI") {
@@ -237,15 +234,36 @@ YouRHere.DemoListView = Backbone.View.extend({
     itemSwapped: function (item) {
         console.log('itemSwapped ==> organizer knows!');
         console.log('OH SHIT! The item is being swapped!');
-        return this;
-    },
-    itemMoved: function(item) {
-        console.log('itemMoved ==> organizer knows!');
-        console.log('OH SHIT! The item is being moved!');
-        this.demoItems.reorderList(item);
+        var itemId = item.id,
+            prevId = item.get('prevId'),
+            nextId = item.get('swapId'),
+            $item = $('#' + itemId),
+            $nextItem = $('#' + nextId),
+            $prevItem = $('#' + prevId);
+        console.log(itemId + '; prevId: ' + prevId + '; swapId: ' + nextId);
+
+        if (prevId > 0) {
+            console.log('insertAfter prevId');
+            //move to position following prevId
+            $item.detach();
+            $item.insertAfter('#' + prevId);
+        } else if (nextId > 0) {
+            console.log('insertBefore nextId');
+            $item.detach();
+            $item.insertBefore('#' + nextId);
+        } else {
+            console.log('DEATH FROM ABOVE!');
+        }
+
+        var nextEl = $item.next('li');
+        nextId = nextEl.attr('id') || -2; 
+
+        var data = {id: itemId, nextId: nextId};
+        console.log(data);
+        this.moveDemoItem(data);
+
         return this;
     }
-
 });
 
 //todo: I had problems when trying to extend SortableDemoListView here. Need to come back and try again.
@@ -333,15 +351,14 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
     sortChanged: function(event, ui) {
         console.log('send a SWAP message so that organizer list can perform "authoritative" move?');
         var el = $(ui.item),
-            id = el.attr('id');
-        //ugh! need to determine which direction we've moved
-        var prevEl = el.prev('li'),
+            id = el.attr('id'),
+            prevEl = el.prev('li'),
             nextEl = el.next('li'),
             prevId = (prevEl) ? prevEl.attr('id') : -1,
             nextId = (nextEl) ? nextEl.attr('id') : -1; 
 
-        YouRHere.Utils.log('sortChanged ==> prevId: ' + prevId);
-        YouRHere.Utils.log('sortChanged ==> nextId: ' + nextId);
+        YouRHere.Utils.log('SWAP sortChanged ==> prevId: ' + prevId);
+        YouRHere.Utils.log('SWAP sortChanged ==> nextId: ' + nextId);
 
         if (prevEl && prevEl.hasClass('ui-sortable-placeholder')) {
             YouRHere.Utils.log('SWAP (prev): it\'s no bueno if we accidentally select the placeholder LI element!');
@@ -360,7 +377,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         //id: id of the mover 
         //prevId: id of the element in "front"
         //nextId: id of the the item that follows the mover
-        var data = {id: id, prevId: prevId, nextId: nextId};
+        var data = {id: id, prevId: prevId || -1, nextId: nextId || -2};
         return this.swapItem(data);
     },
     swapItem: function(data) {
