@@ -13,18 +13,15 @@ YouRHere.IterationView = Backbone.View.extend({
         this.$el.on('change', this.clientDateChange);
 		this.$el.parent().find('#refresh').on('click', this.clientDateChange);
 
-        //YouRHere.Utils.log('YouRHere.IterationView.initialize(): endDate = "' + this.iteration.get('endDate') + '"');
         this.iteration.bind('change', this.render);
         this.render();
         return this;
     },
     render: function() {
-        YouRHere.Utils.log('YouRHere.IterationView.render(): endDate = "' + this.iteration.get('endDate') + '"');
         this.$el.datepicker('setDate', this.iteration.get('endDate'));
         return this;
     },
     clientDateChange: function() {
-        YouRHere.Utils.log('YouRHere.IterationView.clientDateChange(): $el endDate = "' + this.$el.val() + '"');
         this.iteration.set('endDate', this.$el.val());
         this.iteration.save();
         return this;
@@ -42,38 +39,15 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         this.headerInfo.bind('read', this.updateHeaderInfo);
         this.headerInfo.bind('update', this.updateHeaderInfo);
         this.setElement($('#header-info')[0]); //bind to existing element on page instead of rendering new one
-        if (this.demoItems) {
-            //this.render();            
-        }
         return this;
     },
     render: function() {
         var bugCount = this.headerInfo.get('bugCount'), userStoryCount, impedimentCount, endDate, startDate, orgName, dateRange;
 
         if (bugCount < 0) {
-            //console.log('bugCount < 0')
-            /* we don't need this extra work now. we just send an update later that hits the "else"
-            //oh, ho! get those values the hard way
-            var itemTypes = [],
-                demoList = this.demoItems;
-
-            this.demoItems.each(function (demoItem) {
-                itemTypes.push(demoList.get(demoItem.id).get('type'));
-            });
-
-            var itemCount = (itemTypes) ? itemTypes.length : 0,
-                bugRegex = new RegExp('Bug', 'i'),
-                bugList = _.filter(itemTypes, function(itemType) {
-                        return (itemType) && bugRegex.test(itemType); 
-                    });
-
-            bugCount = (itemCount < 1) ? 0 : bugList.length;
-            userStoryCount = itemCount - bugCount;
-            */
+            //we don't need this extra work now. we just send an update later that hits the "else"
         } else {
             this.demoItems.unbind('reset', this.refreshDemoItems);
-
-            //console.log('bugCount >= 0')
             userStoryCount = this.headerInfo.get('userStoryCount');
             impedimentCount = this.headerInfo.get('impedimentCount');
             endDate = this.headerInfo.get('endDate');
@@ -92,11 +66,9 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         return this;
     },
     updateHeaderInfo: function() {
-        //console.log('HeaderInfoView.updateHeaderInfo');
         return this.render();
     },
     refreshDemoItems: function() {
-        //console.log('HeaderInfoView.refreshDemoItems');
         return this.render();
     }
 });
@@ -123,15 +95,8 @@ YouRHere.DemoListView = Backbone.View.extend({
         this.demoItems.fetch();
     },
     render: function () {
-        YouRHere.Utils.log("DemoListView.render");
         var self = this;
-        /*
-        if (this.demoItems.length > 0) {
-            var $datepicker = $('#datepicker');
-            $datepicker.val(moment(this.demoItems.first().get("boundaryDate")).format("MM-DD-YYYY")) //Date comes back from server now
-                    .change(this.reload);
-        }
-        */
+
         this.$el.empty();
         this.demoItems.each(function (demoItem) {
             self.addDemoItem(demoItem);
@@ -141,14 +106,14 @@ YouRHere.DemoListView = Backbone.View.extend({
                 axis: "y",
                 containment: "parent",
                 stop: function(event, ui) {
-                    YouRHere.Utils.log('sortable:stop');
+                    //YouRHere.Utils.log('sortable:stop');
                     self.sortChanged(event, ui);
                 },
                 update: function(event, ui) {
                     //YouRHere.Utils.log('sortable:update');
                 },  
                 change: function(event, ui) {
-                    YouRHere.Utils.log('sortable:change');
+                    //YouRHere.Utils.log('sortable:change');
                     self.sortChanged(event, ui);
                 },
                 deactivate: function(event, ui) {
@@ -169,7 +134,6 @@ YouRHere.DemoListView = Backbone.View.extend({
             if (target.tagName != "LI") {
                 elemId = $(target).closest('li').attr('id');
             };
-            YouRHere.Utils.log('using id: ' + elemId);
 
             var oldActiveItem, newActiveItem;
 
@@ -191,17 +155,13 @@ YouRHere.DemoListView = Backbone.View.extend({
         return this;
     },
     sortChanged: function(event, ui) {
-        //YouRHere.Utils.log('sortChanged: ');
         var el = $(ui.item),
             id = el.attr('id');
 
         var nextEl = el.next('li'),
             nextId = nextEl.attr('id'); 
 
-        YouRHere.Utils.log('sortChanged ==> nextId: ' + nextId);
-
         if (!nextId && nextEl.hasClass('ui-sortable-placeholder')) {
-            YouRHere.Utils.log('it\'s no bueno if we accidentally select the placeholder LI element!');
             //it's no bueno if we accidentally select the placeholder LI element!
             return this; 
         } 
@@ -224,42 +184,34 @@ YouRHere.DemoListView = Backbone.View.extend({
     },
     moveDemoItem: function(data) {
         if (data == null) {
-            YouRHere.Utils.log('moveDemoItem ==> exit early');
             return this;
         }
-        YouRHere.Utils.log('moveDemoItem ==> id:' + data.id + '; nextId: ' + data.nextId);
         this.demoItems.moveItem(data);
         return this;
     },
     itemSwapped: function (item) {
-        console.log('itemSwapped ==> organizer knows!');
-        console.log('OH SHIT! The item is being swapped!');
         var itemId = item.id,
             prevId = item.get('prevId'),
             nextId = item.get('swapId'),
             $item = $('#' + itemId),
             $nextItem = $('#' + nextId),
             $prevItem = $('#' + prevId);
-        console.log(itemId + '; prevId: ' + prevId + '; swapId: ' + nextId);
 
         if (prevId > 0) {
-            console.log('insertAfter prevId');
             //move to position following prevId
             $item.detach();
             $item.insertAfter('#' + prevId);
         } else if (nextId > 0) {
-            console.log('insertBefore nextId');
             $item.detach();
             $item.insertBefore('#' + nextId);
         } else {
-            console.log('DEATH FROM ABOVE!');
+            //console.log('DEATH FROM ABOVE!');
         }
 
         var nextEl = $item.next('li');
         nextId = nextEl.attr('id') || -2; 
 
         var data = {id: itemId, nextId: nextId};
-        console.log(data);
         this.moveDemoItem(data);
 
         return this;
@@ -326,19 +278,18 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         }
 
         if (this.isMyItems && !isSortable) {
-            console.log('make it sortable');
             $filteredItems.sortable({ 
                 axis: "y",
                 containment: "parent",
                 stop: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:stop');
+                    //console.log('FilterableDemoListView sortable:stop');
                     self.sortChanged(event, ui);
                 },
                 update: function(event, ui) {
                     //YouRHere.Utils.log('sortable:update');
                 },  
                 change: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:change');
+                    //console.log('FilterableDemoListView sortable:change');
                     self.sortChanged(event, ui);
                 },
                 deactivate: function(event, ui) {
@@ -349,7 +300,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     sortChanged: function(event, ui) {
-        console.log('send a SWAP message so that organizer list can perform "authoritative" move?');
         var el = $(ui.item),
             id = el.attr('id'),
             prevEl = el.prev('li'),
@@ -357,17 +307,13 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
             prevId = (prevEl) ? prevEl.attr('id') : -1,
             nextId = (nextEl) ? nextEl.attr('id') : -1; 
 
-        YouRHere.Utils.log('SWAP sortChanged ==> prevId: ' + prevId);
-        YouRHere.Utils.log('SWAP sortChanged ==> nextId: ' + nextId);
 
         if (prevEl && prevEl.hasClass('ui-sortable-placeholder')) {
-            YouRHere.Utils.log('SWAP (prev): it\'s no bueno if we accidentally select the placeholder LI element!');
             //it's no bueno if we accidentally select the placeholder LI element!
             return this; 
         } 
 
         if (nextEl && nextEl.hasClass('ui-sortable-placeholder')) {
-            YouRHere.Utils.log('SWAP (next): it\'s no bueno if we accidentally select the placeholder LI element!');
             //it's no bueno if we accidentally select the placeholder LI element!
             return this; 
         } 
@@ -439,7 +385,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     filterMyItems: function () {
-        YouRHere.Utils.log("FilterableDemoListView.filterMyItems - email is " + this.email);
         this.isMyItems = true;
         $('.itemsView').addClass('itemMaster');
         $('.itemDetail').empty().addClass('hidden');
@@ -449,7 +394,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     filterAllItems: function () {
-        //YouRHere.Utils.log("FilterableDemoListView.filterAllItems");
         this.isMyItems = false;
         $('.itemsView').addClass('itemMaster');
         $('.itemDetail').empty().addClass('hidden');
@@ -459,7 +403,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     clickMenuItem: function(e) {
-        //Don't update if they clicked on other child elements
         if (!e.srcElement) return;
         if (e.srcElement.tagName !== "LI") return; 
         this.selectMenuItem(e.srcElement.id);
@@ -494,10 +437,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
             .append(bottomHtml)
             .removeClass()
             .addClass('itemDetail entity ' + type);
-
-        //var top = $('ul.items').position().top;
-        //console.log(top);
-        //$detail.position().top = top;
     }
 });
 
@@ -537,7 +476,6 @@ YouRHere.DemoItemView = Backbone.View.extend({
     },
     activeChanged: function () {
         var curActive = this.model.get("active");
-        YouRHere.Utils.log("DemoItemView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
         if (curActive) {
             this.$el.addClass("highlight");
             var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <br/><span class='itemName'> <%= item.name %> </span>";
@@ -568,7 +506,6 @@ YouRHere.DemoItemView = Backbone.View.extend({
     },
     demonstrableChanged: function () {
         var demonstrable = this.model.get("demonstrable");
-        YouRHere.Utils.log("DemoItemView.demonstrableChanged: Refreshing view for DemoItem " + this.model.id + ", demonstrable = " + demonstrable);
         if (demonstrable) {
             this.$el.removeClass("notDemonstrable");
         } else {
@@ -578,7 +515,6 @@ YouRHere.DemoItemView = Backbone.View.extend({
     },
     demonstratedChanged: function () {
         var demonstrated = this.model.get("demonstrated");
-        YouRHere.Utils.log("DemoItemView.demonstratedChanged: Refreshing view for DemoItem " + this.model.id + ", demonstrated = " + demonstrated);
         if (demonstrated) {
             this.$el.addClass("demonstrated");
         } else {
@@ -611,7 +547,6 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
     },
     activeChanged: function () {
         var curActive = this.model.get("active");
-        YouRHere.Utils.log("DemoItemDetailView.ActiveChanged: Refreshing view for DemoItem " + this.model.id + ", active = " + curActive);
         if (curActive) {
             this.$el.addClass("highlight");
         } else {
@@ -622,7 +557,6 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
     itemMoved: function() {
         var id = this.model.get('id'),
             nextId = this.model.get('nextId');
-        YouRHere.Utils.log('DemoItemDeailView.itemMoved => id: ' + id + '; nextId: ' + nextId);
         return this;
     }
 
@@ -709,11 +643,9 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
         if (e.srcElement) {
             var checked = e.srcElement.checked;
             if (invertedLogic) checked = !checked;
-            YouRHere.Utils.log("EditableDemoItemView: Set" + attribName + " from client: Saving DemoItem " + this.model.id + ", " + attribName + " = " + checked);
             this.model.save(attribName, checked);
         } else {
             var attribVal = this.model.get(attribName);
-            YouRHere.Utils.log("EditableDemoItemView: Set" + attribName + " from server: Refreshing view for DemoItem " + this.model.id + ", " + attribName + " = " + attribVal);
             if (invertedLogic) attribVal = !attribVal;
             this.$("." + checkBoxContainerClass + " input").prop("checked", attribVal);
         }
@@ -742,12 +674,10 @@ YouRHere.UserListView = Backbone.View.extend({
         return this;
     },
     addUser: function (user) {
-        //YouRHere.Utils.log("UserListView: Client adding user '" + user.id + "'");
         var userView = new YouRHere.UserView(user);
         $(this.el).append(userView.el);
     },
     removeUser: function (user) {
-        //YouRHere.Utils.log("UserListView: Removing user " + user.id);
         this.$("#" + user.id).remove();
     },
     getEmail: function (role) {
@@ -786,7 +716,6 @@ YouRHere.UserListView = Backbone.View.extend({
 
                         $(this).dialog("close");
                         //send email address out to other views
-                        //YouRHere.Utils.log("UserListView: raising 'user:login' event - email is " + email);
                         view.trigger("user:login", email);
                     } else {
                         $('#emailMsg').removeClass('hidden');
