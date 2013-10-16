@@ -130,24 +130,46 @@ YouRHere.DemoItems = Backbone.Collection.extend({
         return this;
     },
     swapItem: function(data) {
-        var currItem = this.get(data.id);
+        if (data.nextId < 0) {
+            console.log('short-circuit the swap');            
+        console.log(data);
+            return this;
+        }
+        var currItem = this.get(data.id),
+            swapId = currItem.get('swapId');
+
         currItem.set('prevId', data.prevId);
+        if (data.nextId == swapId) {
+            console.log('"reset" swapId');
+            currItem.save('swapId', -99);
+        }
         currItem.save('swapId', data.nextId);
         return this;
     },
     moveItem: function(data) {
+        if (data.nextId == -99) {
+            console.log('short-circuit the move!');
+        }
         var currItem = this.get(data.id),
-            nextItem = this.get(data.nextId);
-
-        currItem.save("nextId", data.nextId);
-
-        var currIdx = this.indexOf(currItem),
+            nextItem = this.get(data.nextId),
+            nextId = currItem.get('nextId'),
+            currIdx = this.indexOf(currItem),
             nextIdx = this.indexOf(nextItem);
 
         if (currIdx < nextIdx) nextIdx--;
 
         this.remove(currItem, {silent: true});
         this.add(currItem, {at: nextIdx});
+        if (data.nextId == nextId) {
+            console.log('"reset" nextId');
+            currItem.save('nextId', -1);
+        }
+
+        currItem.save('nextId', data.nextId);
+        //nextId = currItem.get('nextId');
+        //console.log('currItem.nextId: '  + nextId);
+
+        return this;
     },
     reorderList: function(itemModel) {
         var nextId = itemModel.get('nextId'),

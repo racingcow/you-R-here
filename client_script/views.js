@@ -105,6 +105,10 @@ YouRHere.DemoListView = Backbone.View.extend({
             $("#DemoListView").sortable({ 
                 axis: "y",
                 containment: "parent",
+                beforeStop: function(event, ui) {
+                    //YouRHere.Utils.log('sortable:stop');
+                    self.sortChanged(event, ui);
+                },
                 stop: function(event, ui) {
                     //YouRHere.Utils.log('sortable:stop');
                     self.sortChanged(event, ui);
@@ -114,7 +118,7 @@ YouRHere.DemoListView = Backbone.View.extend({
                 },  
                 change: function(event, ui) {
                     //YouRHere.Utils.log('sortable:change');
-                    self.sortChanged(event, ui);
+                    //self.sortChanged(event, ui);
                 },
                 deactivate: function(event, ui) {
                     //YouRHere.Utils.log('sortable:deactivate');
@@ -197,6 +201,16 @@ YouRHere.DemoListView = Backbone.View.extend({
             $nextItem = $('#' + nextId),
             $prevItem = $('#' + prevId);
 
+        // console.log('itemSwapped');
+        // console.log(itemId);
+        // console.log(prevId);
+        // console.log(nextId);
+
+        if (nextId < 0) {
+            console.log('short circuit itemSwapped');
+            return this;
+        }
+
         if (prevId > 0) {
             //move to position following prevId
             $item.detach();
@@ -205,7 +219,8 @@ YouRHere.DemoListView = Backbone.View.extend({
             $item.detach();
             $item.insertBefore('#' + nextId);
         } else {
-            //console.log('DEATH FROM ABOVE!');
+            console.log('DEATH FROM ABOVE!');
+            return this;
         }
 
         var nextEl = $item.next('li');
@@ -260,6 +275,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     renderList: function (filteredItems) {
+        console.log('renderList');
 
         this.clearDemoItems();
 
@@ -281,19 +297,47 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
             $filteredItems.sortable({ 
                 axis: "y",
                 containment: "parent",
+                activate: function(event, ui) {
+                    //console.log('FilterableDemoListView sortable:activate');
+                },
+                beforeStop: function(event, ui) {
+                    console.log('FilterableDemoListView sortable:beforeStop');
+                    self.sortChanged(event, ui);
+                },
+                change: function(event, ui) {
+                    console.log('FilterableDemoListView sortable:change');
+                    //self.sortChanged(event, ui);
+                },
+                create: function(event, ui) {
+                    console.log('FilterableDemoListView sortable:create');
+                },
+                deactivate: function(event, ui) {
+                    console.log('FilterableDemoListView sortable:deactivate');
+                },
+                out: function(event, ui) {
+                    //console.log('FilterableDemoListView sortable:out');
+                },
+                over: function(event, ui) {
+                    //console.log('FilterableDemoListView sortable:over');
+                },
+                receive: function(event, ui) {
+                    console.log('FilterableDemoListView sortable:receive');
+                },
+                remove: function(event, ui) {
+                    console.log('FilterableDemoListView sortable:remove');
+                },
+                sort: function(event, ui) {
+                    //console.log('FilterableDemoListView sortable:sort');
+                },
+                start: function(event, ui) {
+                    console.log('FilterableDemoListView sortable:start');
+                },
                 stop: function(event, ui) {
-                    //console.log('FilterableDemoListView sortable:stop');
+                    console.log('FilterableDemoListView sortable:stop');
                     self.sortChanged(event, ui);
                 },
                 update: function(event, ui) {
-                    //YouRHere.Utils.log('sortable:update');
-                },  
-                change: function(event, ui) {
-                    //console.log('FilterableDemoListView sortable:change');
-                    self.sortChanged(event, ui);
-                },
-                deactivate: function(event, ui) {
-                    //YouRHere.Utils.log('sortable:deactivate');
+                    console.log('FilterableDemoListView sortable:update');
                 }
             }).disableSelection();
         }
@@ -527,10 +571,9 @@ YouRHere.DemoItemView = Backbone.View.extend({
 YouRHere.DemoItemDetailView = Backbone.View.extend({
     tagName: "li",
     initialize: function (demoItem) {
-        _.bindAll(this, "activeChanged", "itemMoved");
+        _.bindAll(this, "activeChanged");
         this.model = demoItem;
         this.model.bind("change:active", this.activeChanged);
-        this.model.bind("change:nextId", this.itemMoved);
         this.render();
         return this;
     },
@@ -553,14 +596,9 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
             this.$el.removeClass("highlight");
         }
         return this;
-    },
-    itemMoved: function() {
-        var id = this.model.get('id'),
-            nextId = this.model.get('nextId');
-        return this;
     }
-
 });
+
 YouRHere.DetailsDemoItemView = Backbone.View.extend({
     id: "DemoListView",
     tagName: "ul",
