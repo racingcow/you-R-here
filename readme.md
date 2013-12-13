@@ -8,11 +8,11 @@ __you-R-here__ helps agile iteration demos suck less.
 
 ### Current Features
 *  Integration with [Target Process](http://www.targetprocess.com/)
+*  Integration with [JIRA Agile](https://www.atlassian.com/software/jira/agile)
 *  Allow viewers to "follow along", showing the current user story/bug being demonstrated in real-time
 
 ### Roadmap/Wishlist
 * More plugins! Would love to have 2 or more of the following:
-	*  [JIRA/GreenHopper](http://www.atlassian.com/software/greenhopper/overview)
 	*  TFS
 	*  Github issues
 	*  Huboard
@@ -52,6 +52,27 @@ app = {
 	plugin: "targetprocess"
 };
 exports.app = app;
+```
+
+### jira.config.js
+__jira.config.js__ provides required configuration for the TargetProcess plugin.
+
+Create __jira.config.js__ in the __you-R-here__ `plugins` folder.  Make a copy of the example file and season to taste.
+```Shell
+cp jira.config.example.js jira.config.js
+````
+
+Example  __jira.config.js__:
+```javascript
+info = {
+	username: "myusername",
+	password: "mysecretpassword",
+	url: "https://mycompany.atlassian.net/rest/api/2/",	iterationDurationInWeeks: 2,
+	format: "json",
+	hostUrl: "https://mycompany.atlassian.net",
+	orgName: "My Company"
+};
+exports.info = info;
 ```
 
 ### targetprocess.config.js
