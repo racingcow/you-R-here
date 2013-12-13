@@ -17,7 +17,7 @@ var methods = {
     itemParamMap: function(date) {
         var map = {};
         map['jql'] = 'issuetype in (Bug, Story) and sprint in openSprints() ORDER BY Rank ASC';
-        map['fields'] = 'summary,issuetype,description,assignee,labels';
+        map['fields'] = 'summary,issuetype,description,assignee,labels,project';
         return map;
     },
     buildRequestParams: function(map, encode) {
@@ -91,7 +91,7 @@ var methods = {
 
             item = data.issues[i];
 
-            isDemonstrable = false; //todo: parse! notDemonstrableRegex.test(item.labels) ? false : true;
+            isDemonstrable = true; //todo: parse! notDemonstrableRegex.test(item.labels) ? false : true;
             desc = item.fields.description;
             descHasH1 = h1ReplaceRegex.test(desc);
             descAfterCapture = (descHasH1) ? h1CaptureDescRegex.exec(desc) : '';
@@ -106,7 +106,7 @@ var methods = {
                 id: item.key,
                 name: title,
                 description: (desc) ? desc.replace(imageLinkRegex, '<img src="' + config.info.hostUrl + '/images"></img>') : '',
-                project: 'project',
+                project: item.fields.project.name,
                 type: item.fields.issuetype.name === 'Story' ? 'UserStory' : item.fields.issuetype.name,
                 demonstratorName: assignedUser.displayName,
                 demonstratorEmail: assignedUser.emailAddress,
@@ -115,7 +115,7 @@ var methods = {
                 boundaryDate: endDate,
                 active: false,
                 nextId: -1,
-                url: item.self
+                url: config.info.hostUrl + '/browse/' + item.key
             });
         }
 
