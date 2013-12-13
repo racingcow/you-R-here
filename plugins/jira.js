@@ -79,9 +79,9 @@ var methods = {
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
         var item, isDemonstrable,descHasH1, title, 
-            desc, descAfterCapture, descAfterH1Replace, assignedDevelopers, assignedUser,
+            desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels
             entities = [],
-            notDemonstrableRegex = new RegExp('no demo|not demonstrable', 'i'),
+            notDemonstrableRegex = new RegExp('no-demo|not-demonstrable|no demo|not demonstrable', 'i'),
             developerRegex = new RegExp('developer', 'i'),
             h1CaptureDescRegex = new RegExp('h1.\\s*.*$', 'm'),
             h1ReplaceRegex = new RegExp('(h1.)'),
@@ -91,7 +91,11 @@ var methods = {
 
             item = data.issues[i];
 
-            isDemonstrable = true; //todo: parse! notDemonstrableRegex.test(item.labels) ? false : true;
+            noDemoLabels = _.filter(item.fields.labels, function (label) {
+                return notDemonstrableRegex.test(label);
+            });
+
+            isDemonstrable = noDemoLabels.length === 0;
             desc = item.fields.description;
             descHasH1 = h1ReplaceRegex.test(desc);
             descAfterCapture = (descHasH1) ? h1CaptureDescRegex.exec(desc) : '';
@@ -100,7 +104,7 @@ var methods = {
 
             descAfterH1Replace = (descHasH1) ? desc.replace(h1CaptureDescRegex,'').replace(h1ReplaceRegex, '') : desc;
             desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : title;
-            assignedUser = item.fields.assignee || { displayName: 'unassigned', emailAddress: ''};
+            assignedUser = item.fields.assignee || { displayName: 'Not Assigned', emailAddress: ''};
 
             entities.push({
                 id: item.key,
