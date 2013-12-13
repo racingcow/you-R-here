@@ -31,6 +31,4 @@ run.ps1
 node_modules/
 
 #Config file can contain passwords
-targetprocess.config.js
-app.config.js
-jira.config.js
+*.config.js
