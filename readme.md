@@ -65,8 +65,8 @@ info = {
 	username: "myusername",
 	password: "mysecretpassword",
 	orgName: "My Company",
-	jiraBoardId: 3,
-	host: "criticaltech.atlassian.net"
+	jiraBoardId: 1,
+	host: "mycompany.atlassian.net"
 };
 exports.info = info;
 ```

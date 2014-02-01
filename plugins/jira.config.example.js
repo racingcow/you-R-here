@@ -1,10 +1,8 @@
 info = {
 	username: "myusername",
 	password: "mysecretpassword",
-	url: "https://mycompany.atlassian.net/rest/api/2/",
-	iterationDurationInWeeks: 2,
-	format: "json",
-	hostUrl: "https://mycompany.atlassian.net",
-	orgName: "My Company"
+	orgName: "My Company",
+	jiraBoardId: 1
+	host: "mycompany.atlassian.net"
 };
 exports.info = info;
