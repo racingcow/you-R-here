@@ -10,15 +10,27 @@ YouRHere.Iteration = Backbone.Model.extend({
     urlRoot: 'iteration',
     socket: window.socket,
     defaults: {
-        endDate: new Date()
+        endDate: new Date(),
+        sprintId: '-1',
+        sprintName: 'No Sprint Name',
+        sprints: []
     },
     initialize: function() {
         _.bindAll(this);
         this.ioBind('update', this.serverUpdate, this);
+        this.ioBind('create', this.serverCreate, this);
+        this.ioBind('read', this.serverRead, this);
+        return this;
+    },
+    serverCreate: function(iteration){
+        this.set(iteration);
+        return this;
+    },
+    serverRead: function(iteration){
+        this.set(iteration);
         return this;
     },
     serverUpdate: function(iteration) {
-        YouRHere.Utils.log('YouRHere.Iteration.modelChanged(): endDate = "' + iteration.endDate + '"');
         this.set(iteration);
         return this;
     }
@@ -31,7 +43,8 @@ YouRHere.HeaderInfo = Backbone.Model.extend({
         endDate: new Date(),
         itemCount: -1,
         bugCount: -1,
-        userStoryCount: -1
+        userStoryCount: -1,
+        sprintName: 'Not Set'
     },
     initialize: function() {
         _.bindAll(this);

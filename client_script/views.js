@@ -3,28 +3,46 @@ var YouRHere = YouRHere || {};
 
 YouRHere.IterationView = Backbone.View.extend({
     initialize: function(iteration) {
-        
         _.bindAll(this);
 
         this.iteration = iteration || new YouRHere.Iteration({endDate: new Date()});
 
-        this.setElement($('#datepicker')[0]); //bind to existing element on page instead of rendering new one
-        this.$el.datepicker({dateFormat: 'mm-dd-yy'});
+        this.setElement($('#sprint'));
         this.$el.on('change', this.clientDateChange);
 		this.$el.parent().find('#refresh').on('click', this.clientDateChange);
 
-        this.iteration.bind('change', this.render);
+        this.iteration.bind('change', this.renderChange);
+        this.iteration.bind('update', this.renderUpdate);
+        this.iteration.bind('read', this.renderRead);        
         this.render();
         return this;
     },
     render: function() {
-        this.$el.datepicker('setDate', this.iteration.get('endDate'));
+        var sprints = this.iteration.get('sprints'),
+            sprintHtml = [];
+
+        if (sprints.length == 0) sprints.push({id: '-1', name: 'No Sprints'});
+        _.each(sprints, function(sprint){
+            sprintHtml.push('<option value="' + sprint.id + '">' + sprint.name + '</option>');
+        });
+        this.$el.empty().append(sprintHtml.join(''));
+        this.$el.val(this.iteration.get('sprintId'));
         return this;
     },
     clientDateChange: function() {
-        this.iteration.set('endDate', this.$el.val());
+        this.iteration.set('sprintId', this.$el.val());
+        this.iteration.set('sprintName', $('#sprint option:selected').text());
         this.iteration.save();
         return this;
+    }, 
+    renderChange: function(data) {
+        return this.render();
+    }, 
+    renderRead: function(data) {
+        return this.render();
+    }, 
+    renderUpdate: function(data) {
+        return this.render();
     }
 });
 
@@ -42,7 +60,8 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         return this;
     },
     render: function() {
-        var bugCount = this.headerInfo.get('bugCount'), userStoryCount, impedimentCount, endDate, startDate, orgName, dateRange;
+        var bugCount = this.headerInfo.get('bugCount')
+            , userStoryCount, impedimentCount, endDate, startDate, orgName, dateRange, sprintName;
 
         if (bugCount < 0) {
             //we don't need this extra work now. we just send an update later that hits the "else"
@@ -54,6 +73,8 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
             startDate = this.headerInfo.get('startDate');
             orgName = this.headerInfo.get('orgName');
             dateRange = startDate + ' - ' + endDate;
+            sprintName = this.headerInfo.get('sprintName');
+            if (sprintName) dateRange = sprintName;
         }
 
         $('#header-info-iteration-date span').text(dateRange);
@@ -62,6 +83,10 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         $('#header-info-stories span').text(userStoryCount);
         $('.header-info-org span.orgName').text(orgName);
         $('span.dateRange').text(' (' + dateRange + ')');
+
+        if (impedimentCount < 1) {
+            $('#header-info-impediments').addClass('hide');
+        }
 
         return this;
     },

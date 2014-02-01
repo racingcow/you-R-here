@@ -1,8 +1,6 @@
-var sys = require('util');
-var moment = require('moment');//http://momentjs.com
+var https = require('https');
 var config = require('./jira.config');
 var _ = require('underscore');
-var rest = require('restler'); //https://github.com/danwrong/restler 
 
 var self = this;
 var methods = {
@@ -14,9 +12,9 @@ var methods = {
         self.globalOptions.password = config.info.password;
         self.globalOptions.url = config.info.url;
     },
-    itemParamMap: function(date) {
+    itemParamMap: function(opts) {
         var map = {};
-        map['jql'] = 'issuetype in (Bug, Story) and sprint in openSprints() ORDER BY Rank ASC';
+        map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ORDER BY Rank ASC';
         map['fields'] = 'summary,issuetype,description,assignee,labels,project';
         return map;
     },
@@ -28,58 +26,102 @@ var methods = {
         }
         return params.join('&');
     },
-    getEntitiesForActiveIteration : function(callback, options) {
-
+    getEntitiesForActiveIteration : function(callback, opts) {
         console.log('getEntitiesForActiveIteration');
-
-        //todo: extend globalOptions with options to create localOptions variable
-        options = options || {};
-        var getOptions = {
-            username: config.info.username,
-            password: config.info.password,
-            url: options.url || config.info.url,
-            format: options.format || 'json',
-            date: options.date || methods.globalOptions.date,
-            parser: rest.parsers.json,
-            iterationDurationInWeeks: config.info.iterationDurationInWeeks
-        };
-
-        var paramMap = methods.itemParamMap(getOptions.date),
+        var paramMap = methods.itemParamMap({date: opts.date, sprintId: opts.sprintId}),
             encodedParams = methods.buildRequestParams(paramMap, true),
-            itemsUrl = getOptions.url + 'search/?' + encodedParams,
-            itemResults;
+            path = '/rest/api/2/search/?' + encodedParams,
+            options= {
+                host: config.info.host,
+                path: path,
+                auth: config.info.username + ':' + config.info.password
+            };
 
-        rest.get(itemsUrl,  getOptions)
-            .once('success', function(data, response) {
-                console.log(data);
-                itemResults = data;
-                var entities = methods.jiraToModelSchema(itemResults, getOptions.date);
-                callback(entities);
-            }).once('fail', function(data, response) {
-                sys.puts('FAIL (get items): \n' + data);
-            }).once('error', function(err, response) {
-                sys.puts('ERROR (get items): ' + err.message);
-                if (response) console.log(response.raw);
-            }).once('complete', function(result, response) {
-                if (response) {
-                    console.log('COMPLETE  (get items): ' + response.statusCode);
-                    if (response.statusCode != 200) console.log(result);
+        var req = https.request(options,function(res) { 
+            var chunks = [];
+
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback([]);
+                    return;
                 }
-                else 
-                    sys.puts('no response');
+                chunks.push(chunk);
+            }).on('end',function(){
+                var itemResults = JSON.parse(chunks.join(''));
+                var entities = methods.jiraToModelSchema(itemResults, opts.date);
+                callback(entities);
             });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback([]);
+        });
 
+        req.end();
     },
-    getMostRecentIterationBoundary: function (callback, options) {
+    getMostRecentIterationBoundary: function (callback) {
         console.log('getMostRecentIterationBoundary');
-        callback(moment().format('YYYY-MM-DD'));
-    },
+
+        var path = '/rest/greenhopper/1.0/sprintquery/' 
+                    + config.info.jiraBoardId
+                    + '?includeHistoricSprints=true&includeFutureSprints=true',
+            options= {
+                host: config.info.host,
+                path: path,
+                auth: config.info.username + ':' + config.info.password
+            };
+
+        var req = https.request(options,function(res) {
+            var chunks = [];
+
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback({date: new Date(), data: null});
+                    return;
+                }
+                chunks.push(chunk);
+            })
+            .on('end', function(){
+                var sprintId = '-1',
+                    sprintName = 'Not set!',
+                    date = new Date(),
+                    data = JSON.parse(chunks.join('')),
+                    sprints = data.sprints || [],
+                    len = data.sprints 
+                        ? data.sprints.length 
+                        : 0,
+                    idx = len > 1 
+                        ? len - 1 
+                        : 0;
+
+                if (len > 0) {
+                    sprintId = data.sprints[idx].id;
+                    sprintName = data.sprints[idx].name;
+                }
+
+                callback({ 
+                            date: date, 
+                            data: { sprints: sprints, sprintId: sprintId, sprintName: sprintName }
+                        });
+
+            });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback({date: '9999-12-31'});
+        });
+
+        req.end();
+    },    
     jiraToModelSchema: function (data, endDate) {
 
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
         var item, isDemonstrable,descHasH1, title, 
             desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels
+            hostUrl = 'https://' + config.info.host,
             entities = [],
             notDemonstrableRegex = new RegExp('no-demo|not-demonstrable|no demo|not demonstrable', 'i'),
             developerRegex = new RegExp('developer', 'i'),
@@ -109,7 +151,7 @@ var methods = {
             entities.push({
                 id: item.key,
                 name: title,
-                description: (desc) ? desc.replace(imageLinkRegex, '<img src="' + config.info.hostUrl + '/images"></img>') : '',
+                description: (desc) ? desc.replace(imageLinkRegex, '<img src="' + hostUrl + '/images"></img>') : '',
                 project: item.fields.project.name,
                 type: item.fields.issuetype.name === 'Story' ? 'UserStory' : item.fields.issuetype.name,
                 demonstratorName: assignedUser.displayName,
@@ -119,7 +161,7 @@ var methods = {
                 boundaryDate: endDate,
                 active: false,
                 nextId: -1,
-                url: config.info.hostUrl + '/browse/' + item.key
+                url: hostUrl + '/browse/' + item.key
             });
         }
 

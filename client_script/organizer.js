@@ -15,9 +15,11 @@ YouRHere.App = Backbone.Router.extend({
         $('#users').hide().append(userListView.el);
         users.fetch();
 
-        var iteration = new YouRHere.Iteration(),
-            iterationView = new YouRHere.IterationView(iteration);
+        var iteration = new YouRHere.Iteration();
+        iterationView = new YouRHere.IterationView(iteration);
+        console.log('before');
         iteration.fetch();
+        console.log('after');
 
         var demoItems = new YouRHere.DemoItems(),
             demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems, {

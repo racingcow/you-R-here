@@ -92,16 +92,9 @@ _app.get("/*", function(req, res){
     }); 
 });
 
-//auto-load entities list for most recent iteration when app starts
-_plugin.api("getMostRecentIterationBoundary", function (boundaryDate) {
-    _iteration.endDate = boundaryDate;
-    refreshEntities(sendHeaderInfo);
-});
-
 _io.sockets.on("connection", function (socket) {
 
     socket.on('headerinfo:read', function(data, callback){
-        console.log('headerinfo:read!!');
         _headerInfo = buildHeaderInfo();
         callback(null, _headerInfo);
         //this probably means that I'm doing something wrong in creation/init of HeaderInfoView
@@ -110,13 +103,10 @@ _io.sockets.on("connection", function (socket) {
     });
 
     socket.on("iteration:read", function(data, callback) {
-        console.log("iteration:read - endDate = '" + _iteration.endDate + "'");
         callback(null, _iteration);
     });
 
     socket.on("iteration:create", function(iteration, callback) {
-        console.log("iteration:create - iteration.endDate = '" + iteration.endDate + "'");
-        //todo: filter out bad dates
         _iteration = iteration;
         refreshEntities(function() {
             //showItems(_demoItems,"iteration:create ===> ");
@@ -249,17 +239,30 @@ _io.sockets.on("connection", function (socket) {
     });
 });
 
+//auto-load entities list for most recent iteration when app starts
+_plugin.api("getMostRecentIterationBoundary", function (boundaryData) {
+    if (boundaryData.data) {
+        _iteration.endDate = boundaryData.data.date;
+        _iteration.sprintId = boundaryData.data.sprintId;
+        _iteration.sprints = boundaryData.data.sprints;
+        _iteration.sprintName = boundaryData.data.sprintName;
+    } else {
+        _iteration.endDate = boundaryData;
+    }
+    refreshEntities(sendHeaderInfo);
+});
+
 function refreshEntities(callback) {
     _plugin.api("getEntitiesForActiveIteration", 
             function (data) {
                 _demoItems = data;
                 if (callback) {
-                    console.log('refreshEntities callback!')
                     callback();
                 }
             }, 
             { 
-                date: _iteration.endDate 
+                date: _iteration.endDate,
+                sprintId: _iteration.sprintId
             });
 }
 
@@ -320,9 +323,10 @@ function buildHeaderInfo() {
             bugCount: bugCount,
             userStoryCount: userStoryCount,
             impedimentCount: impedimentCount,
-            orgName: config.info.orgName
+            orgName: config.info.orgName,
+            sprintName: _iteration.sprintName
     };
-    console.log(headerinfo);
+    //console.log(headerinfo);
     return headerinfo;
 };
 

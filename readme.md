@@ -7,12 +7,12 @@ An agile iteration demo helper
 __you-R-here__ helps agile iteration demos suck less. 
 
 ### Current Features
-*  Integration with [Target Process](http://www.targetprocess.com/)
 *  Integration with [JIRA Agile](https://www.atlassian.com/software/jira/agile)
+*  Integration with [Target Process](http://www.targetprocess.com/)
 *  Allow viewers to "follow along", showing the current user story/bug being demonstrated in real-time
 
 ### Roadmap/Wishlist
-* More plugins! Would love to have 2 or more of the following:
+* More plugins! We would love to add any of the following:
 	*  TFS
 	*  Github issues
 	*  Huboard
@@ -22,9 +22,6 @@ __you-R-here__ helps agile iteration demos suck less.
 *  Multi-tenant
 *  Better dashboard info
 *  __Your great idea goes here!__
-
-### you-R-here on Trello
-Check out the [you-R-here Trello board](https://trello.com/board/you-r-here/5072e0f3adf38a7e51a3ff6f)
 
 Getting started with you-R-here
 ------------------------------
@@ -67,10 +64,9 @@ Example  __jira.config.js__:
 info = {
 	username: "myusername",
 	password: "mysecretpassword",
-	url: "https://mycompany.atlassian.net/rest/api/2/",	iterationDurationInWeeks: 2,
-	format: "json",
-	hostUrl: "https://mycompany.atlassian.net",
-	orgName: "My Company"
+	orgName: "My Company",
+	jiraBoardId: 3,
+	host: "criticaltech.atlassian.net"
 };
 exports.info = info;
 ```
@@ -130,7 +126,6 @@ Using you-R-Here
 
 Contributing to you-R-here
 ------------------------------
-* Add a card on [you-R-here Trello board](https://trello.com/board/you-r-here/5072e0f3adf38a7e51a3ff6f)
 * [Open an issue](https://github.com/racingcow/you-R-here/issues)
 * Submit a pull request
 * __Your great idea goes here!__

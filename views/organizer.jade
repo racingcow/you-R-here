@@ -3,8 +3,9 @@ append head
   script(src='/client_script/organizer.js?v=' + version, type='text/javascript')
 block header
   .iteration.text-right
-      input#datepicker.search-query(type='text')
-      input#refresh.btn.btn-mini(type='button', value='refresh')
+      select#sprint
+      //input#datepicker.hide.search-query1(type='text')
+      //input#refresh.hide.btn.btn-mini(type='button', value='refresh')
 block items 
   section#items
     h3.items-header items
