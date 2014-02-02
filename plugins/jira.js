@@ -119,7 +119,7 @@ var methods = {
 
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
-        var item, isDemonstrable,descHasH1, title, statusId, statusOk,
+        var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl,
             desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels,
             hostUrl = 'https://' + config.info.host,
             entities = [],
@@ -128,7 +128,9 @@ var methods = {
             developerRegex = new RegExp('developer', 'i'),
             h1CaptureDescRegex = new RegExp('h1.\\s*.*$', 'm'),
             h1ReplaceRegex = new RegExp('(h1.)'),
-            imageLinkRegex =  new RegExp('(!\\S+!)', 'gi');
+            imageLinkRegex =  new RegExp('(!\\S+!)', 'gi'),
+            imgSize = '24x24',
+            imgSizeLg = '48x48';
 
         var issues = _.filter(data.issues, function(item) {
             statusId = item.fields.status.id;
@@ -156,9 +158,6 @@ var methods = {
             };
         });
 
-        //console.log('data.issues: ' + data.issues.length);
-        //console.log('issues: ' + issues.length);
-
         _.each(issues, function(item) {
             noDemoLabels = _.filter(item.fields.labels, function (label) {
                 return notDemonstrableRegex.test(label);
@@ -174,11 +173,20 @@ var methods = {
             descAfterH1Replace = (descHasH1) ? desc.replace(h1CaptureDescRegex,'').replace(h1ReplaceRegex, '') : desc;
             desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : title;
             assignedUser = item.fields.assignee || { displayName: 'Not Assigned', emailAddress: ''};
+            if (item.fields.assignee){
+                avatarUrl = item.fields.assignee.avatarUrls[imgSize];
+                avatarUrlLarge = item.fields.assignee.avatarUrls[imgSizeLg]; 
+            } else {
+                avatarUrl = item.fields.project.avatarUrls[imgSize];
+                avatarUrlLarge = item.fields.project.avatarUrls[imgSizeLg];                 
+            }
+
 
             entities.push({
                 id: item.key,
                 name: title,
                 description: (desc) ? desc.replace(imageLinkRegex, '<img src="' + hostUrl + '/images"></img>') : '',
+                //description: (desc) ? desc.replace(imageLinkRegex, '<img src="https://criticaltech.atlassian.net/secure/attachment/10426/10426_packageeditor.PNG"></img>') : '',
                 project: item.fields.project.name,
                 type: item.fields.issuetype.name === 'Story' ? 'UserStory' : item.fields.issuetype.name,
                 demonstratorName: assignedUser.displayName,
@@ -189,7 +197,9 @@ var methods = {
                 active: false,
                 nextId: -1,
                 url: hostUrl + '/browse/' + item.key,
-                statusName: item.fields.status.name
+                statusName: item.fields.status.name,
+                avatarUrl: avatarUrl,
+                avatarUrlLarge: avatarUrlLarge
             });
         });
 
