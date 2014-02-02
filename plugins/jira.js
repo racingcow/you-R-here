@@ -1,6 +1,7 @@
 var https = require('https');
 var config = require('./jira.config');
 var _ = require('underscore');
+var gravatar = require('gravatar');
 
 var self = this;
 var methods = {
@@ -174,11 +175,15 @@ var methods = {
             desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : title;
             assignedUser = item.fields.assignee || { displayName: 'Not Assigned', emailAddress: ''};
             if (item.fields.assignee){
-                avatarUrl = item.fields.assignee.avatarUrls[imgSize];
-                avatarUrlLarge = item.fields.assignee.avatarUrls[imgSizeLg]; 
+                //avatarUrl = item.fields.assignee.avatarUrls[imgSize];
+                //avatarUrlLarge = item.fields.assignee.avatarUrls[imgSizeLg]; 
+                avatarUrl = gravatar.url(item.fields.assignee.emailAddress, { size: "24", default: "identicon" });
+                avatarUrlLarge = gravatar.url(item.fields.assignee.emailAddress, { size: "48", default: "identicon" });
             } else {
-                avatarUrl = item.fields.project.avatarUrls[imgSize];
-                avatarUrlLarge = item.fields.project.avatarUrls[imgSizeLg];                 
+                //avatarUrl = item.fields.project.avatarUrls[imgSize];
+                //avatarUrlLarge = item.fields.project.avatarUrls[imgSizeLg];                 
+                avatarUrl = gravatar.url(item.fields.project.name, { size: "24", default: "identicon" });
+                avatarUrlLarge = gravatar.url(item.fields.project.name, { size: "48", default: "identicon" });
             }
 
             imgMatch = null;
