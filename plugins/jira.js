@@ -15,7 +15,7 @@ var methods = {
     itemParamMap: function(opts) {
         var map = {};
         map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ';
-        map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachments,status,resolution';
+        map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachment,status,resolution';
         return map;
     },
     buildRequestParams: function(map, encode) {
@@ -119,7 +119,7 @@ var methods = {
 
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
-        var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl,
+        var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl, imgMatch, imagesToReplace,
             desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels,
             hostUrl = 'https://' + config.info.host,
             entities = [],
@@ -181,12 +181,21 @@ var methods = {
                 avatarUrlLarge = item.fields.project.avatarUrls[imgSizeLg];                 
             }
 
+            imgMatch = null;
+            imagesToReplace=[];
+            if (item.fields.attachment) {
+                while (imgMatch = imageLinkRegex.exec(desc)) {
+                    imagesToReplace.push(imgMatch[0]);
+                }
+                if (imagesToReplace.length > 0){
+                    desc = methods.replaceImageLink(desc, imagesToReplace, item.fields.attachment);
+                }
+            }
 
             entities.push({
                 id: item.key,
                 name: title,
-                description: (desc) ? desc.replace(imageLinkRegex, '<img src="' + hostUrl + '/images"></img>') : '',
-                //description: (desc) ? desc.replace(imageLinkRegex, '<img src="https://criticaltech.atlassian.net/secure/attachment/10426/10426_packageeditor.PNG"></img>') : '',
+                description: (desc) ? desc : 'no description available...',
                 project: item.fields.project.name,
                 type: item.fields.issuetype.name === 'Story' ? 'UserStory' : item.fields.issuetype.name,
                 demonstratorName: assignedUser.displayName,
@@ -204,7 +213,6 @@ var methods = {
         });
 
         return entities.sort(function (a, b) { 
-            //we want User Story to be before Bug
             var typeSort = b.type.localeCompare(a.type); 
             if (typeSort != 0) return typeSort;
             
@@ -213,6 +221,31 @@ var methods = {
 
             return a.demonstratorName.localeCompare(b.demonstratorName);
         });
+    },
+    replaceImageLink: function(desc, imagesToReplace, attachments){
+        if (!desc) return desc;
+        if (!imagesToReplace || imagesToReplace.length == 0) return desc;
+        if (!attachments || attachments.length == 0) return desc;
+
+        var map = [];
+
+        _.each(imagesToReplace, function(replaceImg) {
+            var fileName = _.filter(attachments, function(attachment) {
+                if ('!' + attachment.filename + '!' == replaceImg) {
+                    return attachment.content;
+                }
+            });
+            if (fileName.length != 0) {
+                map.push({ key: replaceImg, value: fileName[0].content });
+            }
+        });
+
+        var regEx;
+        _.each(map, function(val){
+            regEx = new RegExp(val.key, 'i');
+            desc = desc.replace(regEx, '<img src="' + val.value + '" class="jira-image" alt="Linked image ' + val.key + '" />');
+        });
+        return desc;
     }
 };
 api = function(methodName, callback, options) {

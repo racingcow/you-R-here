@@ -245,7 +245,10 @@ select {
 	margin-top: 8px;
 	margin-right: 5px;
 }
-.itemMaster > ul > li
-,ul.items > li {
+.itemMaster > ul > li, ul.items > li {
 	width: 95%;
+}
+.jira-image {
+	display: block;
+	margin-bottom: 5px;
 }
