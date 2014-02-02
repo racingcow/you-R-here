@@ -3,6 +3,9 @@ info = {
 	password: "mysecretpassword",
 	orgName: "My Company",
 	jiraBoardId: 1
-	host: "mycompany.atlassian.net"
+	host: "mycompany.atlassian.net",
+	doneStatus: [5,6],
+	inProgressStatus: [3],
+	demoLabels: ['demo','demonstrable']
 };
 exports.info = info;

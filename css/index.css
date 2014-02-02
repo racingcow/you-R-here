@@ -236,6 +236,16 @@ h3 {
 .itemDetail.entity {
 	margin-top: 40px;
 }
+.statusName {
+	font-weight: normal;
+	font-size: 8px;
+	text-transform: uppercase;
+}
 select {
 	margin-top: 8px;
+	margin-right: 5px;
+}
+.itemMaster > ul > li
+,ul.items > li {
+	width: 95%;
 }

@@ -489,7 +489,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         $('#' + id).addClass('userSelected');
 
         var item = this.demoItems.get(id);
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <br/><span class='itemName'> <%= item.name %> </span>";
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <br/><span class='itemName'> <%= item.name %> </span>";
         var currentTemplate = "<div id='current' class='current highlight'>" + demoItemTemplate + "</div";
         var topHtml = _.template(currentTemplate, { item: item.toJSON() });
 
@@ -521,7 +521,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
         return this;
     },
     render: function () {
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header><section><span class='itemName'> <%= item.name %> </span></section>";
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header><section><span class='itemName'> <%= item.name %> </span></section>";
         this.$el.html(_.template(demoItemTemplate, { item: this.model.toJSON() }));
         this.$el.attr("id", this.model.id)
             .attr("data-user-login", this.model.demonstrator)
@@ -547,7 +547,7 @@ YouRHere.DemoItemView = Backbone.View.extend({
         var curActive = this.model.get("active");
         if (curActive) {
             this.$el.addClass("highlight");
-            var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <br/><span class='itemName'> <%= item.name %> </span>";
+            var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <br/><span class='itemName'> <%= item.name %> </span>";
             var currentTemplate = "<div id='current' class='current highlight'>" + demoItemTemplate + "</div";
             var topHtml = _.template(currentTemplate, { item: this.model.toJSON() });
 
@@ -604,7 +604,7 @@ YouRHere.DemoItemDetailView = Backbone.View.extend({
     },
     render: function () {
 
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
+        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <span class='statusName'><%= item.statusName %></span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span> <br/><span class='itemName'> <%= item.name %> </span>";
         var currentTemplate = "<h3>Now Showing</h3><div id='current' class='current highlight'>" + demoItemTemplate + "</div";
         this.$el.append(_.template(currentTemplate, { item: this.model.toJSON() }));
 

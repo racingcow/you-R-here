@@ -14,8 +14,8 @@ var methods = {
     },
     itemParamMap: function(opts) {
         var map = {};
-        map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ORDER BY Rank ASC';
-        map['fields'] = 'summary,issuetype,description,assignee,labels,project';
+        map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ';
+        map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachments,status,resolution';
         return map;
     },
     buildRequestParams: function(map, encode) {
@@ -119,20 +119,47 @@ var methods = {
 
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
-        var item, isDemonstrable,descHasH1, title, 
-            desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels
+        var item, isDemonstrable,descHasH1, title, statusId, statusOk,
+            desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels,
             hostUrl = 'https://' + config.info.host,
             entities = [],
             notDemonstrableRegex = new RegExp('no-demo|not-demonstrable|no demo|not demonstrable', 'i'),
+            demonstrableRegex = new RegExp('demo|demonstrable', 'i'),
             developerRegex = new RegExp('developer', 'i'),
             h1CaptureDescRegex = new RegExp('h1.\\s*.*$', 'm'),
             h1ReplaceRegex = new RegExp('(h1.)'),
-            imageLinkRegex =  new RegExp('(!\\S+!)', 'gi'); 
+            imageLinkRegex =  new RegExp('(!\\S+!)', 'gi');
 
-        for (var i = 0, len = data.issues.length; i < len; i++) {
+        var issues = _.filter(data.issues, function(item) {
+            statusId = item.fields.status.id;
+            statusOk = _.filter(config.info.doneStatus, function(doneId){
+                return statusId == doneId;
+            });
 
-            item = data.issues[i];
+            if (statusOk.length != 0) {
+                return true;
+            };
 
+            statusOk = _.filter(config.info.inProgressStatus, function(progressId){
+                return statusId == progressId;
+            });
+
+            if (statusOk.length != 0) {
+                demoLabels = _.filter(item.fields.labels, function (label) {
+                    return demonstrableRegex.test(label);
+                });
+
+                if (demoLabels.length != 0) {
+                    //console.log('Marked Demo: ' + item.key);
+                    return true;
+                }
+            };
+        });
+
+        //console.log('data.issues: ' + data.issues.length);
+        //console.log('issues: ' + issues.length);
+
+        _.each(issues, function(item) {
             noDemoLabels = _.filter(item.fields.labels, function (label) {
                 return notDemonstrableRegex.test(label);
             });
@@ -161,9 +188,10 @@ var methods = {
                 boundaryDate: endDate,
                 active: false,
                 nextId: -1,
-                url: hostUrl + '/browse/' + item.key
+                url: hostUrl + '/browse/' + item.key,
+                statusName: item.fields.status.name
             });
-        }
+        });
 
         return entities.sort(function (a, b) { 
             //we want User Story to be before Bug
