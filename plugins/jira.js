@@ -212,7 +212,8 @@ var methods = {
             });
         });
 
-        return entities.sort(function (a, b) { 
+        return entities.sort(function (a, b) {
+            //we want User Story to be before Bug
             var typeSort = b.type.localeCompare(a.type); 
             if (typeSort != 0) return typeSort;
             
