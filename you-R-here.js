@@ -74,7 +74,10 @@ _app.get("/organizer*", function (req, res) {
 _app.get("/presenter*", function (req, res) {
     res.render("presenter.jade", _staticContentItems);
 });
-_app.get("/*", function(req, res){         
+_app.get("/image/*", function(req, res){
+    getImage(req, res);
+});
+_app.get("/*", function(req, res){
     var uri = _url.parse(req.url).pathname;         
     var filename = _path.join(process.cwd(), uri);         
     _fs.exists(filename, function(exists){
@@ -334,6 +337,22 @@ function sendHeaderInfo() {
     console.log('sendHeaderInfo');   
     _headerInfo = buildHeaderInfo();
     _io.sockets.emit('headerinfo:update', _headerInfo);
+}
+
+function getImage(req, res) {
+    _plugin.api("imagePassthrough", 
+        function(data){
+            res.writeHead(200, {"Content-Type" : _mime.lookup('file.png'), "Content-Length" : data.length} );
+
+            _.each(data.chunks, function(chunk){
+                //console.log('writing...');
+                res.write(chunk);
+            });
+
+            //console.log('done writing...');
+            res.end();
+            
+        }, req);
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith

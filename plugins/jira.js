@@ -4,6 +4,8 @@ var _ = require('underscore');
 var gravatar = require('gravatar');
 
 var self = this;
+self.imageMap = {};
+
 var methods = {
     globalOptions : {},
     init : function(options) {
@@ -193,7 +195,7 @@ var methods = {
                     imagesToReplace.push(imgMatch[0]);
                 }
                 if (imagesToReplace.length > 0){
-                    desc = methods.replaceImageLink(desc, imagesToReplace, item.fields.attachment);
+                    desc = methods.replaceImageLink(item.key, hostUrl, desc, imagesToReplace, item.fields.attachment);
                 }
             }
 
@@ -228,14 +230,14 @@ var methods = {
             return a.demonstratorName.localeCompare(b.demonstratorName);
         });
     },
-    replaceImageLink: function(desc, imagesToReplace, attachments){
+    replaceImageLink: function(itemKey, hostUrl, desc, imagesToReplace, attachments){
         if (!desc) return desc;
         if (!imagesToReplace || imagesToReplace.length == 0) return desc;
         if (!attachments || attachments.length == 0) return desc;
 
         var map = [];
 
-        _.each(imagesToReplace, function(replaceImg) {
+        _.each(imagesToReplace, function(replaceImg, idx) {
             var fileName = _.filter(attachments, function(attachment) {
                 if ('!' + attachment.filename + '!' == replaceImg) {
                     return attachment.content;
@@ -246,12 +248,50 @@ var methods = {
             }
         });
 
-        var regEx;
-        _.each(map, function(val){
+        var regEx, imgMapKey, imgMapUrl,
+            substringIdx = hostUrl.length;//, imgMap = {};
+        _.each(map, function(val, idx){
+            imgMapKey = itemKey + '-' + idx + '.png';
+            imgMapUrl = val.value;
+            self.imageMap[imgMapKey] = val.value.substring(substringIdx);
+
             regEx = new RegExp(val.key, 'i');
-            desc = desc.replace(regEx, '<img src="' + val.value + '" class="jira-image" alt="Linked image ' + val.key + '" />');
+            desc = desc.replace(regEx, '<img src="/image/' + imgMapKey + '" class="jira-image" alt="Linked image ' + val.key + '" />');
         });
         return desc;
+    },
+    imagePassthrough: function(callback, passReq, passRes) {
+        //console.log(req);
+        var imgParam = passReq.params[0];
+
+        var path = self.imageMap[imgParam],
+            options= {
+                host: config.info.host,
+                path: path,
+                auth: config.info.username + ':' + config.info.password
+            };
+
+        var req = https.request(options,function(res) { 
+            var chunks = [], chunkLen = 0;
+
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback([]);
+                    return;
+                }
+                chunkLen += chunk.length;
+                chunks.push(chunk);
+            }).on('end',function(){
+                //console.log('callback time!');
+                callback({length: chunkLen, chunks: chunks});
+            });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback([]);
+        });
+
+        req.end();
     }
 };
 api = function(methodName, callback, options) {
