@@ -224,6 +224,11 @@ var methods = {
             //we want User Story to be before Bug
             var typeSort = b.type.localeCompare(a.type); 
             if (typeSort != 0) return typeSort;
+
+            var aDemoSort = (a.demonstrable) ? 1 : 0,
+                bDemoSort = (b.demonstrable) ? 1 : 0;
+            if (aDemoSort != bDemoSort) return bDemoSort - aDemoSort;
+
             
             var projectSort = a.project.localeCompare(b.project);
             if (projectSort != 0) return projectSort;
