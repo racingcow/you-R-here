@@ -87,6 +87,14 @@ YouRHere.HeaderInfoView = Backbone.View.extend({
         if (impedimentCount < 1) {
             $('#header-info-impediments').addClass('hide');
         }
+        $('#priorityId').empty();
+        var priorities = this.headerInfo.get('priorities'),
+            priorityHtml = [];
+
+        _.each(priorities, function(priority){
+            priorityHtml.push('<span class="priority ' + priority.name + ' userstory">' + priority.name + ': '  + priority.count  +'</span>');
+        });
+        $('#priorityId').empty().append(priorityHtml.join(''));
 
         return this;
     },

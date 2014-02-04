@@ -264,3 +264,6 @@ select {
 	border: 1px solid;
 	font-weight: bold;
 }
+.blocker, .critical, .major, .minor, .trivial, .average {
+	font-size: 12px;
+}

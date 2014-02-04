@@ -319,7 +319,26 @@ function buildHeaderInfo() {
         bugCount = (itemCount < 1) ? 0 : bugList.length,
         userStoryCount = (itemCount < 1) ? 0 : userStoryList.length,
         impedimentCount = (itemCount < 1) ? 0 : impedimentList.length,
-        headerinfo = {
+        priorityCounts = {}, 
+        priorityList = [];
+
+        _.each(_demoItems, function(item){
+            if (priorityCounts[item.priority]) {
+                priorityCounts[item.priority].count++;
+            } else {
+                priorityCounts[item.priority] = { id: item.priorityId, name: item.priority, count: 1 };
+            }
+        });
+
+        for(key in priorityCounts){
+            priorityList.push(priorityCounts[key]);
+        }
+
+        priorityList.sort(function(a,b){
+            return a.id - b.id;
+        });
+
+        var headerinfo = {
             startDate: moment(_iteration.endDate).subtract('weeks', config.info.iterationDurationInWeeks).format(dateFormat),
             endDate: moment(_iteration.endDate).format(dateFormat),
             itemCount: itemCount,
@@ -327,7 +346,8 @@ function buildHeaderInfo() {
             userStoryCount: userStoryCount,
             impedimentCount: impedimentCount,
             orgName: config.info.orgName,
-            sprintName: _iteration.sprintName
+            sprintName: _iteration.sprintName,
+            priorities: priorityList
     };
     //console.log(headerinfo);
     return headerinfo;
