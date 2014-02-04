@@ -238,8 +238,10 @@ h3 {
 }
 .statusName {
 	font-weight: normal;
-	font-size: 8px;
+	font-size: 10px;
 	text-transform: uppercase;
+	font-family: monospace;
+	font-weight: bold;
 }
 select {
 	margin-top: 8px;
@@ -256,9 +258,9 @@ select {
 	display: inline;
 	float: none;
 	font-family: monospace;
-	font-size: 8px;
+	font-size: 10px;
 	text-transform: uppercase;
-	padding: 2px;
+	padding: 1px 2px;
 	border: 1px solid;
 	font-weight: bold;
 }
