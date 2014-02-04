@@ -122,10 +122,11 @@ var methods = {
 
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
-        var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl, imgMatch, imagesToReplace,
+        var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl, imgMatch, imagesToReplace, assigneeName,
             desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels, priority,
             hostUrl = 'https://' + config.info.host,
             entities = [],
+            nameCleanserRegEx = new RegExp('(Administrator)','i');
             notDemonstrableRegex = new RegExp('no-demo|not-demonstrable|no demo|not demonstrable', 'i'),
             demonstrableRegex = new RegExp('demo|demonstrable', 'i'),
             developerRegex = new RegExp('developer', 'i'),
@@ -199,13 +200,23 @@ var methods = {
                 }
             }
 
+            if (nameCleanserRegEx.test(assignedUser.displayName)){
+                //remove the [Administrator] part, Administrator first...
+                assigneeName = assignedUser.displayName.replace(nameCleanserRegEx,'');
+                //remove the []
+                assigneeName = assigneeName.substring(0,assigneeName.length-3);
+
+            } else {
+                assigneeName = assignedUser.displayName;
+            }
+
             entities.push({
                 id: item.key,
                 name: title,
                 description: (desc) ? desc : 'no description available...',
                 project: item.fields.project.name,
                 type: item.fields.issuetype.name === 'Story' ? 'UserStory' : item.fields.issuetype.name,
-                demonstratorName: assignedUser.displayName,
+                demonstratorName: assigneeName,
                 demonstratorEmail: assignedUser.emailAddress,
                 demonstrable: isDemonstrable,
                 demonstrated: false,
@@ -216,7 +227,8 @@ var methods = {
                 statusName: item.fields.status.name,
                 avatarUrl: avatarUrl,
                 avatarUrlLarge: avatarUrlLarge,
-                priority: item.fields.priority.name
+                priority: item.fields.priority.name,
+                priorityId: item.fields.priority.id
             });
         });
 
@@ -229,7 +241,9 @@ var methods = {
                 bDemoSort = (b.demonstrable) ? 1 : 0;
             if (aDemoSort != bDemoSort) return bDemoSort - aDemoSort;
 
-            
+            var prioritySort = a.priorityId - b.priorityId;
+            if (prioritySort != 0) return prioritySort;
+
             var projectSort = a.project.localeCompare(b.project);
             if (projectSort != 0) return projectSort;
 
