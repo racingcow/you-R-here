@@ -252,3 +252,13 @@ select {
 	display: block;
 	margin-bottom: 5px;
 }
+.priority {
+	display: inline;
+	float: none;
+	font-family: monospace;
+	font-size: 8px;
+	text-transform: uppercase;
+	padding: 2px;
+	border: 1px solid;
+	font-weight: bold;
+}

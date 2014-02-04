@@ -18,7 +18,7 @@ var methods = {
     itemParamMap: function(opts) {
         var map = {};
         map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ';
-        map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachment,status,resolution';
+        map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachment,status,priority';
         return map;
     },
     buildRequestParams: function(map, encode) {
@@ -123,7 +123,7 @@ var methods = {
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
         var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl, imgMatch, imagesToReplace,
-            desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels,
+            desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels, priority,
             hostUrl = 'https://' + config.info.host,
             entities = [],
             notDemonstrableRegex = new RegExp('no-demo|not-demonstrable|no demo|not demonstrable', 'i'),
@@ -215,7 +215,8 @@ var methods = {
                 url: hostUrl + '/browse/' + item.key,
                 statusName: item.fields.status.name,
                 avatarUrl: avatarUrl,
-                avatarUrlLarge: avatarUrlLarge
+                avatarUrlLarge: avatarUrlLarge,
+                priority: item.fields.priority.name
             });
         });
 
