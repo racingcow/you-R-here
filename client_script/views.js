@@ -319,7 +319,8 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
 
         var $filteredItems = $('#filteredItems'),
             $sortable = $('#filteredItems:data(sortable)'),
-            isSortable = $sortable.length > 0;
+            isSortable = $sortable.length > 0,
+            $itemDetail = $('.itemDetail.entity');
 
         if (isSortable) {
             if (this.isMyItems) $filteredItems.sortable('enable');
@@ -374,6 +375,17 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
                 }
             }).disableSelection();
         }
+
+        if ($itemDetail.length == 0 || $itemDetail.children().length == 0) {
+            var $highlightItem = $('li.highlight');
+            if ($highlightItem.length == 0) {
+                $highlightItem = $filteredItems.children().first('li');
+            }
+            $highlightItem.click();
+            //scroll into view seems like a good idea, but needs more refinement
+            //$highlightItem[0].scrollIntoView();
+        }
+
         return this;
     },
     sortChanged: function(event, ui) {
@@ -418,7 +430,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         $('.currentItemDesc').remove();
     },
     updateView: function() {
-        //YouRHere.Utils.log("FilterableDemoListView.updateView");
+        YouRHere.Utils.log("FilterableDemoListView.updateView");
         var $selectMenuItem = $('li.selected'),
             id = $selectMenuItem.attr('id');
 
@@ -435,8 +447,7 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     filterCurrentItem: function () {
-        //YouRHere.Utils.log('FilterableDemoListView.filterCurrentItem');
-        this.isMyItems = false;
+       this.isMyItems = false;
 
         var activeArray = this.demoItems.filterByActive(true);
         this.renderList(activeArray);
