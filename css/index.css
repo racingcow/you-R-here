@@ -267,3 +267,7 @@ select {
 .blocker, .critical, .major, .minor, .trivial, .average {
 	font-size: 12px;
 }
+.avatar {
+	border: 1px solid gainsboro;
+	border-radius: 2px;
+}
