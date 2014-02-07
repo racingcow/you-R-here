@@ -308,8 +308,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     renderList: function (filteredItems) {
-        console.log('renderList');
-
         this.clearDemoItems();
 
         var self = this;
@@ -430,7 +428,6 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         $('.currentItemDesc').remove();
     },
     updateView: function() {
-        YouRHere.Utils.log("FilterableDemoListView.updateView");
         var $selectMenuItem = $('li.selected'),
             id = $selectMenuItem.attr('id');
 
@@ -700,6 +697,8 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
     },
     render: function () {
         this.constructor.__super__.render.apply(this);
+        var modelId = this.model.get('id');
+        if (modelId == null) return this;
 
         var id = this.model.get('id').toString(),
             demonstrated = this.model.get('demonstrated') ? 'checked' : '',

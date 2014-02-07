@@ -15,32 +15,29 @@ YouRHere.App = Backbone.Router.extend({
         $('#users').hide().append(userListView.el);
         users.fetch();
 
-        var iteration = new YouRHere.Iteration();
-        iterationView = new YouRHere.IterationView(iteration);
-        console.log('before');
+        var iteration = new YouRHere.Iteration({init:true}),
+            iterationView = new YouRHere.IterationView(iteration);
         iteration.fetch();
-        console.log('after');
 
-        var demoItems = new YouRHere.DemoItems(),
+        var demoItems = new YouRHere.DemoItems({init:true}),
             demoListView = new YouRHere.DemoListView(YouRHere.EditableDemoItemView, demoItems, {
                 sortable: true,
             });
 
         $('#itemsView').append(demoListView.el);
-        demoItems.fetch();
 
         var headerInfo = new YouRHere.HeaderInfo(),
             headerInfoView = new YouRHere.HeaderInfoView(headerInfo, demoItems);
+        headerInfo.fetch();
 
         //Capture the email address of the currently logged in user from the users view
         userListView.on('user:login', function (email) {
-            YouRHere.Utils.log('Router received "user:login" event - email is ' + email);
             demoListView.email = email;
             if (email && email.length > 0) {
-                headerInfo.fetch();
                 $('#users').show();
                 $('#items').show();
                 $('.hide-for-login').removeClass('hidden');
+                $('#refresh').click();
             } else {
                 $('#emailRequired').removeClass('hidden').show();
             }

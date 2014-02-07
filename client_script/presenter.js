@@ -18,7 +18,6 @@ YouRHere.App = Backbone.Router.extend({
         var demoItems = new YouRHere.DemoItems(),
             demoListView = new YouRHere.FilterableDemoListView(YouRHere.DemoItemView, demoItems);
         $('#itemsView').hide().append(demoListView.el);
-        demoItems.fetch();
 
         var headerInfo = new YouRHere.HeaderInfo(),
             headerInfoView = new YouRHere.HeaderInfoView(headerInfo, demoItems);
@@ -28,6 +27,7 @@ YouRHere.App = Backbone.Router.extend({
             demoListView.email = email;
             if (email && email.length > 0) {
                 headerInfo.fetch();
+                demoItems.fetch();
                 $('li.allItems').click();
                 $('#users').show();
                 $('#itemsView').show();

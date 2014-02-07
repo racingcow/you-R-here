@@ -46,7 +46,7 @@ YouRHere.HeaderInfo = Backbone.Model.extend({
         userStoryCount: -1,
         sprintName: 'Not Set'
     },
-    initialize: function() {
+    initialize: function(data) {
         _.bindAll(this);
         this.ioBind('update', this.serverChange, this);
         return this;

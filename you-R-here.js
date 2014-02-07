@@ -106,13 +106,23 @@ _io.sockets.on("connection", function (socket) {
     });
 
     socket.on("iteration:read", function(data, callback) {
-        callback(null, _iteration);
+        if (data.init) {
+            //iteration.fetch signals arrival of the organizer...
+            enterHere(function(data) {
+                //reset the demo items for anyone already listening
+                _demoItems = []; 
+                _io.sockets.emit("demoitems:refresh", _demoItems);
+                callback(null, _iteration);
+                sendHeaderInfo();
+            });
+        } else {
+            callback(null, _iteration);
+        }
     });
 
     socket.on("iteration:create", function(iteration, callback) {
         _iteration = iteration;
         refreshEntities(function() {
-            //showItems(_demoItems,"iteration:create ===> ");
             socket.broadcast.emit("iteration:update", _iteration);
             _io.sockets.emit("demoitems:refresh", _demoItems);
             sendHeaderInfo();
@@ -121,7 +131,17 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
-        callback(null, _demoItems);
+        console.log('demoitems:read');
+        console.log(data);
+        if (data.init) {
+            refreshEntities(function() {
+                callback(null, _demoItems);
+                _io.sockets.emit("demoitems:refresh", _demoItems);
+                sendHeaderInfo();
+            });
+        } else {
+            callback(null, _demoItems);
+        }
     });
 
     socket.on("demoitems:reset", function(data) {
@@ -242,18 +262,20 @@ _io.sockets.on("connection", function (socket) {
     });
 });
 
-//auto-load entities list for most recent iteration when app starts
-_plugin.api("getMostRecentIterationBoundary", function (boundaryData) {
-    if (boundaryData.data) {
-        _iteration.endDate = boundaryData.data.date;
-        _iteration.sprintId = boundaryData.data.sprintId;
-        _iteration.sprints = boundaryData.data.sprints;
-        _iteration.sprintName = boundaryData.data.sprintName;
-    } else {
-        _iteration.endDate = boundaryData;
-    }
-    refreshEntities(sendHeaderInfo);
-});
+function enterHere(callback) {
+    //auto-load entities list for most recent iteration when app starts
+    _plugin.api("getMostRecentIterationBoundary", function (boundaryData) {
+        if (boundaryData.data) {
+            _iteration.endDate = boundaryData.data.date;
+            _iteration.sprintId = boundaryData.data.sprintId;
+            _iteration.sprints = boundaryData.data.sprints;
+            _iteration.sprintName = boundaryData.data.sprintName;
+        } else {
+            _iteration.endDate = boundaryData;
+        }
+        callback(_iteration);
+    });
+}
 
 function refreshEntities(callback) {
     _plugin.api("getEntitiesForActiveIteration", 
