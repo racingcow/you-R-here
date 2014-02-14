@@ -9,7 +9,11 @@ html
         script(src=script, type='text/javascript')
       - each style in styles
         link(href=style, rel='stylesheet', type='text/css')
-  body    
+  body
+    .usersBtn.btn.btn-mini.btn-warning.hidden.hide-for-login
+      .rotate
+        | Users
+    .usersList#users
     .container-fluid
       .navbar
         .navbar-inner
@@ -42,11 +46,6 @@ html
                 | Whoa! You're not logged in. Click the fancy button to join the party!
                 form
                   input#loginAgain.btn.btn-primary(type='submit', value='login')
-      .row-fluid.hidden
-        .span2.hidden
-          section#users
-            h3 users
-            a.right-text(href='https://en.gravatar.com/') add your pic
       .navbar2.footer
         .navbar-inner
           div.pull-left

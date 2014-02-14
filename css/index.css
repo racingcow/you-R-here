@@ -72,16 +72,20 @@ body {
 }
 
 /* other stuff */
+#UserListView {
+	padding: 0px;
+	margin: 0px;
+	margin-top: 4px;
+}
 #UserListView img{
-	border: 3px solid ghostwhite;
+	border: 1px solid ghostwhite;
 }
 #UserListView img:hover{
-	border: 3px solid #696969;
+	border: 1px solid #696969;
 }
-#DemoListView {
-	
+#UserListView li {
+	margin: 2px 0;
 }
-
 .demonstrated,.notDemonstrable {
 	color: #949494;
 }
@@ -270,4 +274,48 @@ select {
 .avatar {
 	border: 1px solid gainsboro;
 	border-radius: 2px;
+}
+.usersBtn {
+	position: absolute;
+	color: white;
+	top: 50px;
+	right: 0px;
+	height: 46px;
+	width: 20px;
+	border-right: 0px;
+	border-radius: 4px 0 0 4px;
+	z-index: 100;
+}
+.usersList {
+	display: block;
+	position: absolute;
+	background: white;
+	top: 50px;
+	right: -42px;
+	width: 42px;
+	min-height: 46px;
+	border: 1px solid gray;
+	border-right: 0px;
+	border-radius: 0 0 0 4px;	
+}
+.usersBtnShow {
+	right: 42px;
+}
+.usersListShow {
+	right: 0px;
+}
+.userListAdd {
+	background: green;
+}
+.userListRemove {
+	background: red;
+}
+.rotate {
+	-webkit-transform: rotate(-90deg);
+	-moz-transform: rotate(-90deg);
+	-ms-transform: rotate(-90deg);
+	-o-transform: rotate(-90deg);
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+	margin-top: 20px;
+	font-size: 12px;
 }

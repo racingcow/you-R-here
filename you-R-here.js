@@ -131,8 +131,8 @@ _io.sockets.on("connection", function (socket) {
 
     // called when .fetch() is called on DemoItems collection on client side
     socket.on("demoitems:read", function (data, callback) {
-        console.log('demoitems:read');
-        console.log(data);
+        //console.log('demoitems:read');
+        //console.log(data);
         if (data.init) {
             refreshEntities(function() {
                 callback(null, _demoItems);
@@ -195,14 +195,14 @@ _io.sockets.on("connection", function (socket) {
                     _demoItems.splice(idx, 1);
                     _demoItems.splice(nextIdx, 0, updatedDemoItem);
                 } else {
-                    console.log('WARN: "nextDemoItem not found! nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
+                    //console.log('WARN: "nextDemoItem not found! nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
                     //showItems(_demoItems,"WARN: nextDemoItem not found! ==> ");
                 } 
             } else {
                 if (updatedDemoItem.nextId == _demoItems[idx+1].id) {
-                    logIt('No move required!')
+                    //logIt('No move required!')
                 } else {
-                    console.log('WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
+                    //console.log('WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len);
                     //showItems(_demoItems,'WARN: nextIdx: ' + nextIdx + '; _demoItems.len: ' + len + ' ==> ');
                 }
             }
@@ -376,7 +376,7 @@ function buildHeaderInfo() {
 };
 
 function sendHeaderInfo() {
-    console.log('sendHeaderInfo');   
+    //console.log('sendHeaderInfo');   
     _headerInfo = buildHeaderInfo();
     _io.sockets.emit('headerinfo:update', _headerInfo);
 }

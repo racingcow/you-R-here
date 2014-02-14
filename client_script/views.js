@@ -234,13 +234,7 @@ YouRHere.DemoListView = Backbone.View.extend({
             $nextItem = $('#' + nextId),
             $prevItem = $('#' + prevId);
 
-        // console.log('itemSwapped');
-        // console.log(itemId);
-        // console.log(prevId);
-        // console.log(nextId);
-
         if (nextId < 0) {
-            console.log('short circuit itemSwapped');
             return this;
         }
 
@@ -252,7 +246,7 @@ YouRHere.DemoListView = Backbone.View.extend({
             $item.detach();
             $item.insertBefore('#' + nextId);
         } else {
-            console.log('DEATH FROM ABOVE!');
+            //console.log('DEATH FROM ABOVE!');
             return this;
         }
 
@@ -333,18 +327,18 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
                     //console.log('FilterableDemoListView sortable:activate');
                 },
                 beforeStop: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:beforeStop');
+                    //console.log('FilterableDemoListView sortable:beforeStop');
                     self.sortChanged(event, ui);
                 },
                 change: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:change');
+                   // console.log('FilterableDemoListView sortable:change');
                     //self.sortChanged(event, ui);
                 },
                 create: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:create');
+                    //console.log('FilterableDemoListView sortable:create');
                 },
                 deactivate: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:deactivate');
+                    //console.log('FilterableDemoListView sortable:deactivate');
                 },
                 out: function(event, ui) {
                     //console.log('FilterableDemoListView sortable:out');
@@ -353,23 +347,23 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
                     //console.log('FilterableDemoListView sortable:over');
                 },
                 receive: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:receive');
+                    //console.log('FilterableDemoListView sortable:receive');
                 },
                 remove: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:remove');
+                    //console.log('FilterableDemoListView sortable:remove');
                 },
                 sort: function(event, ui) {
                     //console.log('FilterableDemoListView sortable:sort');
                 },
                 start: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:start');
+                    //console.log('FilterableDemoListView sortable:start');
                 },
                 stop: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:stop');
+                    //console.log('FilterableDemoListView sortable:stop');
                     self.sortChanged(event, ui);
                 },
                 update: function(event, ui) {
-                    console.log('FilterableDemoListView sortable:update');
+                    //console.log('FilterableDemoListView sortable:update');
                 }
             }).disableSelection();
         }
@@ -746,6 +740,20 @@ YouRHere.UserListView = Backbone.View.extend({
         this.users.bind("remove", this.removeUser);
         this.getEmail(role);
         this.render();
+
+        var $usersBtn = $('.usersBtn'),
+            $usersList = $('.usersList');
+
+        $usersBtn.click(function onUserListClick () {
+            if ($usersBtn.hasClass('usersBtnShow')){
+                $usersBtn.removeClass('usersBtnShow');
+                $usersList.removeClass('usersListShow');
+            } else {
+                $usersBtn.addClass('usersBtnShow');
+                $usersList.addClass('usersListShow');
+            }
+        });
+
     },
     render: function () {
         var self = this;
@@ -757,9 +765,21 @@ YouRHere.UserListView = Backbone.View.extend({
     addUser: function (user) {
         var userView = new YouRHere.UserView(user);
         $(this.el).append(userView.el);
+        
+        var $usersBtn = $('.usersBtn');
+        $usersBtn.addClass('userListAdd');
+        setTimeout(function(){
+            $usersBtn.removeClass('userListAdd');
+        } ,500);
     },
     removeUser: function (user) {
         this.$("#" + user.id).remove();
+
+        var $usersBtn = $('.usersBtn');
+        $usersBtn.addClass('userListRemove');
+        setTimeout(function(){
+            $usersBtn.removeClass('userListRemove');
+        } ,500);
     },
     getEmail: function (role) {
         var view = this;
