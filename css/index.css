@@ -287,7 +287,8 @@ select {
 	z-index: 100;
 }
 .usersList {
-	display: block;
+	display: none;
+	visibility: hidden;
 	position: absolute;
 	background: white;
 	top: 50px;
@@ -303,6 +304,8 @@ select {
 }
 .usersListShow {
 	right: 0px;
+	display: block;
+	visibility: visible;
 }
 .userListAdd {
 	background: green;
