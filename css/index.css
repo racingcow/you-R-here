@@ -230,6 +230,7 @@ h3 {
 	padding: 10px;
 }
 .entity:hover {
+	/*cursor: move; */
 	box-shadow: 0 0 2px 2px lightgreen;/*rgba(0, 130, 229, 0.1);*/
 	/*border-color: lightgreen;*/
 }
@@ -274,6 +275,15 @@ select {
 .avatar {
 	border: 1px solid gainsboro;
 	border-radius: 2px;
+	display: inline-block;
+}
+.itemDesc {
+	display: block;
+	margin-right: 54px;
+}
+.itemMain {
+	display: block;
+	height: 48px;
 }
 .usersBtn {
 	position: absolute;

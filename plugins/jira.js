@@ -180,13 +180,13 @@ var methods = {
             if (item.fields.assignee){
                 //avatarUrl = item.fields.assignee.avatarUrls[imgSize];
                 //avatarUrlLarge = item.fields.assignee.avatarUrls[imgSizeLg]; 
-                avatarUrl = gravatar.url(item.fields.assignee.emailAddress, { size: "24", default: "identicon" });
-                avatarUrlLarge = gravatar.url(item.fields.assignee.emailAddress, { size: "48", default: "identicon" });
+                avatarUrl = gravatar.url(item.fields.assignee.emailAddress, { size: "48", default: "identicon" });
+                avatarUrlLarge = gravatar.url(item.fields.assignee.emailAddress, { size: "64", default: "identicon" });
             } else {
                 //avatarUrl = item.fields.project.avatarUrls[imgSize];
                 //avatarUrlLarge = item.fields.project.avatarUrls[imgSizeLg];                 
-                avatarUrl = gravatar.url(item.fields.project.name, { size: "24", default: "identicon" });
-                avatarUrlLarge = gravatar.url(item.fields.project.name, { size: "48", default: "identicon" });
+                avatarUrl = gravatar.url(item.fields.project.name, { size: "48", default: "identicon" });
+                avatarUrlLarge = gravatar.url(item.fields.project.name, { size: "64", default: "identicon" });
             }
 
             imgMatch = null;

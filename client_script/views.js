@@ -499,8 +499,8 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         $('#' + id).addClass('userSelected');
 
         var item = this.demoItems.get(id);
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <div class='priority'><%= item.priority %></div> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header><div class='avatar pull-right'><img src='<%= item.avatarUrlLarge %>'></img></div> <section><span class='itemName'> <%= item.name %> </span></section>";
-        var currentTemplate = "<div id='current' class='current highlight'>" + demoItemTemplate + "</div";
+        var demoItemTemplate = YouRHere.getDetailItemTemplate();
+        var currentTemplate = "<div id='current' class='current highlight'>" + demoItemTemplate + "</div>";
         var topHtml = _.template(currentTemplate, { item: item.toJSON() });
 
         var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
@@ -531,7 +531,8 @@ YouRHere.DemoItemView = Backbone.View.extend({
         return this;
     },
     render: function () {
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <div class='priority'><%= item.priority %></div> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <div class='avatar pull-right'><img src='<%= item.avatarUrl %>'></img></div> <section><span class='itemName'> <%= item.name %> </span></section>";
+        var demoItemTemplate = YouRHere.getListItemTemplate();
+
         this.$el.html(_.template(demoItemTemplate, { item: this.model.toJSON() }));
         this.$el.attr("id", this.model.id)
             .attr("data-user-login", this.model.demonstrator)
@@ -557,7 +558,8 @@ YouRHere.DemoItemView = Backbone.View.extend({
         var curActive = this.model.get("active");
         if (curActive) {
             this.$el.addClass("highlight");
-            var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <div class='priority'><%= item.priority %></div> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> <div class='avatar pull-right'><img src='<%= item.avatarUrlLarge %>'></img></div> <section><span class='itemName'> <%= item.name %> </span></section>";
+
+            var demoItemTemplate = YouRHere.getDetailItemTemplate();
             var currentTemplate = "<div id='current' class='current highlight'>" + demoItemTemplate + "</div";  
             var topHtml = _.template(currentTemplate, { item: this.model.toJSON() });
 
@@ -598,37 +600,6 @@ YouRHere.DemoItemView = Backbone.View.extend({
             this.$el.addClass("demonstrated");
         } else {
             this.$el.removeClass("demonstrated");
-        }
-        return this;
-    }
-});
-
-YouRHere.DemoItemDetailView = Backbone.View.extend({
-    tagName: "li",
-    initialize: function (demoItem) {
-        _.bindAll(this, "activeChanged");
-        this.model = demoItem;
-        this.model.bind("change:active", this.activeChanged);
-        this.render();
-        return this;
-    },
-    render: function () {
-
-        var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><span class='projectName left'>[<%= item.project %>]</span>  <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <div class='priority'><%= item.priority %></div> <span class='statusName'><%= item.statusName %></span> <span class='assignedName right'>[<%= item.demonstratorName %>]</span>  <div class='avatar pull-right'><img src='<%= item.avatarUrlLarge %>'></img></div> <section><span class='itemName'> <%= item.name %> </span></section>";
-        var currentTemplate = "<h3>Now Showing</h3><div id='current' class='current highlight'>" + demoItemTemplate + "</div";
-        this.$el.append(_.template(currentTemplate, { item: this.model.toJSON() }));
-
-        var descItemplate = "<h4>Description</h4><div id='currentDesc' class='current currentDesc highlight'><div><%= item.description %></div></div>";
-        this.$el.append(_.template(descItemplate, { item: this.model.toJSON() }));
-
-        return this;
-    },
-    activeChanged: function () {
-        var curActive = this.model.get("active");
-        if (curActive) {
-            this.$el.addClass("highlight");
-        } else {
-            this.$el.removeClass("highlight");
         }
         return this;
     }
@@ -839,3 +810,25 @@ YouRHere.UserView = Backbone.View.extend({
         return this;
     }
 });
+
+YouRHere.getDetailItemTemplate = function(){
+    var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>"
+                            + " <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <div class='priority'><%= item.priority %></div> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header>"
+                            + "<div class='itemMain'>"
+                            + " <div class='avatar pull-right'><img src='<%= item.avatarUrlLarge %>'></img></div> "
+                            + " <div class='itemDesc'><span class='itemName'> <%= item.name %> </span></div>"
+                            + " </div>";
+    return demoItemTemplate;
+};
+YouRHere.getListItemTemplate = function(){
+    var demoItemTemplate = "<div class='<%= item.type %>-icon'></div><header><span class='projectName left'>[<%= item.project %>]</span>"
+                            + " <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <div class='priority'><%= item.priority %></div> <span class='statusName'><%= item.statusName %></span> " 
+                            + "<span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> "
+                            + "<div class='itemMain'>"
+                            + "<div class='avatar pull-right'><img src='<%= item.avatarUrl %>'></img></div> " 
+                            +" <div class='itemDesc'><span class='itemName'> <%= item.name %> </span></div>"
+                            + " </div>";
+    return demoItemTemplate;
+};
+
+
