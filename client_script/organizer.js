@@ -12,7 +12,8 @@ YouRHere.App = Backbone.Router.extend({
 
         var users = new YouRHere.Users(),
             userListView = new YouRHere.UserListView(users, 'organizer');
-        $('#users').hide().append(userListView.el);
+
+        $('#users').append(userListView.el);
         users.fetch();
 
         var iteration = new YouRHere.Iteration({init:true}),
@@ -34,7 +35,6 @@ YouRHere.App = Backbone.Router.extend({
         userListView.on('user:login', function (email) {
             demoListView.email = email;
             if (email && email.length > 0) {
-                $('#users').show();
                 $('#items').show();
                 $('.hide-for-login').removeClass('hidden');
                 $('#refresh').click();

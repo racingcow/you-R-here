@@ -12,7 +12,7 @@ YouRHere.App = Backbone.Router.extend({
         var users = new YouRHere.Users(),
             userListView = new YouRHere.UserListView(users, 'spectator');
         
-        $('#users').hide().append(userListView.el);
+        $('#users').append(userListView.el);
         users.fetch();
 
         var demoItems = new YouRHere.DemoItems(),
@@ -32,7 +32,6 @@ YouRHere.App = Backbone.Router.extend({
                 headerInfo.fetch();
                 $('li.myItems').hide();
                 $('li.currentItem').click();
-                $('#users').show();
                 $('#itemsView').show();
                 $('.hide-for-login').removeClass('hidden');
             } else {
