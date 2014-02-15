@@ -262,6 +262,11 @@ _io.sockets.on("connection", function (socket) {
     });
 });
 
+
+enterHere(function(){
+    refreshEntities();
+});
+
 function enterHere(callback) {
     //auto-load entities list for most recent iteration when app starts
     _plugin.api("getMostRecentIterationBoundary", function (boundaryData) {
