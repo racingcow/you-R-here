@@ -269,7 +269,7 @@ enterHere(function(){
 
 function enterHere(callback) {
     //auto-load entities list for most recent iteration when app starts
-    _plugin.api("getMostRecentIterationBoundary", function (boundaryData) {
+    _plugin.api("getMostRecentIterationBoundary", function (err, boundaryData) {
         if (boundaryData.data) {
             _iteration.endDate = boundaryData.data.date;
             _iteration.sprintId = boundaryData.data.sprintId;
@@ -284,7 +284,7 @@ function enterHere(callback) {
 
 function refreshEntities(callback) {
     _plugin.api("getEntitiesForActiveIteration", 
-            function (data) {
+            function (err, data) {
                 _demoItems = data;
                 if (callback) {
                     callback();
@@ -388,7 +388,7 @@ function sendHeaderInfo() {
 
 function getImage(req, res) {
     _plugin.api("imagePassthrough", 
-        function(data){
+        function(err, data){
             res.writeHead(200, {"Content-Type" : _mime.lookup('file.png'), "Content-Length" : data.length} );
 
             _.each(data.chunks, function(chunk){

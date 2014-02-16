@@ -1,4 +1,5 @@
 var https = require('https');
+var async = require('async');
 var config = require('./jira.config');
 var _ = require('underscore');
 var gravatar = require('gravatar');
@@ -47,24 +48,41 @@ var methods = {
             res.on('data', function(chunk) {
                 if (res.statusCode != '200') {
                     console.log(chunk);
-                    callback([]);
+                    callback(null, []);
                     return;
                 }
                 chunks.push(chunk);
             }).on('end',function(){
                 var itemResults = JSON.parse(chunks.join(''));
                 var entities = methods.jiraToModelSchema(itemResults, opts.date);
-                callback(entities);
+                callback(null, entities);
             });
         }).on('error',function(err) { 
             console.log('got error: ' + err.message)
-            callback([]);
+            callback(err, []);
         });
 
         req.end();
     },
-    getMostRecentIterationBoundary: function (callback) {
+    getMostRecentIterationBoundary: function(callback) {
         console.log('getMostRecentIterationBoundary');
+        var asyncCalls = [];
+        asyncCalls.push(function(cb) {
+            methods.getMostRecentIterationBoundaryAsync(cb);
+        });
+
+        async.parallel(asyncCalls,
+            function(err, results){
+                if (err){
+                    console.log(err);
+                    throw err;
+                }
+                console.log(results);
+                callback(null, results[0])
+            });
+    },
+    getMostRecentIterationBoundaryAsync: function (callback) {
+        console.log('getMostRecentIterationBoundaryAsync');
 
         var path = '/rest/greenhopper/1.0/sprintquery/' 
                     + config.info.jiraBoardId
@@ -82,7 +100,7 @@ var methods = {
             res.on('data', function(chunk) {
                 if (res.statusCode != '200') {
                     console.log(chunk);
-                    callback({date: new Date(), data: null});
+                    callback(null, {date: new Date(), data: null});
                     return;
                 }
                 chunks.push(chunk);
@@ -105,15 +123,14 @@ var methods = {
                     sprintName = data.sprints[idx].name;
                 }
 
-                callback({ 
+                callback(null, { 
                             date: date, 
                             data: { sprints: sprints, sprintId: sprintId, sprintName: sprintName }
                         });
-
             });
         }).on('error',function(err) { 
             console.log('got error: ' + err.message)
-            callback({date: '9999-12-31'});
+            callback(err, {date: '9999-12-31'});
         });
 
         req.end();
@@ -297,18 +314,18 @@ var methods = {
             res.on('data', function(chunk) {
                 if (res.statusCode != '200') {
                     console.log(chunk);
-                    callback([]);
+                    callback(null, []);
                     return;
                 }
                 chunkLen += chunk.length;
                 chunks.push(chunk);
             }).on('end',function(){
                 //console.log('callback time!');
-                callback({length: chunkLen, chunks: chunks});
+                callback(null, {length: chunkLen, chunks: chunks});
             });
         }).on('error',function(err) { 
             console.log('got error: ' + err.message)
-            callback([]);
+            callback(err, []);
         });
 
         req.end();
@@ -320,7 +337,7 @@ api = function(methodName, callback, options) {
     } else if (typeof methodName === 'object' || !methodName) {
         return methods.init.apply(this, arguments);
     } else {
-        throw  new Error('Method ' + method + ' does not exist in jira.api');
+        throw  new Error('Method ' + methodName + ' does not exist in jira.api');
     }
 }
 exports.plugin = {

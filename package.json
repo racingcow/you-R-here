@@ -2,33 +2,33 @@
   "name": "you-R-here",
   "version": "0.3.10",
   "description": "you-R-here helps agile iteration demos suck less",
-	"homepage": "https://github.com/racingcow/you-R-here/issues",
-	"bugs": "https://github.com/racingcow/you-R-here/issues",
-    "author": {
-        "name": "David Miller",
-        "email": "racingcow@hotmail.com",
-        "url": "https://github.com/racingcow"
-    },
-    "contributors": [
-        {
-            "name": "Rick Yoesting",
-            "url": "https://github.com/ryoe"
-        }
-    ],
-    "engines": {
-        "node": ">=0.10.x"
+  "homepage": "https://github.com/racingcow/you-R-here/issues",
+  "bugs": "https://github.com/racingcow/you-R-here/issues",
+  "author": {
+    "name": "David Miller",
+    "email": "racingcow@hotmail.com",
+    "url": "https://github.com/racingcow"
+  },
+  "contributors": [
+    {
+      "name": "Rick Yoesting",
+      "url": "https://github.com/ryoe"
     }
-    ,
-    "dependencies": {
-        "express": ">= 3.0.0rc2",
-        "gravatar": ">= 1.0.6",
-        "jade": ">= 0.27.6",
-        "mime": ">= 1.2.6",
-        "moment": ">= 1.6.2",
-        "socket.io": ">= 0.9.9",
-        "underscore": ">= 1.3.3",
-        "node-uuid": ">= 1.4.0",
-        "underscore.string": ">=2.3.0",
-        "restler": ">= 2.0.1"
-    }
+  ],
+  "engines": {
+    "node": ">=0.10.x"
+  },
+  "dependencies": {
+    "express": ">= 3.0.0rc2",
+    "gravatar": ">= 1.0.6",
+    "jade": ">= 0.27.6",
+    "mime": ">= 1.2.6",
+    "moment": ">= 1.6.2",
+    "socket.io": ">= 0.9.9",
+    "underscore": ">= 1.3.3",
+    "node-uuid": ">= 1.4.0",
+    "underscore.string": ">=2.3.0",
+    "restler": ">= 2.0.1",
+    "async": "~0.2.10"
+  }
 }
