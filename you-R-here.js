@@ -270,6 +270,7 @@ enterHere(function(){
 function enterHere(callback) {
     //auto-load entities list for most recent iteration when app starts
     _plugin.api("getMostRecentIterationBoundary", function (err, boundaryData) {
+        console.log(boundaryData);
         if (boundaryData.data) {
             _iteration.endDate = boundaryData.data.date;
             _iteration.sprintId = boundaryData.data.sprintId;
@@ -283,6 +284,8 @@ function enterHere(callback) {
 }
 
 function refreshEntities(callback) {
+    console.log('short circuit');
+    return;
     _plugin.api("getEntitiesForActiveIteration", 
             function (err, data) {
                 _demoItems = data;

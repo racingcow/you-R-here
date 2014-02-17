@@ -1,9 +1,9 @@
+var https = require('https');
+var async = require('async');
 var sys = require('util');
 var moment = require('moment');//http://momentjs.com
 var config = require('./targetprocess.config');
 var _ = require('underscore');
-var rest = require('restler'); //https://github.com/danwrong/restler 
-//var $ = require('jquery');
 
 var self = this;
 var methods = {    
@@ -200,56 +200,76 @@ var methods = {
         
         var paramMap = {};
         paramMap['format'] = config.info.format;
-        paramMap['include'] = '[EndDate]';
-        paramMap['where'] = '(EndDate lte \'' + moment().format('YYYY-MM-DD') + '\')'
-                            + ' and (EndDate gte \'' + moment().subtract('weeks', config.info.iterationDurationInWeeks).format('YYYY-MM-DD') + '\')';
+        paramMap['take'] = 250;
+//        paramMap['include'] = '[EndDate]';
+ //       paramMap['where'] = '(EndDate lte \'' + moment().format('YYYY-MM-DD') + '\')'
+ //                           + ' and (EndDate gte \'' + moment().subtract('weeks', config.info.iterationDurationInWeeks).format('YYYY-MM-DD') + '\')';
 
-        var baseUrl = config.info.url + 'Iterations?',
-            url = baseUrl + methods.buildRequestParams(paramMap, true),
-            plainUrl = baseUrl + methods.buildRequestParams(paramMap, false);
+        paramMap['where'] = 'IsCurrent eq "True"';
 
-        //handle the different events individually... 
-        rest.get(url, config.info)
-            .once('success', function(data, response) {
-                var dates = _.map(data.Items, function (item) {
-                     //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
-                     return new Date(parseInt(/\/Date\((\d+).*/.exec(item.EndDate)[1]));
-                });
-                var boundary = _.max(dates, function (date) { return date.getTime(); });
-                var formattedBoundary = moment(boundary).format('MM-DD-YYYY');
-                console.log('Boundary Date: ' + formattedBoundary);
-                callback(formattedBoundary); 
-        }).once('fail', function(data, response) {
-            sys.puts('FAIL: \n' + data);
-        }).once('error', function(err, response) {
-            sys.puts('ERROR: ' + err.message);
-            //TODO: figure out to decode the raw buffer, so we can know what happened!
-            if (response) console.log(response.raw);
-        }).once('complete', function(result, response) {
-            if (response) {
-                console.log('COMPLETE: ' + response.statusCode);
-                if (response.statusCode != 200) console.log(result);
-            } else sys.puts('no response');
+//        var baseUrl = config.info.url + 'Iterations?',
+ //           url = baseUrl + methods.buildRequestParams(paramMap, true),
+  //          plainUrl = baseUrl + methods.buildRequestParams(paramMap, false);
+
+        var path = '/api/v1/Iterations?',
+            options= {
+                host: config.info.hostUrl,
+                path: path + methods.buildRequestParams(paramMap, true),
+                auth: config.info.username + ':' + config.info.password
+            };
+
+            console.log(options);
+        var req = https.request(options,function(res) {
+            var chunks = [];
+
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback(null, {date: new Date(), data: null});
+                    return;
+                }
+                chunks.push(chunk);
+            })
+            .on('end', function(){
+                var sprintId = '-1',
+                    sprintName = 'Not set!',
+                    date = new Date(),
+                    data = JSON.parse(chunks.join('')),
+                    sprints = [],
+                    len = data.Items 
+                        ? data.Items.length 
+                        : 0,
+                    idx = len > 1 
+                        ? len - 1 
+                        : 0;
+
+                console.log(data.Items);
+                if (len > 0) {
+                    sprintId = data.Items[idx].Id;
+                    sprintName = data.Items[idx].Name;
+                    sprints = _.map(data.Items, function(val, idx){
+                        return {
+                            id: val.Id,
+                            name: val.Name,
+                            projectName: val.Project.Name
+                        };
+                    });
+                }
+
+                callback(null, { 
+                            date: date, 
+                            data: { sprints: sprints, sprintId: sprintId, sprintName: sprintName }
+                        });
+                //console.log(sprints);
+            });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback(err, {date: '9999-12-31'});
         });
 
-/*
-          $.ajax(url, config.info)
-            .done(function(data, textStatus, jqXHR) {
-                var dates = _.map(data.Items, function (item) {
-                    //oh my! - http://weblogs.asp.net/bleroy/archive/2008/01/18/dates-and-json.aspx
-                    return new Date(parseInt(/\/Date\((\d+).* /.exec(item.EndDate)[1]));
-                });                                
-                var boundary = _.max(dates, function (date) { return date.getTime(); });
-                var formattedBoundary = moment(boundary).format('MM-DD-YYYY');
-                console.log('Boundary Date: ' + formattedBoundary);
-                callback(formattedBoundary);
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
-                //console.log(textStatus);
-                //console.log(errorThrown);
-            });
-*/
+        req.end();
+
     },
     tpToModelSchema: function (data, endDate) {
 
