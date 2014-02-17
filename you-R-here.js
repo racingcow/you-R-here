@@ -284,8 +284,8 @@ function enterHere(callback) {
 }
 
 function refreshEntities(callback) {
-    console.log('short circuit');
-    return;
+    //console.log('short circuit');
+    //return;
     _plugin.api("getEntitiesForActiveIteration", 
             function (err, data) {
                 _demoItems = data;
@@ -294,7 +294,7 @@ function refreshEntities(callback) {
                 }
             }, 
             { 
-                date: _iteration.endDate,
+                date: '2013-11-27', // '27-Nov-2013',//_iteration.endDate,
                 sprintId: _iteration.sprintId
             });
 }

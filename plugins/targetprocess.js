@@ -4,6 +4,7 @@ var sys = require('util');
 var moment = require('moment');//http://momentjs.com
 var config = require('./targetprocess.config');
 var _ = require('underscore');
+var gravatar = require('gravatar');
 
 var self = this;
 var methods = {    
@@ -17,12 +18,12 @@ var methods = {
     },
     itemParamMap: function(date) {
         var map = {};
-        map['take'] = '50';
+        map['take'] = '100';
         map['format'] = config.info.format;
         map['include'] = '[Id,Description,Name,EntityType,Tags,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]';
         //the TP API requires "IN" items to be enclosed by single ticks!
         map['where'] =  '(EntityType.Name in (\'UserStory\',\'Bug\'))'
-                        + ' and (Iteration.EndDate eq \'' + moment(date).format('YYYY-MM-DD') + '\')' ;
+                        + ' and (Iteration.EndDate eq \'' + date + '\')' ;
         return map;
     },
     buildRequestParams: function(map, encode) {
@@ -34,166 +35,161 @@ var methods = {
         return params.join('&');
     },
     getEntitiesForActiveIteration : function(callback, options) {
-
         console.log('getEntitiesForActiveIteration');
 
-        //todo: extend globalOptions with options to create localOptions variable
-        options = options || {};
-        var getOptions = {
-            username: config.info.username,
-            password: config.info.password,
-            url: options.url || config.info.url,
-            format: options.format || 'json',
-            date: options.date || methods.globalOptions.date,
-            parser: rest.parsers.json,
-            iterationDurationInWeeks: config.info.iterationDurationInWeeks
-        };
+        var asyncCalls = [];
 
-        var baseUrl = getOptions.url + 'Assignables?',
-            paramMap = methods.itemParamMap(getOptions.date),
-            entityStateClause = ' and (EntityState.Name in (\'To Verify\',\'Done\',\'Fixed\',\'Closed\'))';
-            encodedEntityStateClause = encodeURIComponent(entityStateClause),
-            tagsClause = '  and (Tags contains \'Demo\')';
-            encodedTagsClause = encodeURIComponent(tagsClause),
-            encodedParams = methods.buildRequestParams(paramMap, true),
-            plainParams = methods.buildRequestParams(paramMap, false),
-            itemsUrl = baseUrl + encodedParams + encodedEntityStateClause,
-            plainItemsUrl = baseUrl + plainParams + entityStateClause,
-            taggedItemsUrl = baseUrl + encodedParams +  encodedTagsClause,
-            plainTaggedItemsUrl = baseUrl + plainParams +  tagsClause;
-
-
-        var itemResults;
-        rest.get(itemsUrl,  getOptions)
-            .once('success', function(data, response) {
-                itemResults = data; 
-
-                //console.log('plain taggedItemsUrl: \n' + plainTaggedItemsUrl);
-                //console.log('encoded taggedItemsUrl: \n' + taggedItemsUrl);
-
-                //we need the combined results...
-                rest.get(taggedItemsUrl, getOptions)
-                    .once('success', function(data, response) {
-                        for (var i=0,len = data.Items.length; i < len; i++) {
-                            itemResults.Items.push(data.Items[i]);
-                        }
-                        itemResults.Items = _.uniq(itemResults.Items,false, function(item) {
-                            return item.Id;
-                        });
-
-                    //callback(methods.tpToModelSchema(itemResults, getOptions.date));
-//-------------
-
-
-       var baseImpedimentsUrl = getOptions.url + 'Impediments?format=json&take=250&'; 
-       var includeParam = 'include=' + encodeURIComponent('[Id,Description,Name,EntityType[Name],Tags,Project[Name],Assignable[Id,Description,Name,EntityType], Responsible[Id,Kind,FirstName,LastName,Email,Login]]');
-       var whereParam = 'where=' + encodeURIComponent('EntityState.Name eq \'Open\'');
-       var params = [];
-       params.push(includeParam);
-       params.push(whereParam);
-       baseImpedimentsUrl += params.join('&');
-        rest.get(baseImpedimentsUrl, getOptions)
-            .once('success', function(data, response) {
-             
-            var impediments = methods.impedimentsToModelSchema(data, getOptions.date);
-            var entities = methods.tpToModelSchema(itemResults, getOptions.date);
-            var list = _.union(entities, impediments);
-            console.log('impediments: ' + impediments.length);
-            console.log('entities: ' + entities.length);
-            console.log('AFTER splice: ' + list.length);
-            callback(list);
-
-        }).once('fail', function(data, response) {
-            sys.puts('FAIL (get "Impediments" items): \n' + data);
-        }).once('error', function(err, response) {
-            sys.puts('ERROR (get "Impediments" items): ' + err.message);
-            //TODO: figure out to decode the raw buffer, so we can know what happened!
-            if (response) console.log(response.raw);
-        }).once('complete', function(result, response) {
-            if (response) {
-                console.log('COMPLETE  (get "Impediments" items): ' + response.statusCode);
-                if (response.statusCode != 200) console.log(result);
-            } else sys.puts('no response');
-         }); 
-
-//-----------------
-
-
-
-                }).once('fail', function(data, response) {
-                    sys.puts('FAIL (get "tagged" items): \n' + data);
-                }).once('error', function(err, response) {
-                    sys.puts('ERROR (get "tagged" items): ' + err.message);
-                    //TODO: figure out to decode the raw buffer, so we can know what happened!
-                    if (response) console.log(response.raw);
-                }).once('complete', function(result, response) {
-                    if (response) {
-                        console.log('COMPLETE  (get "tagged" items): ' + response.statusCode);
-                        if (response.statusCode != 200) console.log(result);
-                    } else sys.puts('no response');
-                 }); 
-        }).once('fail', function(data, response) {
-            sys.puts('FAIL (get items): \n' + data);
-        }).once('error', function(err, response) {
-            sys.puts('ERROR (get items): ' + err.message);
-            //TODO: figure out to decode the raw buffer, so we can know what happened!
-            if (response) console.log(response.raw);
-        }).once('complete', function(result, response) {
-            if (response) {
-                console.log('COMPLETE  (get items): ' + response.statusCode);
-                if (response.statusCode != 200) console.log(result);
-            } else sys.puts('no response');
+        asyncCalls.push(function(cb) {
+            methods.getEntityItemsAsync(options, cb);
+        });
+        asyncCalls.push(function(cb) {
+            methods.getTaggedItemsAsync(options, cb);
+        });
+        asyncCalls.push(function(cb) {
+            methods.getImpedimentItemsAsync(options, cb);
         });
 
-/*        var baseImpedimentsUrl = getOptions.url + 'Impediments?format=json&take=250&where=EntityState.Name%20eq%20\'Open\''; 
-
-        rest.get(baseImpedimentsUrl, getOptions)
-            .once('success', function(data, response) {
-                
-                console.log('Impediments: ' + data.Items.length);
-
-
-                //for (var i=0,len = data.Items.length; i < len; i++) {
-                 //   itemResults.Items.push(data.Items[i]);
-                //}
-                //itemResults.Items = _.uniq(itemResults.Items,false, function(item) {
-                 //   return item.Id;
-                //});
-
-            //callback(methods.tpToModelSchema(itemResults, getOptions.date));
-
-        }).once('fail', function(data, response) {
-            sys.puts('FAIL (get "Impediments" items): \n' + data);
-        }).once('error', function(err, response) {
-            sys.puts('ERROR (get "Impediments" items): ' + err.message);
-            //TODO: figure out to decode the raw buffer, so we can know what happened!
-            if (response) console.log(response.raw);
-        }).once('complete', function(result, response) {
-            console.log('COMPLETE  (get "Impediments" items): ' + response.statusCode);
-            if (response.statusCode != 200) console.log(result);
-         }); 
-
-/*
-        $.when($.ajax(itemsUrl, getOptions), $.ajax(taggedItemsUrl, getOptions))
-            .done(function(a1, a2) { //a1 and a2 contain the standard .done() args: data, textStatus, jqXHR
-                var itemResults = a1[0],
-                    taggedItemResults = a2[0];
-
-                for (var i=0,len = taggedItemResults.Items.length; i < len; i++) {
-                    itemResults.Items.push(taggedItemResults.Items[i]);
+        async.parallel(asyncCalls,
+            function(err, results){
+                if (err){
+                    console.log(err);
+                    throw err;
                 }
-                itemResults.Items = _.uniq(itemResults.Items, false, function(item) {
-                    return item.Id;
-                });
+                console.log('FIN');
+                var total = 0;
+                for(var i=0,len=results.length;i<len;i++){
+                    console.log('i: ' + i + '; # items: ' + results[i].length);
+                    total += results[i].length;
+                }
+                console.log(total);
 
-                callback(itemResults);
-            })
-            .fail(function(jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
-                //console.log(textStatus);
-                //console.log(errorThrown);
+                //combine the entities!
+                var allEntities = results[0].concat(results[1]),
+                    uniqEntities = _.uniq(allEntities, false, function(val){
+                        return val.Id;
+                    });
+
+                var impediments = methods.impedimentsToModelSchema(results[2], options.date),
+                    entities = methods.tpToModelSchema(uniqEntities, options.date),
+                    list = _.union(entities, impediments);
+
+                console.log(list.length);
+                callback(null, list)
             });
-*/
+
+    },
+    getEntityItemsAsync: function(options, callback) {
+        console.log('getEntityItemsAsync');
+
+        var paramMap = methods.itemParamMap(options.date);
+
+        var basePath = '/api/v1/Assignables?' + methods.buildRequestParams(paramMap, true),
+            entityStateClause = ' and (EntityState.Name in (\'To Verify\',\'Done\',\'Fixed\',\'Closed\'))';
+            encodedEntityStateClause = encodeURIComponent(entityStateClause),
+            //base items PLUS filter down to only "closed"
+            path = basePath + encodedEntityStateClause, 
+            options= {
+                host: config.info.host,
+                path: path,   
+                auth: config.info.username + ':' + config.info.password
+            };
+
+        var req = https.request(options,function(res) {
+            var chunks = [];
+
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback(err, []);
+                    return;
+                }
+                chunks.push(chunk);
+            })
+            .on('end', function(){
+                var data = JSON.parse(chunks.join(''));
+                callback(null, data.Items);
+            });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback(err, []);
+        });
+
+        req.end();
+    },
+    getTaggedItemsAsync: function(options, callback) {
+        console.log('getTaggedItemsAsync');
+        var paramMap = methods.itemParamMap(options.date);
+
+        var basePath = '/api/v1/Assignables?' + methods.buildRequestParams(paramMap, true),
+            tagsClause = '  and (Tags contains \'Demo\')';
+            encodedTagsClause = encodeURIComponent(tagsClause),
+            //base items in any state TAGGED "demo"
+            path = basePath + encodedTagsClause, 
+            options= {
+                host: config.info.host,
+                path: path,   
+                auth: config.info.username + ':' + config.info.password
+            };
+            
+        var req = https.request(options,function(res) {
+            var chunks = [];
+
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback(err, []);
+                    return;
+                }
+                chunks.push(chunk);
+            })
+            .on('end', function(){
+                var data = JSON.parse(chunks.join(''));
+                callback(null, data.Items || []);
+            });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback(err, []);
+        });
+
+        req.end();
+    },
+    getImpedimentItemsAsync: function(options, callback) {
+        console.log('getImpedimentItemsAsync');
+
+       var basePath = '/api/v1/Impediments?format=json&take=250&',
+            includeParam = 'include=' + encodeURIComponent('[Id,Description,Name,EntityType[Name],Tags,Project[Name],Assignable[Id,Description,Name,EntityType], Responsible[Id,Kind,FirstName,LastName,Email,Login]]'),
+            whereParam = 'where=' + encodeURIComponent('EntityState.Name eq \'Open\''),
+            path = basePath + includeParam + '&' + whereParam, 
+            options= {
+                host: config.info.host,
+                path: path,   
+                auth: config.info.username + ':' + config.info.password
+            };
+
+        var req = https.request(options,function(res) {
+            var chunks = [];
+
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback(err, []);
+                    return;
+                }
+                chunks.push(chunk);
+            })
+            .on('end', function(){
+                var data = JSON.parse(chunks.join(''));
+                callback(null, data.Items || []);
+            });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback(err, []);
+        });
+
+        req.end();
     },
     getMostRecentIterationBoundary: function (callback, options) {
         console.log('getMostRecentIterationBoundary');
@@ -213,7 +209,7 @@ var methods = {
 
         var path = '/api/v1/Iterations?',
             options= {
-                host: config.info.hostUrl,
+                host: config.info.host,
                 path: path + methods.buildRequestParams(paramMap, true),
                 auth: config.info.username + ':' + config.info.password
             };
@@ -269,13 +265,12 @@ var methods = {
         });
 
         req.end();
-
     },
-    tpToModelSchema: function (data, endDate) {
+    tpToModelSchema: function (items, endDate) {
 
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
-        var item, isDemonstrable,descHasH1, title, 
+        var item, isDemonstrable,descHasH1, title, avatarUrl, avatarUrlLarge,
             desc, descAfterCapture, descAfterH1Replace, assignedDevelopers, assignedUser,
             entities = [],
             notDemonstrableRegex = new RegExp('no demo|not demonstrable', 'i'),
@@ -284,8 +279,8 @@ var methods = {
             h1ReplaceRegex = new RegExp('(<h1>|<H1>|</h1>|</H1>)'),
             imageLinkRegex =  new RegExp('="(~)?/images', 'gi'); 
 
-        for (var i = 0, len = data.Items.length; i < len; i++) {
-            item = data.Items[i];
+        for (var i = 0, len = items.length; i < len; i++) {
+            item = items[i];
             isDemonstrable = notDemonstrableRegex.test(item.Tags) ? false : true;
             descHasH1 = h1ReplaceRegex.test(item.Description);
             descAfterCapture = (descHasH1) ? h1CaptureDescRegex.exec(item.Description) : '';
@@ -293,10 +288,18 @@ var methods = {
             descAfterH1Replace = (descHasH1) ? item.Description.replace(h1CaptureDescRegex,'').replace(h1ReplaceRegex, '') : item.Description;
             desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : item.Name;
 
-            assignedDevelopers = _.filter(data.Items[i].Assignments.Items, function (item) {
+            assignedDevelopers = _.filter(item.Assignments.Items, function (item) {
                 return developerRegex.test(item.Role.Name);
             });             
             assignedUser = assignedDevelopers.length > 0 ? assignedDevelopers[0].GeneralUser : {FirstName: "not", LastName: "assigned", Email: ""};
+
+            if (assignedUser.Email.length > 0){
+                avatarUrl = gravatar.url(assignedUser.Email, { size: "48", default: "identicon" });
+                avatarUrlLarge = gravatar.url(assignedUser.Email, { size: "64", default: "identicon" });
+            } else {
+                avatarUrl = gravatar.url(item.Project.Name, { size: "48", default: "identicon" });
+                avatarUrlLarge = gravatar.url(item.Project.Name, { size: "64", default: "identicon" });
+            }
 
             entities.push({
                 id: item.Id,
@@ -311,7 +314,11 @@ var methods = {
                 boundaryDate: endDate,
                 active: false,
                 nextId: -1,
-                url: config.info.hostUrl + '/entity/' + item.Id
+                url: config.info.hostUrl + '/entity/' + item.Id,
+                avatarUrl: avatarUrl,
+                avatarUrlLarge: avatarUrlLarge,
+                priority: 'priority not set',
+                priorityId: -1
             });
         }
 
@@ -326,21 +333,29 @@ var methods = {
             return a.demonstratorName.localeCompare(b.demonstratorName);
         });
     },
-    impedimentsToModelSchema: function (data, endDate) {
+    impedimentsToModelSchema: function (items, endDate) {
         //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
         var item, isDemonstrable, title, 
             desc, assignedUser, assignable,
             entities = [];
 
-        for (var i = 0, len = data.Items.length; i < len; i++) {
-            item = data.Items[i];
+        for (var i = 0, len = items.length; i < len; i++) {
+            item = items[i];
             isDemonstrable = true;
             title = item.Name;
             assignable = item.Assignable || { Name: 'no assignable', Id: 0 };
             desc = 'Impediment for: ' + assignable.Name;
 
             assignedUser = item.Responsible || {FirstName: 'not', LastName: 'assigned', Email: ''};
+
+            if (assignedUser.Email.length > 0){
+                avatarUrl = gravatar.url(assignedUser.Email, { size: "48", default: "identicon" });
+                avatarUrlLarge = gravatar.url(assignedUser.Email, { size: "64", default: "identicon" });
+            } else {
+                avatarUrl = gravatar.url(item.Project.Name, { size: "48", default: "identicon" });
+                avatarUrlLarge = gravatar.url(item.Project.Name, { size: "64", default: "identicon" });
+            }
 
             entities.push({
                 id: item.Id,
@@ -355,7 +370,11 @@ var methods = {
                 boundaryDate: endDate,
                 active: false,
                 nextId: -1,
-                url: config.info.hostUrl + '/entity/' + item.Id
+                url: config.info.hostUrl + '/entity/' + item.Id,
+                avatarUrl: avatarUrl,
+                avatarUrlLarge: avatarUrlLarge,
+                priority: 'priority not set',
+                priorityId: -1
             });
         }
 
