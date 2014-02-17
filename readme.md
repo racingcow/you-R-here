@@ -87,11 +87,12 @@ Example  __targetprocess.config.js__:
 info = {
 	username: "myusername",
 	password: "mysecretpassword",
-	url: "https://mycompany.tpondemand.com/api/v1/",
-	iterationDurationInWeeks: 2,
+	host: "mycompany.tpondemand.com", // v. 0.3.11 host replaces url 
+	orgName: "My Company", // v. 0.1.3
 	format: "json",
 	hostUrl: "https://mycompany.tpondemand.com", // v. 0.2.1 baseImageUrl --> hostUrl
-	orgName: "My Company" // v. 0.1.3
+	iterationSentinel: '\'My Project Name\'', // project name to use for list of iterations
+	numIterations: 5 // number of iterations to display
 };
 exports.info = info;
 ```

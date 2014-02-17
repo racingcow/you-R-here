@@ -377,8 +377,6 @@ function buildHeaderInfo() {
         priorityList.sort(function(a,b){
             return a.id - b.id;
         });
-
-        console.log('impedimentCount: ' + impedimentCount);
         
         var headerinfo = {
             startDate: moment(_iteration.endDate).subtract('weeks', config.info.iterationDurationInWeeks).format(dateFormat),
