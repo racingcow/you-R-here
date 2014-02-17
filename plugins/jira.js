@@ -77,7 +77,6 @@ var methods = {
                     console.log(err);
                     throw err;
                 }
-                console.log(results);
                 callback(null, results[0])
             });
     },
@@ -113,14 +112,14 @@ var methods = {
                     sprints = data.sprints || [],
                     len = data.sprints 
                         ? data.sprints.length 
-                        : 0,
-                    idx = len > 1 
-                        ? len - 1 
                         : 0;
 
                 if (len > 0) {
-                    sprintId = data.sprints[idx].id;
-                    sprintName = data.sprints[idx].name;
+                    sprints.sort(function(a,b){
+                        return b.id - a.id;
+                    });
+                    sprintId = sprints[0].id;
+                    sprintName = sprints[0].name;
                 }
 
                 callback(null, { 
