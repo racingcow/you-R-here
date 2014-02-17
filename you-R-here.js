@@ -122,6 +122,16 @@ _io.sockets.on("connection", function (socket) {
 
     socket.on("iteration:create", function(iteration, callback) {
         _iteration = iteration;
+
+        //TODO: move this into the Iteratoin model...
+        //endDate matters for the TargetProcess plugin
+        var date = _.map(_iteration.sprints, function(val) {
+            if (val.id == iteration.sprintId) {
+                return val.endDate;
+            }
+        });
+        _iteration.endDate = date;
+        
         refreshEntities(function() {
             socket.broadcast.emit("iteration:update", _iteration);
             _io.sockets.emit("demoitems:refresh", _demoItems);
@@ -270,22 +280,22 @@ enterHere(function(){
 function enterHere(callback) {
     //auto-load entities list for most recent iteration when app starts
     _plugin.api("getMostRecentIterationBoundary", function (err, boundaryData) {
-        console.log(boundaryData);
+
         if (boundaryData.data) {
-            _iteration.endDate = boundaryData.data.date;
+            _iteration.endDate = boundaryData.date;
             _iteration.sprintId = boundaryData.data.sprintId;
             _iteration.sprints = boundaryData.data.sprints;
             _iteration.sprintName = boundaryData.data.sprintName;
         } else {
-            _iteration.endDate = boundaryData;
+            _iteration.endDate = boundaryData.date;
         }
+
         callback(_iteration);
     });
 }
 
 function refreshEntities(callback) {
-    //console.log('short circuit');
-    //return;
+
     _plugin.api("getEntitiesForActiveIteration", 
             function (err, data) {
                 _demoItems = data;
@@ -294,7 +304,7 @@ function refreshEntities(callback) {
                 }
             }, 
             { 
-                date: '2013-11-27', // '27-Nov-2013',//_iteration.endDate,
+                date: _iteration.endDate,
                 sprintId: _iteration.sprintId
             });
 }
@@ -368,6 +378,8 @@ function buildHeaderInfo() {
             return a.id - b.id;
         });
 
+        console.log('impedimentCount: ' + impedimentCount);
+        
         var headerinfo = {
             startDate: moment(_iteration.endDate).subtract('weeks', config.info.iterationDurationInWeeks).format(dateFormat),
             endDate: moment(_iteration.endDate).format(dateFormat),

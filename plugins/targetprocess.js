@@ -7,14 +7,9 @@ var _ = require('underscore');
 var gravatar = require('gravatar');
 
 var self = this;
-var methods = {    
-    globalOptions : {},
+var methods = {
     init : function(options) {
-        self.globalOptions = options;
-        self.globalOptions.format = self.globalOptions.format || 'json';
-        self.globalOptions.username = config.info.username;
-        self.globalOptions.password = config.info.password;
-        self.globalOptions.url = config.info.url;
+
     },
     itemParamMap: function(date) {
         var map = {};
@@ -55,13 +50,6 @@ var methods = {
                     console.log(err);
                     throw err;
                 }
-                console.log('FIN');
-                var total = 0;
-                for(var i=0,len=results.length;i<len;i++){
-                    console.log('i: ' + i + '; # items: ' + results[i].length);
-                    total += results[i].length;
-                }
-                console.log(total);
 
                 //combine the entities!
                 var allEntities = results[0].concat(results[1]),
@@ -73,7 +61,6 @@ var methods = {
                     entities = methods.tpToModelSchema(uniqEntities, options.date),
                     list = _.union(entities, impediments);
 
-                console.log(list.length);
                 callback(null, list)
             });
 
@@ -101,7 +88,7 @@ var methods = {
             res.on('data', function(chunk) {
                 if (res.statusCode != '200') {
                     console.log(chunk);
-                    callback(err, []);
+                    callback(null, []);
                     return;
                 }
                 chunks.push(chunk);
@@ -131,15 +118,15 @@ var methods = {
                 path: path,   
                 auth: config.info.username + ':' + config.info.password
             };
-            
-        var req = https.request(options,function(res) {
+
+       var req = https.request(options,function(res) {
             var chunks = [];
 
             res.setEncoding('utf8');
             res.on('data', function(chunk) {
                 if (res.statusCode != '200') {
                     console.log(chunk);
-                    callback(err, []);
+                    callback(null, []);
                     return;
                 }
                 chunks.push(chunk);
@@ -175,7 +162,7 @@ var methods = {
             res.on('data', function(chunk) {
                 if (res.statusCode != '200') {
                     console.log(chunk);
-                    callback(err, []);
+                    callback(null, []);
                     return;
                 }
                 chunks.push(chunk);
@@ -196,16 +183,11 @@ var methods = {
         
         var paramMap = {};
         paramMap['format'] = config.info.format;
-        paramMap['take'] = 250;
-//        paramMap['include'] = '[EndDate]';
- //       paramMap['where'] = '(EndDate lte \'' + moment().format('YYYY-MM-DD') + '\')'
- //                           + ' and (EndDate gte \'' + moment().subtract('weeks', config.info.iterationDurationInWeeks).format('YYYY-MM-DD') + '\')';
+        paramMap['take'] = config.info.numIterations;
 
-        paramMap['where'] = 'IsCurrent eq "True"';
-
-//        var baseUrl = config.info.url + 'Iterations?',
- //           url = baseUrl + methods.buildRequestParams(paramMap, true),
-  //          plainUrl = baseUrl + methods.buildRequestParams(paramMap, false);
+        //the TP API requires "IN" items to be enclosed by single ticks!
+        //so double check your targetprocess.config.js!
+        paramMap['where'] = ' Project.Name in (' + config.info.iterationSentinel +')';
 
         var path = '/api/v1/Iterations?',
             options= {
@@ -214,7 +196,6 @@ var methods = {
                 auth: config.info.username + ':' + config.info.password
             };
 
-            console.log(options);
         var req = https.request(options,function(res) {
             var chunks = [];
 
@@ -230,7 +211,7 @@ var methods = {
             .on('end', function(){
                 var sprintId = '-1',
                     sprintName = 'Not set!',
-                    date = new Date(),
+                    date = moment().format('YYYY-MM-DD'),
                     data = JSON.parse(chunks.join('')),
                     sprints = [],
                     len = data.Items 
@@ -240,24 +221,29 @@ var methods = {
                         ? len - 1 
                         : 0;
 
-                console.log(data.Items);
                 if (len > 0) {
-                    sprintId = data.Items[idx].Id;
-                    sprintName = data.Items[idx].Name;
                     sprints = _.map(data.Items, function(val, idx){
+                        var startDate = moment(val.StartDate),
+                            endDate = moment(val.EndDate);
+
                         return {
                             id: val.Id,
-                            name: val.Name,
-                            projectName: val.Project.Name
+                            name: moment(startDate).format('MMM DD, \'YY') + ' - ' + moment(endDate).format('MMM DD, \'YY'),
+                            startDate: startDate.format('YYYY-MM-DD'),
+                            endDate: endDate.format('YYYY-MM-DD')
                         };
                     });
+
+                    var sprint = sprints[0];
+                    sprintId = sprint.id;
+                    sprintName = sprint.name;
+                    date = sprint.endDate;
                 }
 
                 callback(null, { 
                             date: date, 
                             data: { sprints: sprints, sprintId: sprintId, sprintName: sprintName }
                         });
-                //console.log(sprints);
             });
         }).on('error',function(err) { 
             console.log('got error: ' + err.message)
@@ -267,8 +253,6 @@ var methods = {
         req.end();
     },
     tpToModelSchema: function (items, endDate) {
-
-        //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
         var item, isDemonstrable,descHasH1, title, avatarUrl, avatarUrlLarge,
             desc, descAfterCapture, descAfterH1Replace, assignedDevelopers, assignedUser,
@@ -317,8 +301,8 @@ var methods = {
                 url: config.info.hostUrl + '/entity/' + item.Id,
                 avatarUrl: avatarUrl,
                 avatarUrlLarge: avatarUrlLarge,
-                priority: 'priority not set',
-                priorityId: -1
+                priority: 'please set me!',
+                priorityId: -2
             });
         }
 
@@ -334,7 +318,6 @@ var methods = {
         });
     },
     impedimentsToModelSchema: function (items, endDate) {
-        //TODO: Replace this transformation method with another object/middleware               
         //Transform to standard model schema
         var item, isDemonstrable, title, 
             desc, assignedUser, assignable,
@@ -373,7 +356,7 @@ var methods = {
                 url: config.info.hostUrl + '/entity/' + item.Id,
                 avatarUrl: avatarUrl,
                 avatarUrlLarge: avatarUrlLarge,
-                priority: 'priority not set',
+                priority: 'n/a',
                 priorityId: -1
             });
         }

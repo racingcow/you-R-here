@@ -10,7 +10,7 @@ YouRHere.Iteration = Backbone.Model.extend({
     urlRoot: 'iteration',
     socket: window.socket,
     defaults: {
-        endDate: new Date(),
+        endDate: '9999-12-31',
         sprintId: '-1',
         sprintName: 'No Sprint Name',
         sprints: []
