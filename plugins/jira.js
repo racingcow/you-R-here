@@ -71,14 +71,83 @@ var methods = {
             methods.getMostRecentIterationBoundaryAsync(cb);
         });
 
-        async.parallel(asyncCalls,
+        asyncCalls.push(function(sprintListData, cb){
+                var sprintDetailCalls = [];
+
+                _.each(sprintListData.data.sprints, function(val, idx){
+                    sprintDetailCalls.push(function(cb2) {
+                        methods.getSprintDetails(val.id, cb2);
+                    });
+
+                });
+
+                async.parallel(sprintDetailCalls,
+                    function(err, results){
+                        if (err){
+                            console.log(err.message);
+                            throw err;
+                        }
+                        cb(null, results)
+                    });
+        });
+
+        async.waterfall(asyncCalls,
             function(err, results){
                 if (err){
-                    console.log(err);
+                    console.log(err.message);
                     throw err;
                 }
-                callback(null, results[0])
+                
+                //console.log('waterfall, done!');
+                //console.log(results);
+                var ret = {
+                    date: new Date(),
+                    data: {
+                        sprints: results,
+                        sprintId: results[0].id,
+                        sprintName: results[0].name
+                    }
+                }
+                callback(null, ret);
             });
+    },
+    getSprintDetails: function (sprintId, callback) {
+        console.log('getSprintDetails: ' + sprintId);
+        if (!sprintId) callback(new Error('sprintId is null'), null);
+
+        var path = '/rest/greenhopper/1.0/rapid/charts/sprintreport' 
+                    + '?rapidViewId=' + config.info.jiraBoardId
+                    + '&sprintId=' + sprintId,
+            options= {
+                host: config.info.host,
+                path: path,
+                auth: config.info.username + ':' + config.info.password
+            };
+
+        var req = https.request(options,function(res) {
+            var chunks = [];
+
+            res.setEncoding('utf8');
+            res.on('data', function(chunk) {
+                if (res.statusCode != '200') {
+                    console.log(chunk);
+                    callback(null, {});
+                    return;
+                }
+                chunks.push(chunk);
+            })
+            .on('end', function(){
+                var data = JSON.parse(chunks.join(''));
+                //we only need to sprint part of the result...
+                callback(null, data.sprint);
+
+            });
+        }).on('error',function(err) { 
+            console.log('got error: ' + err.message)
+            callback(err, {});
+        });
+
+        req.end();
     },
     getMostRecentIterationBoundaryAsync: function (callback) {
         console.log('getMostRecentIterationBoundaryAsync');
