@@ -259,6 +259,9 @@ select {
 	display: block;
 	margin-bottom: 5px;
 }
+.blocker, .critical, .major, .minor, .trivial, .average {
+	font-size: 12px;
+}
 .priority {
 	display: inline;
 	float: none;
@@ -268,9 +271,6 @@ select {
 	padding: 1px 2px;
 	border: 1px solid;
 	font-weight: bold;
-}
-.blocker, .critical, .major, .minor, .trivial, .average {
-	font-size: 12px;
 }
 .avatar {
 	border: 1px solid gainsboro;

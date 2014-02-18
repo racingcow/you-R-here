@@ -15,7 +15,7 @@ var methods = {
         var map = {};
         map['take'] = '100';
         map['format'] = config.info.format;
-        map['include'] = '[Id,Description,Name,EntityType,Tags,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]';
+        map['include'] = '[Id,Description,Name,EntityType,EntityState[Name],Priority[Id,Name],Tags,Assignments[Id,Role,GeneralUser[FirstName,LastName,Email,Login]],Project[Name]]';
         //the TP API requires "IN" items to be enclosed by single ticks!
         map['where'] =  '(EntityType.Name in (\'UserStory\',\'Bug\'))'
                         + ' and (Iteration.EndDate eq \'' + date + '\')' ;
@@ -146,7 +146,7 @@ var methods = {
         console.log('getImpedimentItemsAsync');
 
        var basePath = '/api/v1/Impediments?format=json&take=250&',
-            includeParam = 'include=' + encodeURIComponent('[Id,Description,Name,EntityType[Name],Tags,Project[Name],Assignable[Id,Description,Name,EntityType], Responsible[Id,Kind,FirstName,LastName,Email,Login]]'),
+            includeParam = 'include=' + encodeURIComponent('[Id,Description,Name,EntityType[Name],EntityState[Name],Priority[Id,Name],Tags,Project[Name],Assignable[Id,Description,Name,EntityType], Responsible[Id,Kind,FirstName,LastName,Email,Login]]'),
             whereParam = 'where=' + encodeURIComponent('EntityState.Name eq \'Open\''),
             path = basePath + includeParam + '&' + whereParam, 
             options= {
@@ -299,10 +299,11 @@ var methods = {
                 active: false,
                 nextId: -1,
                 url: config.info.hostUrl + '/entity/' + item.Id,
+                statusName: item.EntityState.Name,
                 avatarUrl: avatarUrl,
                 avatarUrlLarge: avatarUrlLarge,
-                priority: 'please set me!',
-                priorityId: -2
+                priority: item.Priority.Name,
+                priorityId: item.Priority.Id
             });
         }
 
@@ -354,10 +355,11 @@ var methods = {
                 active: false,
                 nextId: -1,
                 url: config.info.hostUrl + '/entity/' + item.Id,
+                statusName: '',//item.EntityState.Name,
                 avatarUrl: avatarUrl,
                 avatarUrlLarge: avatarUrlLarge,
-                priority: 'n/a',
-                priorityId: -1
+                priority: '', //item.Priority.Name,
+                priorityId: -1 //using negative number prevents display in UI //item.Priority.Id
             });
         }
 
