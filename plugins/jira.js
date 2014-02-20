@@ -3,6 +3,7 @@ var async = require('async');
 var config = require('./jira.config');
 var _ = require('underscore');
 var gravatar = require('gravatar');
+var moment = require('moment');//http://momentjs.com
 
 var self = this;
 self.imageMap = {};
@@ -97,13 +98,33 @@ var methods = {
                     console.log(err.message);
                     throw err;
                 }
-                
-                //console.log('waterfall, done!');
-                //console.log(results);
+
+                results.sort(function(a,b){
+                    return b.id - a.id;
+                });
+
+                //switch this to the API call if/when JIRA supports it.
+                //until then, we will take the configured num of most recent sprints...
+                var sprints = _.take(results, Math.min(config.info.numSprints, results.length))
+                                // map to the shape we want
+                                .map(function(val, idx){
+                                    var startDate = val.startDate,
+                                        endDate = val.endDate;
+
+                                    return {
+                                        id: val.id,
+                                        name: val.name 
+                                                + ': ' + moment(startDate).format('MMM DD, \'YY') 
+                                                + ' - ' + moment(endDate).format('MMM DD, \'YY'),
+                                        startDate: moment(startDate).format('YYYY-MM-DD'),
+                                        endDate: moment(endDate).format('YYYY-MM-DD')
+                                    }
+                                });
+
                 var ret = {
                     date: new Date(),
                     data: {
-                        sprints: results,
+                        sprints: sprints,
                         sprintId: results[0].id,
                         sprintName: results[0].name
                     }
@@ -182,7 +203,7 @@ var methods = {
                     len = data.sprints 
                         ? data.sprints.length 
                         : 0;
-
+/*
                 if (len > 0) {
                     sprints.sort(function(a,b){
                         return b.id - a.id;
@@ -190,7 +211,7 @@ var methods = {
                     sprintId = sprints[0].id;
                     sprintName = sprints[0].name;
                 }
-
+*/
                 callback(null, { 
                             date: date, 
                             data: { sprints: sprints, sprintId: sprintId, sprintName: sprintName }

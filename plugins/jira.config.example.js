@@ -6,6 +6,7 @@ info = {
 	host: "mycompany.atlassian.net",
 	doneStatus: [5,6],
 	inProgressStatus: [3],
-	demoLabels: ['demo','demonstrable']
+	demoLabels: ['demo','demonstrable'],
+	numSprints: 5
 };
 exports.info = info;
