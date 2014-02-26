@@ -235,7 +235,7 @@ YouRHere.DemoListView = Backbone.View.extend({
     itemSwapped: function (item) {
         var itemId = item.id,
             prevId = item.get('prevId'),
-            nextId = item.get('swapId'),
+            nextId = item.get('swapId') || -2,
             $item = $('#' + itemId),
             $nextItem = $('#' + nextId),
             $prevItem = $('#' + prevId);
@@ -244,20 +244,17 @@ YouRHere.DemoListView = Backbone.View.extend({
             return this;
         }
 
-        if (prevId > 0) {
+        if ($prevItem.length > 0) {
             //move to position following prevId
             $item.detach();
             $item.insertAfter('#' + prevId);
-        } else if (nextId > 0) {
+        } else if ($nextItem.length > 0) {
             $item.detach();
             $item.insertBefore('#' + nextId);
         } else {
-            //console.log('DEATH FROM ABOVE!');
+            //console.log('DEATH FROM ABOVE! ' + nextId );
             return this;
         }
-
-        var nextEl = $item.next('li');
-        nextId = nextEl.attr('id') || -2; 
 
         var data = {id: itemId, nextId: nextId};
         this.moveDemoItem(data);

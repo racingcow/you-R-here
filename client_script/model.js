@@ -144,8 +144,12 @@ YouRHere.DemoItems = Backbone.Collection.extend({
     },
     swapItem: function(data) {
         if (data.nextId < 0) {
-            console.log('short-circuit the swap');            
-        console.log(data);
+            //console.log('MODEL: short-circuit the swap?');            
+            //console.log(data);
+            if (data.nextId == -2) {
+                console.log('moving to "end of the line" aka after the "prevId"');
+            }
+
             return this;
         }
         var currItem = this.get(data.id),
@@ -155,8 +159,9 @@ YouRHere.DemoItems = Backbone.Collection.extend({
         if (data.nextId == swapId) {
             console.log('"reset" swapId');
             currItem.save('swapId', -99);
+        } else {
+            currItem.save('swapId', data.nextId);            
         }
-        currItem.save('swapId', data.nextId);
         return this;
     },
     moveItem: function(data) {
@@ -176,11 +181,11 @@ YouRHere.DemoItems = Backbone.Collection.extend({
         if (data.nextId == nextId) {
             console.log('"reset" nextId');
             currItem.save('nextId', -1);
+        } else {
+            currItem.save('nextId', data.nextId);
         }
 
-        currItem.save('nextId', data.nextId);
-        //nextId = currItem.get('nextId');
-        //console.log('currItem.nextId: '  + nextId);
+        console.log('currItem.nextId: '  + currItem.get('nextId'));
 
         return this;
     },
