@@ -21,7 +21,7 @@ var methods = {
         var map = {};
         map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ';
         map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachment,status,priority';
-        map['maxResults'] = opts.maxResults;
+        map['maxResults'] = config.info.maxResults;
         return map;
     },
     buildRequestParams: function(map, encode) {
