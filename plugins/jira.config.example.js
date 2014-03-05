@@ -7,6 +7,7 @@ info = {
 	doneStatus: [5,6],
 	inProgressStatus: [3],
 	demoLabels: ['demo','demonstrable'],
-	numSprints: 5
+	numSprints: 5,
+	maxResults: 150
 };
 exports.info = info;
