@@ -3,7 +3,7 @@ var async = require('async');
 var config = require('./jira.config');
 var _ = require('underscore');
 var gravatar = require('gravatar');
-var moment = require('moment');//http://momentjs.com
+var moment = require('moment');
 
 var self = this;
 self.imageMap = {};
@@ -21,7 +21,7 @@ var methods = {
         var map = {};
         map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ';
         map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachment,status,priority';
-        map['maxResults'] = opts.maxResults || 150;
+        map['maxResults'] = opts.maxResults;
         return map;
     },
     buildRequestParams: function(map, encode) {
@@ -204,15 +204,7 @@ var methods = {
                     len = data.sprints 
                         ? data.sprints.length 
                         : 0;
-/*
-                if (len > 0) {
-                    sprints.sort(function(a,b){
-                        return b.id - a.id;
-                    });
-                    sprintId = sprints[0].id;
-                    sprintName = sprints[0].name;
-                }
-*/
+
                 callback(null, { 
                             date: date, 
                             data: { sprints: sprints, sprintId: sprintId, sprintName: sprintName }
@@ -226,9 +218,6 @@ var methods = {
         req.end();
     },    
     jiraToModelSchema: function (data, endDate) {
-
-        //TODO: Replace this transformation method with another object/middleware               
-        //Transform to standard model schema
         var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl, imgMatch, imagesToReplace, assigneeName,
             desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels, priority,
             hostUrl = 'https://' + config.info.host,
@@ -263,7 +252,6 @@ var methods = {
                 });
 
                 if (demoLabels.length != 0) {
-                    //console.log('Marked Demo: ' + item.key);
                     return true;
                 }
             };
@@ -285,13 +273,9 @@ var methods = {
             desc = (descAfterH1Replace && descAfterH1Replace.length > 0) ? descAfterH1Replace : title;
             assignedUser = item.fields.assignee || { displayName: 'Not Assigned', emailAddress: ''};
             if (item.fields.assignee){
-                //avatarUrl = item.fields.assignee.avatarUrls[imgSize];
-                //avatarUrlLarge = item.fields.assignee.avatarUrls[imgSizeLg]; 
                 avatarUrl = gravatar.url(item.fields.assignee.emailAddress, { size: "48", default: "identicon" });
                 avatarUrlLarge = gravatar.url(item.fields.assignee.emailAddress, { size: "64", default: "identicon" });
             } else {
-                //avatarUrl = item.fields.project.avatarUrls[imgSize];
-                //avatarUrlLarge = item.fields.project.avatarUrls[imgSizeLg];                 
                 avatarUrl = gravatar.url(item.fields.project.name, { size: "48", default: "identicon" });
                 avatarUrlLarge = gravatar.url(item.fields.project.name, { size: "64", default: "identicon" });
             }
@@ -410,7 +394,6 @@ var methods = {
                 chunkLen += chunk.length;
                 chunks.push(chunk);
             }).on('end',function(){
-                //console.log('callback time!');
                 callback(null, {length: chunkLen, chunks: chunks});
             });
         }).on('error',function(err) { 

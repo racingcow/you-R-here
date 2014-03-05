@@ -1,7 +1,7 @@
 var https = require('https');
 var async = require('async');
 var sys = require('util');
-var moment = require('moment');//http://momentjs.com
+var moment = require('moment');
 var config = require('./targetprocess.config');
 var _ = require('underscore');
 var gravatar = require('gravatar');
@@ -287,7 +287,7 @@ var methods = {
 
             entities.push({
                 id: item.Id,
-                name: title, //item.Name,
+                name: title,
                 description: (desc) ? desc.replace(imageLinkRegex, '="' + config.info.hostUrl + '/images') : '', //item.Description,
                 project: item.Project.Name,
                 type: item.EntityType.Name,
