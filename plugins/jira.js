@@ -48,16 +48,18 @@ var methods = {
 
             res.setEncoding('utf8');
             res.on('data', function(chunk) {
-                if (res.statusCode != '200') {
+                if (res.statusCode != 200) {
                     console.log(chunk);
                     callback(null, []);
                     return;
                 }
                 chunks.push(chunk);
             }).on('end',function(){
-                var itemResults = JSON.parse(chunks.join(''));
-                var entities = methods.jiraToModelSchema(itemResults, opts.date);
-                callback(null, entities);
+                if (res.statusCode == 200) {
+                    var itemResults = JSON.parse(chunks.join(''));
+                    var entities = methods.jiraToModelSchema(itemResults, opts.date);
+                    callback(null, entities);
+                }
             });
         }).on('error',function(err) { 
             console.log('got error: ' + err.message)
