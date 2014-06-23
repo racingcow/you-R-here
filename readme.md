@@ -59,6 +59,8 @@ Create __jira.config.js__ in the __you-R-here__ `plugins` folder.  Make a copy o
 cp jira.config.example.js jira.config.js
 ````
 
+The status id values for `doneStatus` and `inProgressStatus` are found here: https://criticaltech.atlassian.net/rest/api/2/status
+
 Example  __jira.config.js__:
 ```javascript
 info = {
