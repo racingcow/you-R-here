@@ -4,7 +4,7 @@ info = {
 	orgName: "My Company",
 	jiraBoardId: 1
 	host: "mycompany.atlassian.net",
-	doneStatus: [5,6],
+	doneStatus: [5,6,4],
 	inProgressStatus: [3],
 	demoLabels: ['demo','demonstrable'],
 	numSprints: 5,
