@@ -1,4 +1,15 @@
 /* bootstrap overrides */
+.span12 {
+	height:84%;
+	height:calc(100% - 12em);
+}
+
+#DemoListview {
+	height:99%;
+	height:calc(100% - 1em);
+	overflow:auto;
+}
+
 body {
 	padding: 0px;
 	height: 100%;
@@ -6,6 +17,17 @@ body {
 .container-fluid {
 	padding: 0;
 	margin: 0;
+	/*
+	workaround for issue: when going to current item,
+	we set the item details to hidden,
+	this can cause an extra scrolling bar at the furthest right, 
+	the scrollbar is coming container-fluid.
+	technically you should set the itemDetails display to none instead of using addClass('hidden'),
+	using hidden will still make the item available on the dom layout, but not showing on UI.
+	For now, just set the container-fluid to not have scrollbar
+	*/
+	overflow:hidden;
+	
 }
 .navbar-inner {
 	-webkit-border-radius:0px;
@@ -211,12 +233,13 @@ h3 {
 	width: 55%;
 	display: inline-block;
 	float: left;
-	overflow: scroll;
-	height: 100%;
+	overflow: auto;
 }
 .itemMaster {
 	width: 40%;
 	margin-right: 10px;
+	height:99%;
+	height:calc(100% - 1em);
 }
 .footer {
 	/*position: absolute;
@@ -226,8 +249,9 @@ h3 {
 .itemDetail {
 	margin-top: 5px;
 	background-color: #fafafa;
-	height: auto;
 	padding: 10px;
+	height: 90%;
+	height: calc(100% - 5.5em)
 }
 .entity:hover {
 	/*cursor: move; */
