@@ -51,6 +51,13 @@ app = {
 exports.app = app;
 ```
 
+**NOTE**, you can only select one plugin and run it in the application.
+In the app.js config, if you want to use Jira, set the plugin: "jira"
+
+Also we are not using targetprocess anymore.
+
+## List of Available Plugins 
+
 ### jira.config.js
 __jira.config.js__ provides required configuration for the TargetProcess plugin.
 
@@ -101,15 +108,16 @@ info = {
 exports.info = info;
 ```
 
+
+Using you-R-Here
+------------------------------
 ### Launch __you-R-here__
 Launch __you-R-here__ to enjoy running your iteration demo!
-
 ```Shell
 [sudo] node you-R-here.js
 ```
 
-Using you-R-Here
-------------------------------
+
 ### Organizer - `http://you-R-here-server/organizer`
 * Enter your email address
 	* we use your email address for [Gravatar](http://gravatar.com)
