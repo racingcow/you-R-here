@@ -1,33 +1,15 @@
 /* bootstrap overrides */
-.span12 {
-	height:84%;
-	height:calc(100% - 12em);
+
+.navbar2.footer {
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
 }
 
-#DemoListview {
-	height:99%;
-	height:calc(100% - 1em);
-	overflow:auto;
-}
-
-body {
-	padding: 0px;
-	height: 100%;
-}
 .container-fluid {
 	padding: 0;
 	margin: 0;
-	/*
-	workaround for issue: when going to current item,
-	we set the item details to hidden,
-	this can cause an extra scrolling bar at the furthest right, 
-	the scrollbar is coming container-fluid.
-	technically you should set the itemDetails display to none instead of using addClass('hidden'),
-	using hidden will still make the item available on the dom layout, but not showing on UI.
-	For now, just set the container-fluid to not have scrollbar
-	*/
-	overflow:hidden;
-	
+	height:100%;
 }
 .navbar-inner {
 	-webkit-border-radius:0px;
@@ -218,7 +200,11 @@ h3 {
 .itemsView {
 	padding-top: 5px;
 	display: inline-block;
-
+	width: 98%;
+	position: absolute;
+	height: 80%;
+	height:calc(100% - 150px);
+	overflow:auto;
 }
 .menu {
 	height: 25px;
@@ -230,29 +216,51 @@ h3 {
 	text-align: center;
 }
 .itemMaster, .itemDetail {
-	width: 55%;
-	display: inline-block;
 	float: left;
 	overflow: auto;
 }
-.itemMaster {
+
+/*
+In order to get -moz-calc() working, i need to have the panel position
+to absolute ... don't know why but that is really annoying ...
+*/
+
+.itemsView.itemMaster {
 	width: 40%;
 	margin-right: 10px;
-	height:99%;
-	height:calc(100% - 1em);
+	position: absolute;
+	height: 80%;
+	height:calc(100% - 150px);
 }
+
+.organizerMaster.itemMaster  {
+	width: 40%;
+	margin-right: 10px;
+	position: absolute;
+	height:75%;
+	height:calc(100% - 185px);
+}
+
+.itemDetail {
+	width: 55%;
+	margin-top: 5px;
+	/* temp fix: this panel color is visible at login screen,
+		it looks weird so temporary remove it
+	*/
+	/*background-color: #fafafa; */ 
+	padding: 10px;
+	position: absolute;
+	left: 42%;
+	height:75%;
+	height:calc(100% - 210px);
+}
+
 .footer {
 	/*position: absolute;
 	bottom: 0;*/
 	border-top: 1px solid gainsboro;
 }
-.itemDetail {
-	margin-top: 5px;
-	background-color: #fafafa;
-	padding: 10px;
-	height: 90%;
-	height: calc(100% - 5.5em)
-}
+
 .entity:hover {
 	/*cursor: move; */
 	box-shadow: 0 0 2px 2px lightgreen;/*rgba(0, 130, 229, 0.1);*/
@@ -313,7 +321,7 @@ select {
 	position: absolute;
 	color: white;
 	top: 50px;
-	right: 0px;
+	right: 5px;
 	height: 46px;
 	width: 20px;
 	border-right: 0px;
@@ -331,12 +339,13 @@ select {
 	border: 1px solid gray;
 	border-right: 0px;
 	border-radius: 0 0 0 4px;	
+	z-index:10;
 }
 .usersBtnShow {
 	right: 42px;
 }
 .usersListShow {
-	right: 0px;
+	right: 5px;
 	display: block;
 }
 .userListAdd {
