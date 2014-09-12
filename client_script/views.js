@@ -689,14 +689,15 @@ YouRHere.EditableDemoItemView = YouRHere.DemoItemView.extend({
         this.setAttrib(e, "demonstrated", "shown", false);
     },
     setAttrib: function (e, attribName, checkBoxContainerClass, invertedLogic) {
-        if (e.srcElement) {
-            var checked = e.srcElement.checked;
+		var elem = e.srcElement || e.target;
+        if (elem) {
+            var checked = elem.checked;
             if (invertedLogic) checked = !checked;
             this.model.save(attribName, checked);
         } else {
             var attribVal = this.model.get(attribName);
             if (invertedLogic) attribVal = !attribVal;
-            this.$("." + checkBoxContainerClass + " input").prop("checked", attribVal);
+			this.$("." + checkBoxContainerClass + " input").prop("checked", attribVal);
         }
         return this;
     }
