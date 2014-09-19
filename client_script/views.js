@@ -820,6 +820,7 @@ YouRHere.getDetailItemTemplate = function(){
                             + " <span class='small'>(<a href='<%= item.url %>' target='_new'><%= item.id %></a>)</span> <div class='priority'><%= item.priority %></div> <span class='statusName'><%= item.statusName %></span> <span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header>"
                             + "<div class='itemMain'>"
                             + " <div class='avatar pull-right'><img src='<%= item.avatarUrlLarge %>'></img></div> "
+							+" <div class='itemComponent'><span class='itemComponent'>Components: <%= item.components %> </span></div>"
                             + " <div class='itemDesc'><span class='itemName'> <%= item.name %> </span></div>"
                             + " </div>";
     return demoItemTemplate;
@@ -830,7 +831,8 @@ YouRHere.getListItemTemplate = function(){
                             + "<span class='assignedName pull-right'>[<%= item.demonstratorName %>]</span></header> "
                             + "<div class='itemMain'>"
                             + "<div class='avatar pull-right'><img src='<%= item.avatarUrl %>'></img></div> " 
-                            +" <div class='itemDesc'><span class='itemName'> <%= item.name %> </span></div>"
+							+" <div class='itemComponent'><span class='itemComponent'>Components: <%= item.components %> </span></div>"
+                            +" <div class='itemDesc itemDescSmall'><span class='itemName'> <%= item.name %> </span></div>"
                             + " </div>";
     return demoItemTemplate;
 };

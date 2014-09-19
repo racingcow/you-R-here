@@ -20,7 +20,7 @@ var methods = {
     itemParamMap: function(opts) {
         var map = {};
         map['jql'] = 'issuetype in (Bug, Story) and sprint in (' + opts.sprintId + ') ';
-        map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachment,status,priority';
+        map['fields'] = 'summary,issuetype,description,assignee,labels,project,attachment,status,priority,components';
         map['maxResults'] = config.info.maxResults;
         return map;
     },
@@ -221,7 +221,7 @@ var methods = {
     },    
     jiraToModelSchema: function (data, endDate) {
         var item, isDemonstrable,descHasH1, title, statusId, statusOk, avatarUrl, imgMatch, imagesToReplace, assigneeName,
-            desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels, priority,
+            desc, descAfterCapture, descAfterH1Replace, assignedUser, noDemoLabels, demoLabels, priority, components,
             hostUrl = 'https://' + config.info.host,
             entities = [],
             nameCleanserRegEx = new RegExp('(Administrator)','i');
@@ -262,6 +262,10 @@ var methods = {
         _.each(issues, function(item) {
             noDemoLabels = _.filter(item.fields.labels, function (label) {
                 return notDemonstrableRegex.test(label);
+            });
+			
+			components = _.map(item.fields.components, function (component) {
+                return component.name;
             });
 
             isDemonstrable = noDemoLabels.length === 0;
@@ -321,7 +325,8 @@ var methods = {
                 avatarUrl: avatarUrl,
                 avatarUrlLarge: avatarUrlLarge,
                 priority: item.fields.priority.name,
-                priorityId: item.fields.priority.id
+                priorityId: item.fields.priority.id,
+				components: components.length == 0 ? 'None' : components.join(', ')
             });
         });
 

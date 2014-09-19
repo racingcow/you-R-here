@@ -315,7 +315,7 @@ select {
 }
 .itemMain {
 	display: block;
-	height: 48px;
+	height: 68px;
 }
 .usersBtn {
 	position: absolute;
@@ -362,4 +362,9 @@ select {
 	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 	margin-top: 20px;
 	font-size: 12px;
+}
+
+.itemDescSmall {
+    height: 40px;
+    overflow: hidden;
 }
