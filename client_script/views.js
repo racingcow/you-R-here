@@ -485,9 +485,10 @@ YouRHere.FilterableDemoListView = YouRHere.DemoListView.extend({ //Backbone.View
         return this;
     },
     clickMenuItem: function(e) {
-        if (!e.srcElement) return;
-        if (e.srcElement.tagName !== "LI") return; 
-        this.selectMenuItem(e.srcElement.id);
+        var target = e.srcElement || e.target;
+        if (!target) return;
+        if (target.tagName !== "LI") return; 
+        this.selectMenuItem(target.id);
     },
     selectMenuItem: function(elemId) {
         $('li.menu.selected').removeClass('selected');
