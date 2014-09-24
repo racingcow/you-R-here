@@ -113,6 +113,7 @@ var methods = {
                                 .map(function(val, idx){
                                     var startDate = val.startDate,
                                         endDate = val.endDate;
+                                    console.log (startDate);
 
                                     return {
                                         id: val.id,
