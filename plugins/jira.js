@@ -106,22 +106,25 @@ var methods = {
                     return b.id - a.id;
                 });
 
+                var validDateResults = _.filter(results, function(val){
+                    return moment(val.startDate).isValid() && moment(val.endDate).isValid();
+                });
+
                 //switch this to the API call if/when JIRA supports it.
                 //until then, we will take the configured num of most recent sprints...
-                var sprints = _.take(results, Math.min(config.info.numSprints, results.length))
+                var sprints = _.take(validDateResults, Math.min(config.info.numSprints, validDateResults.length))
                                 // map to the shape we want
                                 .map(function(val, idx){
-                                    var startDate = val.startDate,
-                                        endDate = val.endDate;
-                                    console.log (startDate);
+                                    var $startDate = moment(val.startDate),
+                                        $endDate = moment(val.endDate);
 
                                     return {
                                         id: val.id,
                                         name: val.name 
-                                                + ': ' + moment(startDate).format('MMM DD, \'YY') 
-                                                + ' - ' + moment(endDate).format('MMM DD, \'YY'),
-                                        startDate: moment(startDate).format('YYYY-MM-DD'),
-                                        endDate: moment(endDate).format('YYYY-MM-DD')
+                                                + ': ' + $startDate.format('MMM DD, \'YY') 
+                                                + ' - ' + $endDate.format('MMM DD, \'YY'),
+                                        startDate: $startDate.format('YYYY-MM-DD'),
+                                        endDate: $endDate.format('YYYY-MM-DD')
                                     }
                                 });
 
